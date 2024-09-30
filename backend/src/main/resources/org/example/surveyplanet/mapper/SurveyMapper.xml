@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.surveyplanet.mapper.SurveyMapper">
+
+    <resultMap id="surveyResultMap" type="org.example.surveyplanet.pojo.entity.survey.Survey">
+        <result property="sid" column="sid"/>
+        <result property="uid" column="uid"/>
+        <result property="title" column="title"/>
+        <result property="status" column="status" typeHandler="org.example.surveyplanet.handler.SurveyStatusHandler"/>
+        <result property="description" column="description"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="openTime" column="open_time"/>
+        <result property="fillNum" column="fill_num"/>
+
+        <discriminator column="type" javaType="String">
+            <case value="normal" resultType="org.example.surveyplanet.pojo.entity.survey.NormalSurvey"/>
+            <case value="exam" resultType="org.example.surveyplanet.pojo.entity.survey.ExamSurvey"/>
+        </discriminator>
+    </resultMap>
+
+    <select id="getCreatedList" resultMap="surveyResultMap">
+        select sid, uid, title, description, type, status, create_time, update_time, open_time, fill_num from survey
+        where uid = #{uid} and status != 'delete'
+        order by ${orderBy} desc
+    </select>
+
+    <insert id="insert" parameterType="org.example.surveyplanet.pojo.entity.survey.Survey" useGeneratedKeys="true" keyProperty="sid">
+        insert into survey (uid, title, description, type, status, create_time, update_time, open_time, fill_num)
+        values (#{uid}, #{title}, #{description}, #{type}, #{status}, #{createTime}, #{updateTime}, #{openTime}, #{fillNum})
+    </insert>
+
+    <select id="getById" resultMap="surveyResultMap">
+        select sid, uid, title, description, type, status, create_time, update_time, open_time, fill_num from survey
+        where sid = #{sid}
+    </select>
+
+</mapper>

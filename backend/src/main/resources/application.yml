@@ -1,0 +1,48 @@
+spring:
+  datasource:
+    url: jdbc:mysql://rm-2zevu9knfs3k96s7xyo.mysql.rds.aliyuncs.com/db_test?allowMultiQueries=true
+    username: survey_planet_service
+    password: rcx2206!
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  application:
+    name: survey-planet
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 100MB
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    username: surveyplanetservice@gmail.com
+    password: efphdphbckztlqsg
+    protocol: smtp
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.ssl.enable: true
+
+
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+
+aliyun:
+  # 阿里云OSS配置
+  oss:
+    endpoint: oss-cn-beijing.aliyuncs.com
+    accessKeyId: LTAI5tS6M224UpKHj9vXrL4Z
+    accessKeySecret: 9srpqx72xTYdNPpfSN7C3NITN5RAwK
+    bucketName: survey-planet-test
+
+
+logging:
+  level:
+    org.springframework.jdbc.support.JdbcTransactionManager: debug
+
+server:
+  port: 8088
+
+
+

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.mapper.QuestionMapper">
+
+    <resultMap id="questionResultMap" type="org.example.entity.question.Question">
+        <result property="qid" column="qid"/>
+        <result property="sid" column="sid"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="type" column="type" typeHandler="org.example.handler.type.QuestionTypeHandler"/>
+        <result property="required" column="required"/>
+        <result property="score" column="score"/>
+
+        <discriminator column="type" javaType="String">
+            <case value="file" resultType="org.example.entity.question.FileQuestion">
+                <result property="maxFileSize" column="max_file_size"/>
+            </case>
+            <case value="single_choice" resultType="org.example.entity.question.SingleChoiceQuestion">
+                <result property="options" column="single_choice_options" typeHandler="org.example.handler.type.StringListHandler"/>
+                <result property="answer" column="single_choice_answer" typeHandler="org.example.handler.type.StringListHandler"/>
+            </case>
+            <case value="multiple_choice" resultType="org.example.entity.question.MultipleChoiceQuestion">
+                <result property="options" column="multiple_choice_options" typeHandler="org.example.handler.type.StringListHandler"/>
+                <result property="answer" column="multiple_choice_answer" typeHandler="org.example.handler.type.StringListHandler"/>
+            </case>
+            <case value="fill_blank" resultType="org.example.entity.question.FillBlankQuestion">
+                <result property="answer" column="fill_blank_answer" typeHandler="org.example.handler.type.StringListHandler"/>
+            </case>
+        </discriminator>
+    </resultMap>
+
+
+
+    <select id="getQuestionsBySid" parameterType="long" resultMap="questionResultMap">
+        SELECT q.qid, q.sid, q.title, q.description, q.type, q.required, q.score,
+               fq.max_file_size,
+               fbq.answer AS fill_blank_answer,
+               scq.options AS single_choice_options, scq.answer AS single_choice_answer,
+               mcq.options AS multiple_choice_options, mcq.answer AS multiple_choice_answer
+
+        FROM question q
+        LEFT JOIN file_question fq ON q.qid = fq.qid
+        LEFT JOIN fill_blank_question fbq ON q.qid = fbq.qid
+        LEFT JOIN single_choice_question scq ON q.qid = scq.qid
+        LEFT JOIN multiple_choice_question mcq ON q.qid = mcq.qid
+        WHERE q.sid = #{sid}
+    </select>
+
+
+    <insert id="insertBaseQuestions" parameterType="list" useGeneratedKeys="true" keyProperty="qid">
+        INSERT INTO question (sid, title, description, type, required, score) VALUES
+        <foreach collection="list" item="question" separator=",">
+            (#{question.sid}, #{question.title}, #{question.description}, #{question.type,typeHandler=org.example.handler.type.QuestionTypeHandler}, #{question.required}, #{question.score})
+        </foreach>
+    </insert>
+
+    <insert id="insertFileQuestion" parameterType="org.example.entity.question.FileQuestion">
+        INSERT INTO file_question (qid, max_file_size)
+        VALUES (#{qid}, #{maxFileSize})
+    </insert>
+
+    <insert id="insertSingleChoiceQuestion" parameterType="org.example.entity.question.SingleChoiceQuestion">
+        INSERT INTO single_choice_question (qid, options, answer)
+        VALUES (#{qid}, #{options,typeHandler=org.example.handler.type.StringListHandler}, #{answer,typeHandler=org.example.handler.type.StringListHandler})
+    </insert>
+
+    <insert id="insertMultipleChoiceQuestion" parameterType="org.example.entity.question.MultipleChoiceQuestion">
+        INSERT INTO multiple_choice_question (qid, options, answer)
+        VALUES (#{qid}, #{options,typeHandler=org.example.handler.type.StringListHandler}, #{answer,typeHandler=org.example.handler.type.StringListHandler})
+    </insert>
+
+    <insert id="insertFillBlankQuestion" parameterType="org.example.entity.question.FillBlankQuestion">
+        INSERT INTO fill_blank_question (qid, answer)
+        VALUES (#{qid}, #{answer,typeHandler=org.example.handler.type.StringListHandler})
+    </insert>
+
+
+    <delete id="delete" parameterType="list">
+        DELETE FROM question
+        WHERE qid IN
+        <foreach collection="list" item="qid" open="(" close=")" separator=",">
+            #{qid}
+        </foreach>
+    </delete>
+
+    <delete id="deleteFileQuestion" parameterType="long">
+        DELETE FROM file_question
+        WHERE qid = #{qid}
+    </delete>
+
+    <delete id="deleteSingleChoiceQuestion" parameterType="long">
+        DELETE FROM single_choice_question
+        WHERE qid = #{qid}
+    </delete>
+
+    <delete id="deleteMultipleChoiceQuestion" parameterType="long">
+        DELETE FROM multiple_choice_question
+        WHERE qid = #{qid}
+    </delete>
+
+    <delete id="deleteFillBlankQuestion" parameterType="long">
+        DELETE FROM fill_blank_question
+        WHERE qid = #{qid}
+    </delete>
+
+</mapper>

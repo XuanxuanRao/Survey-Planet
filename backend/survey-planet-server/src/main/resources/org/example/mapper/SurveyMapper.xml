@@ -20,6 +20,15 @@
     </resultMap>
 
 
+    <delete id="delete" parameterType="list">
+        DELETE FROM survey
+        WHERE sid IN
+        <foreach collection="list" item="sid" separator="," open="(" close=")">
+            #{sid}
+        </foreach>
+    </delete>
+
+
     <select id="getBySid" resultMap="surveyResultMap">
         SELECT sid, uid, title, description, type, state, create_time, update_time, open_time, fill_num, time_limit
         FROM survey
@@ -32,10 +41,16 @@
     </insert>
 
     <select id="getCreatedList" resultMap="surveyResultMap">
-        SELECT sid, uid, title, description, type, create_time, update_time, open_time, fill_num, time_limit
+        SELECT sid, uid, title, description, type, state, create_time, update_time, open_time, fill_num, time_limit
         FROM survey
         WHERE uid = #{userId} and state != 'delete'
         ORDER BY ${orderBy} DESC
+    </select>
+
+    <select id="getDeletedList" resultMap="surveyResultMap">
+        SELECT sid, uid, title, description, type, state, create_time, update_time, open_time, fill_num, time_limit
+        FROM survey
+        WHERE state = 'delete'
     </select>
 
     <update id="update" parameterType="org.example.entity.Survey">

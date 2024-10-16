@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper
+                PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+                "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.mapper.ResponseMapper">
+
+    <resultMap id="responseResultMap" type="org.example.entity.response.Response">
+        <id property="rid" column="rid"/>
+        <result property="sid" column="sid"/>
+        <result property="uid" column="uid"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <collection property="items" ofType="org.example.entity.response.ResponseItem">
+            <id property="rid" column="rid"/>
+            <id property="qid" column="qid"/>
+            <result property="content" column="content" typeHandler="org.example.handler.type.StringListHandler"/>
+        </collection>
+    </resultMap>
+
+    <insert id="insertRecord" parameterType="org.example.entity.response.Response" useGeneratedKeys="true" keyProperty="rid">
+        INSERT INTO response_record (rid, sid, uid, create_time, update_time) VALUES (#{rid}, #{sid}, #{uid}, #{createTime}, #{updateTime})
+    </insert>
+
+    <insert id="insertItems" parameterType="list">
+        INSERT INTO response_item (rid, qid, content) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.rid}, #{item.qid}, #{item.content,typeHandler=org.example.handler.type.StringListHandler})
+        </foreach>
+    </insert>
+
+    <delete id="deleteRecordsBySid" parameterType="long">
+        DELETE FROM response_record WHERE sid = #{sid}
+    </delete>
+
+    <delete id="deleteRecordByRid" parameterType="long">
+        DELETE FROM response_record WHERE rid = #{rid}
+    </delete>
+
+    <delete id="deleteItemsByRid" parameterType="long">
+        DELETE FROM response_item WHERE rid = #{rid}
+    </delete>
+
+
+    <select id="getBySid" parameterType="long" resultMap="responseResultMap">
+        SELECT response_record.rid as rid, sid, uid, create_time, update_time, qid, content
+        FROM response_record LEFT JOIN response_item on response_record.rid = response_item.rid
+        WHERE sid = #{sid}
+    </select>
+
+
+</mapper>

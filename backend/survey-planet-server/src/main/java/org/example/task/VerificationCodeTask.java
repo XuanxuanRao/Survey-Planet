@@ -13,9 +13,9 @@ public class VerificationCodeTask {
     private VerificationCodeService verificationCodeService;
 
     /**
-     * Clear verification expired code every 5 minutes
+     * Clear verification expired code every 15 minutes
      */
-    @Scheduled(cron = "0 0/5 * * * ?")
+    @Scheduled(cron = "0 0/15 * * * ?")
     public void clearVerificationCode() {
         Integer number = verificationCodeService.clear();
         if (number > 0) {

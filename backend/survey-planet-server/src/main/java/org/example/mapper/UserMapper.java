@@ -4,7 +4,9 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import org.example.annotation.AutoFill;
 import org.example.entity.User;
+import org.example.enumeration.OperationType;
 
 
 @Mapper
@@ -21,6 +23,7 @@ public interface UserMapper {
 
     @Insert("insert into user(username, password, email, create_time) " +
             "values(#{username}, #{password}, #{email}, #{createTime})")
+    @AutoFill(value = OperationType.INSERT)
     void insert(User user);
 
     @Update("update user set password = #{password} where uid = #{uid}")

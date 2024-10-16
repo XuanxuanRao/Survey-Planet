@@ -1,6 +1,7 @@
-package org.example.dto;
+package org.example.dto.survey;
 
 import lombok.Data;
+import org.example.dto.QuestionDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;

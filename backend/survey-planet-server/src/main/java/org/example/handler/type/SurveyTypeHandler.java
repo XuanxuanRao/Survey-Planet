@@ -13,7 +13,7 @@ import java.sql.SQLException;
 public class SurveyTypeHandler extends BaseTypeHandler<SurveyType> {
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, SurveyType parameter, JdbcType jdbcType) throws SQLException {
-        ps.setString(i, parameter.getValue().toLowerCase());
+        ps.setString(i, parameter.getValue());
     }
 
     @Override

@@ -36,4 +36,9 @@ public enum SurveyState {
                 "Invalid state " + state
         );
     }
+
+    @Override
+    public String toString() {
+        return value;
+    }
 }

@@ -13,7 +13,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     public Result<String> exceptionHandler(BusinessException ex) {
-        log.error("Business Exception: {}", ex.getMessage());
+        log.info("Business Exception: {}", ex.getMessage());
         return Result.error(ex.getMessage());
     }
 

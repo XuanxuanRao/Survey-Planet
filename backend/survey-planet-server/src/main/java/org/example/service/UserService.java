@@ -1,9 +1,9 @@
 package org.example.service;
 
 
-import org.example.dto.UserLoginDTO;
-import org.example.dto.UserRegisterDTO;
-import org.example.dto.UserResetDTO;
+import org.example.dto.user.UserLoginDTO;
+import org.example.dto.user.UserRegisterDTO;
+import org.example.dto.user.UserResetDTO;
 import org.example.entity.User;
 
 public interface UserService {

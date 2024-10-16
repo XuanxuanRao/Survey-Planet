@@ -2,18 +2,17 @@ package org.example.service.impl;
 
 import jakarta.annotation.Resource;
 
-import org.example.dto.UserLoginDTO;
-import org.example.dto.UserRegisterDTO;
-import org.example.dto.UserResetDTO;
+import org.example.dto.user.UserLoginDTO;
+import org.example.dto.user.UserRegisterDTO;
+import org.example.dto.user.UserResetDTO;
 import org.example.entity.User;
 import org.example.exception.*;
 import org.example.mapper.UserMapper;
 import org.example.service.UserService;
 import org.example.service.VerificationCodeService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
-
-import java.time.LocalDateTime;
 
 
 @Service
@@ -64,7 +63,7 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException("USERNAME_NOT_FOUND");
         }
         // 如果密码不正确
-        if (!password.equals(user.getPassword())) {
+        if (!DigestUtils.md5DigestAsHex(password.getBytes()).equals(user.getPassword())) {
             throw new PasswordErrorException("PASSWORD_ERROR");
         }
 
@@ -86,8 +85,7 @@ public class UserServiceImpl implements UserService {
         User user = User.builder()
                 .username(userRegisterDTO.getUsername())
                 .email(userRegisterDTO.getEmail())
-                .password(userRegisterDTO.getPassword())
-                .createTime(LocalDateTime.now())        // 设置账号创建时间为当前时间
+                .password(DigestUtils.md5DigestAsHex(userRegisterDTO.getPassword().getBytes())) // MD5加密
                 .build();
         userMapper.insert(user);
         verificationCodeService.delete(userRegisterDTO.getEmail());
@@ -106,7 +104,8 @@ public class UserServiceImpl implements UserService {
             throw new VerificationCodeErrorException("VERIFICATION_CODE_ERROR");
         }
 
-        user.setPassword(userResetDTO.getPassword());
+        user.setPassword(DigestUtils.md5DigestAsHex(userResetDTO.getPassword().getBytes()));
+
         verificationCodeService.delete(userResetDTO.getEmail());
         userMapper.update(user);
         return user;

@@ -52,3 +52,8 @@ survey-planet:
       accessKeyId: ${survey-planet.aliyun.oss.accessKeyId}
       accessKeySecret: ${survey-planet.aliyun.oss.accessKeySecret}
       bucketName: ${survey-planet.aliyun.oss.bucketName}
+
+  jwt:
+    secret-key: wuthering_wave
+    ttl: 7200000
+    token-name: token

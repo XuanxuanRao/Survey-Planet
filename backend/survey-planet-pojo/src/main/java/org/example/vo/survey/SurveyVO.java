@@ -1,15 +1,9 @@
-package org.example.vo;
+package org.example.vo.survey;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.example.entity.question.Question;
-import org.example.enumeration.SurveyState;
-import org.example.enumeration.SurveyType;
-
-import java.util.List;
 
 @SuperBuilder
 @Data
@@ -19,7 +13,7 @@ public class SurveyVO {
     private Long sid;
     private String title;
     private String description;
-    private SurveyState state;
-    private SurveyType type;
+    private String state;
+    private String type;
     private Integer timeLimit;
 }

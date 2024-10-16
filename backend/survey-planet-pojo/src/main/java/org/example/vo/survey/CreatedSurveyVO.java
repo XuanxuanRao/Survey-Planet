@@ -1,8 +1,9 @@
-package org.example.vo;
+package org.example.vo.survey;
 
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.example.vo.question.CreatedQuestionVO;
 
 import java.time.LocalDateTime;
 import java.util.List;

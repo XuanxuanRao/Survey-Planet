@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.enumeration.QuestionType;
+import org.example.vo.question.CreatedQuestionVO;
+import org.example.vo.question.FilledQuestionVO;
+import org.springframework.beans.BeanUtils;
 
 
 @Data
@@ -17,4 +20,18 @@ public class Question {
     private QuestionType type;
     private Boolean required;
     private Integer score;
+
+    public CreatedQuestionVO toCreatedQuestionVO() {
+        CreatedQuestionVO questionVO = new CreatedQuestionVO();
+        questionVO.setType(this.getType().getValue());
+        BeanUtils.copyProperties(this, questionVO);
+        return questionVO;
+    }
+
+    public FilledQuestionVO toFilledQuestionVO() {
+        FilledQuestionVO questionVO = new FilledQuestionVO();
+        questionVO.setType(this.getType().getValue());
+        BeanUtils.copyProperties(this, questionVO);
+        return questionVO;
+    }
 }

@@ -1,36 +1,6 @@
-<template>
-  <div
-    class="menu-wrapper"
-    :class="{ expanded: isExpanded }"
-    @mouseenter="expandSideBar"
-    @mouseleave="collapseSideBar"
-  >
-    <div class="menu-content">
-      <ul>
-        <li class="menu-item" @click="createQuestionnaire">
-          <el-icon class="menu-icon"><Tickets /></el-icon>
-          <span v-if="isExpanded">Create</span>
-        </li>
-        <li class="menu-item" @click="fillQuestionnaire">
-          <el-icon class="menu-icon"><EditPen /></el-icon>
-          <span v-if="isExpanded">Fill</span>
-        </li>
-        <li class="menu-item" @click="showSquare">
-          <el-icon class="menu-icon"><Document /></el-icon>
-          <span v-if="isExpanded">square</span>
-        </li>
-        <li class="menu-item" @click="showSquare">
-          <el-icon class="menu-icon"><User /></el-icon>
-          <span v-if="isExpanded">User</span>
-        </li>
-      </ul>
-    </div>
-  </div>
-</template>
-
 <script>
 import { ref } from 'vue';
-import { User, Document, PieChart, EditPen, Tickets } from '@element-plus/icons-vue';
+import { User, Document, PieChart, EditPen, Tickets, ChatDotRound } from '@element-plus/icons-vue';
 import { useRouter } from 'vue-router';
 
 export default {
@@ -39,7 +9,8 @@ export default {
     Document,
     PieChart,
     EditPen,
-    Tickets
+    Tickets,
+    ChatDotRound
   },
   setup() {
     // 响应式变量
@@ -78,11 +49,41 @@ export default {
 };
 </script>
 
+<template>
+  <div
+    class="menu-wrapper"
+    :class="{ expanded: isExpanded }"
+    @mouseenter="expandSideBar"
+    @mouseleave="collapseSideBar"
+  >
+    <div class="menu-content">
+      <ul>
+        <li class="menu-item" @click="createQuestionnaire">
+          <el-icon class="menu-icon"><Tickets /></el-icon>
+          <span v-if="isExpanded">创建</span>
+        </li>
+        <li class="menu-item" @click="fillQuestionnaire">
+          <el-icon class="menu-icon"><EditPen /></el-icon>
+          <span v-if="isExpanded">填写</span>
+        </li>
+        <li class="menu-item" @click="showSquare">
+          <el-icon class="menu-icon"><ChatDotRound /></el-icon>
+          <span v-if="isExpanded">广场</span>
+        </li>
+        <li class="menu-item" @click="showSquare">
+          <el-icon class="menu-icon"><User /></el-icon>
+          <span v-if="isExpanded">用户</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</template>
+
 <style scoped>
 .menu-wrapper {
   width: 80px; /* 折叠状态的宽度 */
   height: 300px; /* 侧边栏高度 */
-  background-color: #d76a6a; /* 背景颜色 */
+  background-color: white; /* 背景颜色 */
   border-radius: 0 10px 10px 0; /* 圆角 */
   transition: width 0.5s ease;
   overflow: hidden;
@@ -92,7 +93,7 @@ export default {
 }
 
 .menu-wrapper.expanded {
-  width: 180px; /* 展开状态的宽度 */
+  width: 200px; /* 展开状态的宽度 */
 }
 
 .menu-content {
@@ -110,7 +111,7 @@ ul {
   align-items: center;
   justify-content: center; /* 使内容在横向居中 */
   padding: 25px 0;
-  color: #787070; /* 菜单项文字颜色 */
+  color: black; /* 菜单项文字颜色 */
   cursor: pointer;
   transition: background-color 0.3s ease;
 }

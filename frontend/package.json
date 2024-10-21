@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
@@ -14,9 +14,13 @@
     "@element-plus/icons-vue": "^2.3.1",
     "axios": "^1.7.7",
     "element-plus": "^2.8.3",
+    "file-saver": "^2.0.5",
+    "parallax": "^0.0.0",
+    "parallax-js": "^3.1.0",
     "pinia": "^2.1.7",
     "vue": "^3.4.29",
-    "vue-router": "^4.3.3"
+    "vue-router": "^4.3.3",
+    "vue3typed": "^0.1.5"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",

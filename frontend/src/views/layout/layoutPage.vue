@@ -33,8 +33,8 @@ import SideBar from '@/components/sideBar.vue';
   transition: margin-left 0.5s ease; /* 过渡效果 */
 }
 
-.menu-wrapper.expanded ~ .content {
-  margin-left: 20px; /* 当菜单展开时，右侧内容区域左边距调整 */
-}
+/* .menu-wrapper.expanded ~ .content {
+  margin-left: 20px; /* 当菜单展开时，右侧内容区域左边距调整
+} */
 
 </style>

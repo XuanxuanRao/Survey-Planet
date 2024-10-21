@@ -5,15 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.example.Result.Result;
 import org.example.context.BaseContext;
-import org.example.dto.UserLoginDTO;
-import org.example.dto.UserRegisterDTO;
-import org.example.dto.UserResetDTO;
+import org.example.dto.user.UserLoginDTO;
+import org.example.dto.user.UserRegisterDTO;
+import org.example.dto.user.UserResetDTO;
 import org.example.entity.User;
+import org.example.properties.JwtProperties;
 import org.example.service.UserService;
 import org.example.utils.JwtUtil;
-import org.example.vo.UserLoginVO;
-import org.example.vo.UserResetVO;
-import org.example.vo.UserRegisterVO;
+import org.example.vo.user.UserLoginVO;
+import org.example.vo.user.UserResetVO;
+import org.example.vo.user.UserRegisterVO;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -26,6 +27,9 @@ public class UserController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private JwtProperties jwtProperties;
+
     @GetMapping("/user")
     public Result<User> get() {
         return Result.success(userService.getById(BaseContext.getCurrentId()));
@@ -33,15 +37,15 @@ public class UserController {
 
     @PostMapping("/login")
     public Result<UserLoginVO> login(@RequestBody UserLoginDTO loginDTO) {
-        User result = userService.login(loginDTO);
+        User user = userService.login(loginDTO);
 
         // 登录成功，下发JWT
-        String JWT = JwtUtil.generateJwt(new HashMap<>() {{
-            put("id", result.getUid());
+        String JWT = JwtUtil.generateJwt(jwtProperties.getSecretKey(), jwtProperties.getTtl(), new HashMap<>() {{
+            put("id", user.getUid());
         }});
 
         UserLoginVO userLoginVO = UserLoginVO.builder()
-                .uid(result.getUid())
+                .uid(user.getUid())
                 .token(JWT)
                 .build();
         return Result.success(userLoginVO);

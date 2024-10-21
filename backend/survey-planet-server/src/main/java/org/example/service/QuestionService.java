@@ -16,5 +16,10 @@ public interface QuestionService {
      */
     void addQuestions(List<QuestionDTO> questions, Long sid);
 
+    /**
+     * Delete questions
+     *
+     * @param questions questions to delete
+     */
     void deleteQuestions(List<Question> questions);
 }

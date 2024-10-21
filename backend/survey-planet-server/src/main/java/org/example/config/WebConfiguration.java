@@ -24,8 +24,8 @@ public class WebConfiguration implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginInterceptor)
-                .addPathPatterns("/api/**")     // 拦截所有请求
-                .excludePathPatterns(EXCLUDE_PATHS);
+                .addPathPatterns("/api/**")             // 拦截所有请求
+                .excludePathPatterns(EXCLUDE_PATHS);    // 放行登录、注册、发送验证码、重置密码接口
     }
 
     @Override

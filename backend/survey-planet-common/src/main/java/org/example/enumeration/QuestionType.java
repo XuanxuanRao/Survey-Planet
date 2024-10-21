@@ -24,4 +24,9 @@ public enum QuestionType {
         );
     }
 
+
+    @Override
+    public String toString() {
+        return value;
+    }
 }

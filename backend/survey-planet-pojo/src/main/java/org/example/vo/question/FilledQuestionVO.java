@@ -1,9 +1,7 @@
 package org.example.vo.question;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 /**
  * @author chenxuanrao06@gmail.com

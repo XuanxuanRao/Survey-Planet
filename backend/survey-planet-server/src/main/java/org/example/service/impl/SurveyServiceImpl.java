@@ -4,10 +4,11 @@ import jakarta.annotation.Resource;
 import org.example.context.BaseContext;
 import org.example.dto.survey.CreateSurveyDTO;
 import org.example.dto.QuestionDTO;
-import org.example.entity.Survey;
+import org.example.entity.survey.Survey;
 import org.example.entity.question.Question;
-import org.example.enumeration.SurveyState;
-import org.example.enumeration.SurveyType;
+import org.example.entity.response.Response;
+import org.example.entity.survey.SurveyState;
+import org.example.entity.survey.SurveyType;
 import org.example.exception.IllegalOperationException;
 import org.example.exception.SurveyNotFoundException;
 import org.example.mapper.SurveyMapper;
@@ -45,7 +46,8 @@ public class SurveyServiceImpl implements SurveyService {
         if (isCreated) {
             return surveyMapper.getCreatedList(uid, sortBy);
         } else {
-            return null;
+            List<Long> sids = responseService.getResponseByUid(uid).stream().map(Response::getSid).toList();
+            return surveyMapper.list(sids, sortBy);
         }
     }
 
@@ -65,11 +67,11 @@ public class SurveyServiceImpl implements SurveyService {
     public void updateSurvey(Long sid, CreateSurveyDTO createdSurveyDTO) {
         Survey survey = getSurvey(sid);
         if (survey == null) {
-            throw new SurveyNotFoundException("Survey not found");
+            throw new SurveyNotFoundException("SURVEY_NOY_FOUND");
         } else if (survey.getOpenTime() != null) {
-            throw new IllegalOperationException("Cannot modify a opened survey");
+            throw new IllegalOperationException("CAN_NOT_MODIFY_OPENED_SURVEY");
         } else if (survey.getType() != SurveyType.fromString(createdSurveyDTO.getType())) {
-            throw new IllegalOperationException("Cannot change survey type");
+            throw new IllegalOperationException("CAN_NOT_MODIFY_SURVEY_TYPE");
         }
 
         List<Question> originalQuestions = questionService.getBySid(sid);
@@ -106,7 +108,7 @@ public class SurveyServiceImpl implements SurveyService {
             surveyMapper.update(survey);
         }
 
-        return "http://localhost:8088/fill/" + code;
+        return "http://localhost:3000/fill/" + code;
     }
 
     @Override
@@ -150,4 +152,6 @@ public class SurveyServiceImpl implements SurveyService {
         // 最后删除问卷
         return surveyMapper.delete(surveys.stream().map(Survey::getSid).toList());
     }
+
+
 }

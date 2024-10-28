@@ -2,7 +2,7 @@ package org.example.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.example.annotation.AutoFill;
-import org.example.entity.Survey;
+import org.example.entity.survey.Survey;
 import org.example.enumeration.OperationType;
 
 import java.util.List;
@@ -36,4 +36,18 @@ public interface SurveyMapper {
      * @param ids the list of ids of surveys to delete
      */
     Integer delete(List<Long> ids);
+
+    /**
+     * 根据问卷 ID 列表获取问卷列表
+     * @param sids    问卷 ID 列表
+     * @param orderBy 排序关键字（降序）
+     * @return  查询得到的问卷列表
+     */
+    List<Survey> list(List<Long> sids, String orderBy);
+
+    /**
+     * 填写次数加一
+     * @param sid
+     */
+    void addFillNum(Long sid);
 }

@@ -1,10 +1,8 @@
-package org.example.entity;
+package org.example.entity.survey;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.enumeration.SurveyState;
-import org.example.enumeration.SurveyType;
 
 import java.time.LocalDateTime;
 
@@ -24,4 +22,7 @@ public class Survey {
     private Integer fillNum;            // 填写人数
 
     private Integer timeLimit;          // 问卷时间限制
+    private Boolean showAnswer;         // 是否允许提交后查看答案
+
+    private Boolean allowCover;         // 是否允许覆盖填写
 }

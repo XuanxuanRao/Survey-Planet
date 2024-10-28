@@ -22,4 +22,6 @@ public interface QuestionService {
      * @param questions questions to delete
      */
     void deleteQuestions(List<Question> questions);
+
+    Question getByQid(Long qid);
 }

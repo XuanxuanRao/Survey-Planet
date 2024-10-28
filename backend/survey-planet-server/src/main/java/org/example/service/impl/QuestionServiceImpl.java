@@ -24,6 +24,11 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
+    public Question getByQid(Long qid) {
+        return questionMapper.getQuestionByQid(qid);
+    }
+
+    @Override
     @Transactional
     public void addQuestions(List<QuestionDTO> questions, Long sid) {
         if (questions == null || questions.isEmpty()) {
@@ -43,6 +48,7 @@ public class QuestionServiceImpl implements QuestionService {
                 case MULTIPLE_CHOICE -> questionMapper.insertMultipleChoiceQuestion((MultipleChoiceQuestion) question);
                 case FILL_BLANK -> questionMapper.insertFillBlankQuestion((FillBlankQuestion) question);
                 case FILE -> questionMapper.insertFileQuestion((FileQuestion) question);
+                case CODE -> questionMapper.insertCodeQuestion((CodeQuestion) question);
             }
         });
     }
@@ -60,6 +66,7 @@ public class QuestionServiceImpl implements QuestionService {
                 case MULTIPLE_CHOICE -> questionMapper.deleteMultipleChoiceQuestion(question.getQid());
                 case FILL_BLANK -> questionMapper.deleteFillBlankQuestion(question.getQid());
                 case FILE -> questionMapper.deleteFileQuestion(question.getQid());
+                case CODE -> questionMapper.deleteCodeQuestion(question.getQid());
             }
         });
         questionMapper.delete(questions.stream().map(Question::getQid).toList());

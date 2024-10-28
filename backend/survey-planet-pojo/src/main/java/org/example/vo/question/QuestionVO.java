@@ -19,4 +19,8 @@ public class QuestionVO {
     private Boolean required;
     private List<String> options;
     private Integer maxFileSize;
+    private Integer score;
+    private Integer timeLimit;
+    private Integer memoryLimit;
+    private Integer stackLimit;
 }

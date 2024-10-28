@@ -21,6 +21,11 @@ public interface ResponseMapper {
 
     void insertItems(List<ResponseItem> items);
 
+    /**
+     * 获取问卷的填写结果
+     * @param sid 问卷 ID
+     * @return 问卷的填写结果列表
+     */
     List<Response> getBySid(Long sid);
 
     void deleteRecordsBySid(Long sid);
@@ -29,4 +34,11 @@ public interface ResponseMapper {
 
     void deleteItemsByRid(Long rid);
 
+    List<Response> getByUid(Long uid);
+
+    Response getByRid(Long rid);
+
+    void setRecordGrade(Long rid, Integer grade);
+
+    void setItemGrade(Long submitId, Integer grade);
 }

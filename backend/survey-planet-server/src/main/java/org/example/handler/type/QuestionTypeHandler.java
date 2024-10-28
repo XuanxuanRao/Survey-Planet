@@ -2,7 +2,7 @@ package org.example.handler.type;
 
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
-import org.example.enumeration.QuestionType;
+import org.example.entity.question.QuestionType;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -28,7 +28,7 @@ public class QuestionTypeHandler extends BaseTypeHandler<QuestionType> {
     }
 
     @Override
-    public QuestionType getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+    public QuestionType getNullableResult(CallableStatement cs, int columnIndex) {
         return null;
     }
 }

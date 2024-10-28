@@ -1,4 +1,4 @@
-package org.example.enumeration;
+package org.example.entity.survey;
 
 import lombok.Getter;
 import org.example.exception.IllegalRequestException;

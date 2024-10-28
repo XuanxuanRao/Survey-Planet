@@ -16,4 +16,8 @@ import java.util.List;
 @AllArgsConstructor
 public class CreatedQuestionVO extends QuestionVO {
     private List<String> answer;
+    private List<String> inputFileUrls;
+    private List<String> outputFileUrls;
+    private Boolean isRemoveEndBlank;
+    private List<String> languages;
 }

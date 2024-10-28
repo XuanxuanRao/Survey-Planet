@@ -14,7 +14,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResponseItem {
+    private Long submitId;
     private Long rid;
     private Long qid;
+    private Integer grade;
     private List<String> content;
 }

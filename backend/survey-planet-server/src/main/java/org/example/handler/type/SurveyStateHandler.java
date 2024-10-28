@@ -2,7 +2,7 @@ package org.example.handler.type;
 
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
-import org.example.enumeration.SurveyState;
+import org.example.entity.survey.SurveyState;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -28,7 +28,7 @@ public class SurveyStateHandler extends BaseTypeHandler<SurveyState> {
     }
 
     @Override
-    public SurveyState getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+    public SurveyState getNullableResult(CallableStatement cs, int columnIndex) {
         return null;
     }
 }

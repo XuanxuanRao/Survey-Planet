@@ -78,5 +78,10 @@ public class UserController {
         return Result.success(userResetVO);
     }
 
+    @PutMapping("/user")
+    public Result<Void> update(@RequestBody User user) {
+        userService.update(user);
+        return Result.success();
+    }
 
 }

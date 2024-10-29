@@ -41,16 +41,17 @@ public class EmailServiceImpl implements EmailService {
 
         String htmlContent = getHtmlContent(emailSendCodeDTO.getEmail(), emailSendCodeDTO.getType(), code);
 
-        // 使用 EmailUtils 发送邮件
+        // 使用 EmailUtil 发送邮件
         new EmailUtil(mailSender).sendEmail(emailSendCodeDTO.getEmail(), subject, htmlContent);
 
+        // 将验证码保存到数据库
         verificationCodeService.insert(new VerificationCode(emailSendCodeDTO.getEmail(), code));
     }
 
     private String getHtmlContent(String email, String type, String code) {
         String rawContent = loadTemplateContent(switch (type) {
-            case REGISTER -> "email_register.html";
-            case RESET -> "email_reset.html";
+            case REGISTER -> "templates/email_register.html";
+            case RESET -> "templates/email_reset.html";
             default -> throw new IllegalRequestException(
                     EmailService.class.getName() + ".getHtmlContent()",
                     "Invalid email type: " + type

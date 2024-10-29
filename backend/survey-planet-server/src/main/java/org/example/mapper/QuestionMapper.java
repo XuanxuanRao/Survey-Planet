@@ -22,6 +22,7 @@ public interface QuestionMapper {
     void insertSingleChoiceQuestion(SingleChoiceQuestion question);
     void insertMultipleChoiceQuestion(MultipleChoiceQuestion question);
     void insertFillBlankQuestion(FillBlankQuestion question);
+    void insertCodeQuestion(CodeQuestion question);
 
     void delete(List<Long> ids);
 
@@ -29,4 +30,7 @@ public interface QuestionMapper {
     void deleteSingleChoiceQuestion(Long id);
     void deleteMultipleChoiceQuestion(Long id);
     void deleteFillBlankQuestion(Long id);
+    void deleteCodeQuestion(Long id);
+
+    Question getQuestionByQid(Long qid);
 }

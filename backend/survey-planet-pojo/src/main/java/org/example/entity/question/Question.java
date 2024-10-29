@@ -3,7 +3,6 @@ package org.example.entity.question;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.enumeration.QuestionType;
 import org.example.vo.question.CreatedQuestionVO;
 import org.example.vo.question.FilledQuestionVO;
 import org.springframework.beans.BeanUtils;

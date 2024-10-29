@@ -1,4 +1,4 @@
-package org.example.enumeration;
+package org.example.entity.question;
 
 import lombok.Getter;
 import org.example.exception.IllegalRequestException;
@@ -8,7 +8,8 @@ public enum QuestionType {
     FILL_BLANK,
     FILE,
     SINGLE_CHOICE,
-    MULTIPLE_CHOICE;
+    MULTIPLE_CHOICE,
+    CODE;
 
     private final String value = this.name().toLowerCase();
 
@@ -28,5 +29,9 @@ public enum QuestionType {
     @Override
     public String toString() {
         return value;
+    }
+
+    public boolean equals(String type) {
+        return this.value.equals(type);
     }
 }

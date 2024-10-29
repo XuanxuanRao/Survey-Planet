@@ -6,8 +6,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author chenxuanrao06@gmail.com
- * @ClassName JwtProperties
- * @description jwt属性配置
+ * @Description: jwt属性配置
  */
 
 @Component

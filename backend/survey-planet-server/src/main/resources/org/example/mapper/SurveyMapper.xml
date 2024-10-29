@@ -5,7 +5,7 @@
 
 <mapper namespace="org.example.mapper.SurveyMapper">
 
-    <resultMap id="surveyResultMap" type="org.example.entity.Survey">
+    <resultMap id="surveyResultMap" type="org.example.entity.survey.Survey">
         <result property="sid" column="sid"/>
         <result property="uid" column="uid"/>
         <result property="title" column="title"/>
@@ -17,6 +17,7 @@
         <result property="openTime" column="open_time"/>
         <result property="fillNum" column="fill_num"/>
         <result property="timeLimit" column="time_limit"/>
+        <result property="showAnswer" column="show_answer"/>
     </resultMap>
 
 
@@ -30,30 +31,47 @@
 
 
     <select id="getBySid" resultMap="surveyResultMap">
-        SELECT sid, uid, title, description, type, state, create_time, update_time, open_time, fill_num, time_limit
+        SELECT sid, uid, title, description, type, state, create_time, update_time, open_time, fill_num, time_limit, show_answer
         FROM survey
         WHERE sid = #{sid}
     </select>
 
-    <insert id="insert" parameterType="org.example.entity.Survey" useGeneratedKeys="true" keyProperty="sid">
+    <insert id="insert" parameterType="org.example.entity.survey.Survey" useGeneratedKeys="true" keyProperty="sid">
         INSERT INTO survey (uid, title, description, type, create_time, update_time, time_limit)
         VALUES (#{uid}, #{title}, #{description}, #{type,typeHandler=org.example.handler.type.SurveyTypeHandler}, #{createTime}, #{updateTime}, #{timeLimit})
     </insert>
 
+    <insert id="addFillNum">
+        UPDATE survey
+        SET fill_num = fill_num + 1
+        WHERE sid = #{sid}
+    </insert>
+
     <select id="getCreatedList" resultMap="surveyResultMap">
-        SELECT sid, uid, title, description, type, state, create_time, update_time, open_time, fill_num, time_limit
+        SELECT sid, uid, title, description, type, state, create_time, update_time, open_time, fill_num, time_limit, show_answer
         FROM survey
         WHERE uid = #{userId} and state != 'delete'
         ORDER BY ${orderBy} DESC
     </select>
 
     <select id="getDeletedList" resultMap="surveyResultMap">
-        SELECT sid, uid, title, description, type, state, create_time, update_time, open_time, fill_num, time_limit
+        SELECT sid, uid, title, description, type, state, create_time, update_time, open_time, fill_num, time_limit, show_answer
         FROM survey
         WHERE state = 'delete'
     </select>
 
-    <update id="update" parameterType="org.example.entity.Survey">
+    <select id="list" resultMap="surveyResultMap">
+        SELECT sid, uid, title, description, type, state, create_time, update_time, open_time, fill_num, time_limit, show_answer
+        FROM survey
+        WHERE sid IN
+        <foreach collection="sids" item="sid" separator="," open="(" close=")">
+            #{sid}
+        </foreach>
+        AND state != 'delete'
+        ORDER BY ${orderBy} DESC
+    </select>
+
+    <update id="update" parameterType="org.example.entity.survey.Survey">
         update survey
         <set>
             <if test="title != null and title != ''">title = #{title},</if>
@@ -61,7 +79,10 @@
             type = #{type,typeHandler=org.example.handler.type.SurveyTypeHandler},
             state = #{state,typeHandler=org.example.handler.type.SurveyStateHandler},
             <if test="updateTime != null">update_time = #{updateTime},</if>
-            time_limit = #{timeLimit}
+            <if test="openTime != null">open_time = #{openTime},</if>
+            <if test="showAnswer != null">show_answer = #{showAnswer},</if>
+            <if test="timeLimit != null">time_limit = #{timeLimit},</if>
+            fill_num = #{fillNum},
         </set>
         WHERE sid = #{sid}
     </update>

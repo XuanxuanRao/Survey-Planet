@@ -2,8 +2,8 @@ package org.example.service;
 
 
 import org.example.dto.survey.CreateSurveyDTO;
-import org.example.entity.Survey;
-import org.example.enumeration.SurveyState;
+import org.example.entity.survey.Survey;
+import org.example.entity.survey.SurveyState;
 
 import java.util.List;
 
@@ -38,7 +38,7 @@ public interface SurveyService {
     void modifyState(Long sid, SurveyState state);
 
     /**
-     * 删除问卷（问卷状态被标记为 {@link org.example.enumeration.SurveyState}{@code .delete}）
+     * 删除问卷（问卷状态被标记为 {@link SurveyState}{@code .delete}）
      * @return 删除的问卷数量
      */
     Integer clearSurvey();

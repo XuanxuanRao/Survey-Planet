@@ -18,4 +18,6 @@ public interface UserService {
     User resetPassword(UserResetDTO userResetDTO);
 
     User getByEmail(String email);
+
+    void update(User user);
 }

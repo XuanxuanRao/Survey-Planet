@@ -37,7 +37,7 @@ public class StringListHandler extends BaseTypeHandler<List<String>> {
     }
 
     @Override
-    public List<String> getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+    public List<String> getNullableResult(CallableStatement cs, int columnIndex) {
         return null;
     }
 

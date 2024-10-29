@@ -2,7 +2,7 @@ package org.example.service.factory;
 
 import org.example.dto.QuestionDTO;
 import org.example.entity.question.*;
-import org.example.enumeration.QuestionType;
+import org.example.entity.question.QuestionType;
 import org.example.exception.IllegalRequestException;
 import org.springframework.beans.BeanUtils;
 
@@ -18,6 +18,7 @@ public class QuestionFactory {
         registry.put(QuestionType.FILE, FileQuestion.class);
         registry.put(QuestionType.SINGLE_CHOICE, SingleChoiceQuestion.class);
         registry.put(QuestionType.MULTIPLE_CHOICE, MultipleChoiceQuestion.class);
+        registry.put(QuestionType.CODE, CodeQuestion.class);
     }
 
     public static Question createQuestion(QuestionDTO questionDTO, Long sid) {

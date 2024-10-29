@@ -2,6 +2,7 @@ package org.example.service.impl;
 
 import jakarta.annotation.Resource;
 
+import org.example.context.BaseContext;
 import org.example.dto.user.UserLoginDTO;
 import org.example.dto.user.UserRegisterDTO;
 import org.example.dto.user.UserResetDTO;
@@ -110,4 +111,11 @@ public class UserServiceImpl implements UserService {
         userMapper.update(user);
         return user;
     }
+
+    @Override
+    public void update(User user) {
+        user.setUid(BaseContext.getCurrentId());
+        userMapper.update(user);
+    }
+
 }

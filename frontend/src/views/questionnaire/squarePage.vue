@@ -1,3 +1,3 @@
 <template>
-  square
+  square1
 </template>

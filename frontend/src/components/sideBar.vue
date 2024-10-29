@@ -28,13 +28,16 @@ export default {
 
     const router = useRouter()
     const createQuestionnaire = () => {
-        router.push({ path: '/questionnaire/createQuestionnaire' })
+      router.push({ path: '/questionnaire/createQuestionnaire' })
     }
     const showSquare = () => {
-        router.push({ path: '/questionnaire/questionnaireSquare' })
+      router.push({ path: '/questionnaire/questionnaireSquare' })
     }
     const fillQuestionnaire = () => {
-        router.push({ path: '/questionnaire/fillQuestionnaire' })
+      router.push({ path: '/questionnaire/fillQuestionnaire' })
+    }
+    const userCenter = () => {
+      router.push({ path: '/userCenter' })
     }
 
     return {
@@ -43,7 +46,8 @@ export default {
       collapseSideBar,
       createQuestionnaire,
       showSquare,
-      fillQuestionnaire
+      fillQuestionnaire,
+      userCenter
     };
   }
 };
@@ -70,7 +74,7 @@ export default {
           <el-icon class="menu-icon"><ChatDotRound /></el-icon>
           <span v-if="isExpanded">广场</span>
         </li>
-        <li class="menu-item" @click="showSquare">
+        <li class="menu-item" @click="userCenter">
           <el-icon class="menu-icon"><User /></el-icon>
           <span v-if="isExpanded">用户</span>
         </li>

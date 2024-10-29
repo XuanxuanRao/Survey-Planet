@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
-import { Back,Edit,CircleCheckFilled,HelpFilled,EditPen,Checked,ArrowDownBold,ArrowUp,CloseBold,Plus,QuestionFilled,RemoveFilled,Tickets,Check} from '@element-plus/icons-vue'
+import { Edit,CircleCheckFilled,HelpFilled,EditPen,Checked,ArrowDownBold,ArrowUp,CloseBold,Plus,QuestionFilled,RemoveFilled,Tickets,Check} from '@element-plus/icons-vue'
 import { userSendQuestionnaireList, userModifyQuestionnaireList } from '@/api/questionnaire'
 
 const route = useRoute()
@@ -179,7 +179,6 @@ onMounted(async () => {
           <div>
             <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
           </div>
-          <el-input v-model="question.maxFileSize" placeholder="请输入文件最大大小" :prefix-icon="Check" />
           <el-input v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
         </template>
 
@@ -188,7 +187,7 @@ onMounted(async () => {
           <div>
             <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
           </div>
-          <el-input v-model="question.description1" placeholder="请输入回答" :prefix-icon="Check" />
+          <el-input v-model="question.maxFileSize" placeholder="请输入文件最大大小" :prefix-icon="Check" />
           <el-input v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
         </template>
 

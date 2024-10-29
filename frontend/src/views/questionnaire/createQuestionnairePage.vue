@@ -36,7 +36,11 @@ const createQuestionnaire = () => {
   console.log(questionnaireTitle.value)
   console.log(questionnaireType.value)
   const dataToSend = { title: questionnaireTitle.value, type: questionnaireType.value };
-  router.push({ path: '/questionnaire/createQuestion', query: dataToSend })
+  if(questionnaireType.value === 'exam') {
+    router.push({ path: '/questionnaire/createExamQuestion', query: dataToSend })
+  } else {
+    router.push({ path: '/questionnaire/createQuestion', query: dataToSend })
+  }
 }
 
 const view = (id) => {
@@ -137,7 +141,7 @@ const exportResult = async(id) => {
       <li v-for="(questionnaire, index) in createdQuestionnaireList" :key="index" class="infinite-list-item">
           <div class="name-description">
             <div class="left-content">
-              <span class="title">{{ questionnaire.title }}</span>
+              <span class="title" @click="view(questionnaire.sid)">{{ questionnaire.title }}</span>
             </div>
             <div class="spacing"></div>
             <div class="right-content">
@@ -151,7 +155,7 @@ const exportResult = async(id) => {
           
           <div class="button-name-description">
             <div class="button-left-content">
-              <el-button @click="view(questionnaire.sid)">查看</el-button>
+              <el-button>查看</el-button>
               <el-button @click="exportResult(questionnaire.sid)">下载</el-button>
               <el-button @click="deleteQuestionnaire(questionnaire.sid)">删除</el-button>
               <el-button @click="modify(questionnaire.sid)">修改</el-button>
@@ -236,8 +240,14 @@ const exportResult = async(id) => {
 }
 
 .title {
-  font-size: 24px; /* 放大字体大小 */
-  font-weight: bold; /* 加粗字体 */
+  font-size: 24px;
+  font-weight: bold;
+  transition: color 0.3s ease;
+  cursor: pointer;
+}
+
+.title:hover {
+  color: #007bff; /* 悬停时变为蓝色 */
 }
 
 

@@ -39,7 +39,7 @@ export const userResetPasswordService = (email, password, code) => {
         code: code
     };
     const jsonData = JSON.stringify(data)
-    return request.post('/api/reset', jsonData)
+    return request.put('/api/reset', jsonData)
 }
 
 export const getUserInformation = () => {
@@ -50,4 +50,3 @@ export const getUserInformation = () => {
        }
     })
 }
-

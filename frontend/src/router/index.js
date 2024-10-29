@@ -20,7 +20,9 @@ const router = createRouter({
         { path: '/questionnaire/fillQuestionnaire', component: () => import('@/views/questionnaire/fillQuestionnairePage.vue')},
         { path: '/questionnaire/modifyQuestionnaire', component: () => import('@/views/questionnaire/modifyQuestionnaire.vue') },
         { path: '/questionnaire/createQuestion', component: () => import('@/views/questionnaire/createQuestionnaire.vue') },
+        { path: '/questionnaire/createExamQuestion', component: () => import('@/views/questionnaire/createExamQuestionnaire.vue') },
         { path: '/questionnaire/viewQuestionnaire', component: () => import('@/views/questionnaire/viewQuestionnaire.vue') },
+        { path: '/userCenter', component: () => import('@/views/questionnaire/userInfo.vue') },
         // { path: '/questionnaire/fill', component: () => import('@/views/questionnaire/fillQuestionnaire.vue') },
         { path: '/fill/:code', component: () => import('@/views/questionnaire/fillQuestionnaire.vue')},
       ]

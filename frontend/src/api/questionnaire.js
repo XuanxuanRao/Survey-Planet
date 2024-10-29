@@ -16,6 +16,13 @@ export const getFilledQuestionnaireList = () => {
     return request.get('/api/questionnaire/fill/list')
 }
 
+export const userGetFilledQuestionnaireList = () => {
+    return request.get('/api/survey/list?type=filled', {
+        headers: {
+            'token': useUserStore().token
+        }
+    })
+}
 
 export const userSendQuestionnaireList = (type, title, description, questions) => {
     console.log(type)
@@ -119,6 +126,7 @@ export const userSubmitQuestionnaire = (sid, answer) => {
 }
 
 export const userUploadFile = (file) => {
+    console.log("userUploadFile:"+file)
     const formData = new FormData()
     formData.append('file', file)
     return request.post(`/api/common/upload`, formData, {

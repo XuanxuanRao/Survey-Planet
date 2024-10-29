@@ -33,6 +33,8 @@ onMounted(async () => {
             <template v-if="question.type === 'multiple_choice'">多选题</template>
             <template v-if="question.type === 'fill_blank'">填空题</template>
             <template v-if="question.type === 'file'">文件上传题</template>
+            <template v-if="question.type === 'code'">代码题</template>
+            <template v-if="question.required === true"> 必填</template>
           </h4>
         </div>
         
@@ -47,15 +49,22 @@ onMounted(async () => {
               选项 {{ optIndex + 1 }}: {{ option }}
             </li>
           </ul>
+          <p>答案:{{ question.answer }}</p>
+          <p v-if="question.score !== null"> 分值:{{ question.score }}</p>
         </template>
 
         <!-- 填空题和文件上传题无需选项展示 -->
         <template v-if="question.type === 'fill_blank'">
-          <p>这是一个填空题。</p>
+          <p>答案:{{ question.answer }}</p>
+          <p v-if="question.score !== null"> 分值:{{ question.score }}</p>
         </template>
 
         <template v-if="question.type === 'file'">
           <p>这是一个文件上传题。</p>
+        </template>
+
+        <template v-if="question.type === 'code'">
+          <p v-if="question.score !== null"> 分值:{{ question.score }}</p>
         </template>
       </div>
     </div>

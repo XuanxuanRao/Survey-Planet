@@ -2,7 +2,7 @@
 import { onMounted, ref, watch, computed } from 'vue'
 import { useRoute, onBeforeRouteLeave } from 'vue-router'
 import { Edit, CircleCheckFilled, HelpFilled, EditPen, Checked, ArrowDownBold, ArrowUp, CloseBold, Plus, QuestionFilled, RemoveFilled, Tickets, Check } from '@element-plus/icons-vue'
-import { userSendQuestionnaireList, userModifyQuestionnaireList, userUploadFile } from '@/api/questionnaire'
+import { userSendQuestionnaireList, userModifyQuestionnaireList } from '@/api/questionnaire'
 import { useUserStore } from "@/stores/user"
 
 const route = useRoute()
@@ -31,6 +31,7 @@ const addQuestion = (type) => {
         languages: [],
         inputFileUrls: [],
         outputFileUrls: [],
+        maxFileSize: 20, //文件大小
     }
     questions.value.push(newQuestion)
   } else {
@@ -44,6 +45,7 @@ const addQuestion = (type) => {
         required: true,  // 是否必填
         score: null,        // 分数，默认为 null
         answer: [],         // 答案，默认为空数组
+        maxFileSize: 20, //文件大小
     }
     questions.value.push(newQuestion)
   }
@@ -114,6 +116,15 @@ const saveExam = async() => {
     ElMessage.warning('请添加问题')
     return
   }
+
+  // 检查选择题是否至少有一个选项
+  for (const question of questions.value) {
+    if ((question.type === 'single_choice' || question.type === 'multiple_choice') && question.options.length === 0) {
+      ElMessage.error('选择题必须至少有一个选项')
+      return
+    }
+  }
+
   examData.value = [...questions.value] // 将当前问卷的问题和选项保存到 examData
   isSave.value = true
   const res = await userModifyQuestionnaireList(examId.value, questionnaireType, questionnaireTitle, '', examData.value)
@@ -137,33 +148,39 @@ onBeforeRouteLeave((to, from, next) => {
       next(false) // 用户取消，阻止路由跳转
     })
   } else {
-    localStorage.removeItem('questions')
+    // localStorage.removeItem('questions')
     localStorage.removeItem('examId')
     next() // 已保存，允许路由跳转
   }
 })
 
 onMounted(async () => {
-  const savedQuestions = localStorage.getItem('questions')
-  if (savedQuestions) {
-    questions.value = JSON.parse(savedQuestions)
-    examId.value = localStorage.getItem('examId')
-  } else {
+  // const savedQuestions = localStorage.getItem('questions')
+  // if (savedQuestions) {
+  //   questions.value = JSON.parse(savedQuestions)
+  //   examId.value = localStorage.getItem('examId')
+  // } else {
+  //   const res = await userSendQuestionnaireList(questionnaireType, questionnaireTitle, '', examData.value)
+  //   examId.value = res.data
+  //   localStorage.setItem('examId', examId.value)
+  // }
+  examId.value = localStorage.getItem('examId')
+  console.log(examId.value)
+  if(examId.value === null) {
     const res = await userSendQuestionnaireList(questionnaireType, questionnaireTitle, '', examData.value)
     examId.value = res.data
-    console.log('已加载本地存储的问题1:', examId.value)
     localStorage.setItem('examId', examId.value)
   }
-});
+})
 
-watch(questions, (newQuestions) => {
-  localStorage.setItem('questions', JSON.stringify(newQuestions));
-}, { deep: true });
+// watch(questions, (newQuestions) => {
+//   localStorage.setItem('questions', JSON.stringify(newQuestions));
+// }, { deep: true });
 
 
 // 错误处理
 const handleUploadError = (error) => {
-    console.log('上传文件失败:', error);
+  console.log('上传文件失败:', error);
   ElMessage.error(`文件上传失败：${error.message}`);
 }
 
@@ -288,8 +305,15 @@ const uploadHeaders = computed(() => {
                 <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
             </div>
             <el-input v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
-            <el-input-number v-model="question.score" placeholder="分数" />
+            <el-input-number v-model="question.score" placeholder="分数" :min="0"/>
 
+            <div>上传文件大小(MB)</div>
+            <el-input-number 
+              v-model="question.maxFileSize" 
+              placeholder="上传文件大小"
+              :min="1" 
+              :max="100"  
+            />
             <div>运行时间(ms),不超过10000</div>
             <el-input-number 
               v-model="question.timeLimit" 

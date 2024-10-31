@@ -2,12 +2,14 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, onBeforeRouteLeave } from 'vue-router'
 import { userFillQuestionnaire, userSubmitQuestionnaire, userUploadFile } from '@/api/questionnaire'
+import router from '@/router';
 
 const route = useRoute()
 const code = route.params.code
 
 const questionnaireTitle = ref('')
 const questionnaireId = ref('')
+const type = ref('')
 const questions = ref([])
 const answers = ref([])
 
@@ -18,6 +20,7 @@ onMounted(async () => {
     if (res.data) {
       questionnaireTitle.value = res.data.title
       questionnaireId.value = res.data.sid
+      type.value = res.data.type
       questions.value = res.data.questions
 
       answers.value = res.data.questions.map(q => ({
@@ -64,7 +67,7 @@ const submitSurvey = async () => {
     const surveyAnswers = []
     for (let i = 0; i < questions.value.length; i++) {
       const question = questions.value[i]
-      if (question.type !== 'file') {
+      if (question.type !== 'file' && question.type !== 'code') {
         surveyAnswers.push({
           qid: question.qid,
           content: answers.value[i].content
@@ -86,6 +89,10 @@ const submitSurvey = async () => {
     if (res.msg === 'success') {
       ElMessage.success('提交成功')
       isCommit.value = true
+      console.log(res.data)
+      if(type.value === 'exam') {
+        router.push({ path: '/viewResult', query: { rid: res.data } })
+      }
     } else {
       ElMessage.error('提交失败，请稍后重试')
     }
@@ -130,42 +137,62 @@ onBeforeRouteLeave((to, from, next) => {
           <h4>
             <span v-if="question.required" class="required-marker">*</span> <!-- 必填标识符 -->
             Q{{ index + 1 }} 
-            {{ question.title }} (单选题)
+            {{ question.title }} (单选题) <br>
+            问题描述：{{ question.description }}
           </h4>
           <el-radio-group v-model="answers[index].content[0]">
             <el-radio v-for="(option, optIndex) in question.options" :key="optIndex" :value="option">{{ option }}</el-radio>
           </el-radio-group>
+          <div v-if="type === 'exam' && question.score !== null">分数:{{ question.score }}</div>
         </template>
 
         <template v-if="question.type === 'multiple_choice'">
           <h4>
             <span v-if="question.required" class="required-marker">*</span> <!-- 必填标识符 -->
             Q{{ index + 1 }} 
-            {{ question.title }} (多选题)
+            {{ question.title }} (多选题) <br>
+            问题描述：{{ question.description }}
           </h4>
           <el-checkbox-group v-model="answers[index].content">
             <el-checkbox v-for="(option, optIndex) in question.options" :key="optIndex" :value="option">{{ option }}</el-checkbox>
           </el-checkbox-group>
+          <div v-if="type === 'exam' && question.score !== null">分数:{{ question.score }}</div>
         </template>
 
         <template v-if="question.type === 'fill_blank'">
           <h4>
             <span v-if="question.required" class="required-marker">*</span> <!-- 必填标识符 -->
             Q{{ index + 1 }} 
-            {{ question.title }}
+            {{ question.title }} <br>
+            问题描述：{{ question.description }}
           </h4>
           <el-input v-model="answers[index].content[0]" type="textarea" placeholder="请输入您的答案" />
+          <div v-if="type === 'exam' && question.score !== null">分数:{{ question.score }}</div>
         </template>
 
         <template v-if="question.type === 'file'">
           <h4>
             <span v-if="question.required" class="required-marker">*</span> <!-- 必填标识符 -->
             Q{{ index + 1 }} 
-            {{ question.title }} 
+            {{ question.title }} <br>
+            问题描述：{{ question.description }}
           </h4>
           <input type="file" @change="(event) => handleFileChange(index, event)" />
           <div class="el-upload__tip">文件最大为 {{ question.maxFileSize }} MB</div>
         </template>
+
+        <template v-if="question.type === 'code'">
+          <h4>
+            <span v-if="question.required" class="required-marker">*</span> <!-- 必填标识符 -->
+            Q{{ index + 1 }} 
+            {{ question.title }} <br>
+            问题描述：{{ question.description }}
+          </h4>
+          <input type="file" @change="(event) => handleFileChange(index, event)" />
+          <div class="el-upload__tip">文件最大为 {{ question.maxFileSize }} MB</div>
+          <div v-if="type === 'exam' && question.score !== null">分数:{{ question.score }}</div>
+        </template>
+
       </div>
     </div>
 

@@ -31,7 +31,8 @@ export default {
       router.push({ path: '/questionnaire/createQuestionnaire' })
     }
     const showSquare = () => {
-      router.push({ path: '/questionnaire/questionnaireSquare' })
+      // router.push({ path: '/questionnaire/questionnaireSquare' })
+      router.push({ path: '/viewResult'})
     }
     const fillQuestionnaire = () => {
       router.push({ path: '/questionnaire/fillQuestionnaire' })

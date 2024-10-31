@@ -73,6 +73,15 @@ const saveSurvey = async() => {
     ElMessage.warning('请添加问题')
     return
   }
+
+  // 检查选择题是否至少有一个选项
+  for (const question of questions.value) {
+    if ((question.type === 'single_choice' || question.type === 'multiple_choice') && question.options.length === 0) {
+      ElMessage.error('选择题必须至少有一个选项')
+      return
+    }
+  }
+
   surveyData.value = [...questions.value] // 将当前问卷的问题和选项保存到 surveyData
   console.log(questionnaireTitle)
   console.log(questionnaireType)
@@ -91,23 +100,6 @@ const saveSurvey = async() => {
   }
 }
 
-const router = useRouter()
-const backLastPage = () => {
-  if (isSave.value === false) {
-    ElMessageBox.confirm('问卷尚未保存，确定要返回吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(() => {
-      router.go(-1)
-    }).catch(() => {
-      console.log('取消返回')
-    })
-  } else {
-    router.go(-1)
-  }
-}
-
 // 路由离开时提示用户（仅对当前页面生效）
 onBeforeRouteLeave((to, from, next) => {
     if (!isSave.value) {
@@ -121,17 +113,22 @@ onBeforeRouteLeave((to, from, next) => {
             next(false) // 用户取消，阻止路由跳转
         })
     } else {
+      localStorage.removeItem('qusetionnaireId')
         next() // 已保存，允许路由跳转
     }
 })
 
 onMounted(async () => {
+  qusetionnaireId.value = localStorage.getItem('qusetionnaireId')
+  console.log(qusetionnaireId.value)
+  if(qusetionnaireId.value === null) {
     const res = await userSendQuestionnaireList(questionnaireType, 
                                         questionnaireTitle,
                                         '', 
                                         surveyData.value)
     qusetionnaireId.value = res.data
-    console.log(res)
+    localStorage.setItem('qusetionnaireId', qusetionnaireId.value)
+  }
 })
 
 </script>
@@ -187,7 +184,13 @@ onMounted(async () => {
           <div>
             <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
           </div>
-          <el-input v-model="question.maxFileSize" placeholder="请输入文件最大大小" :prefix-icon="Check" />
+          <div>上传文件大小(MB)</div>
+            <el-input-number 
+              v-model="question.maxFileSize" 
+              placeholder="上传文件大小"
+              :min="1" 
+              :max="100"  
+            />
           <el-input v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
         </template>
 

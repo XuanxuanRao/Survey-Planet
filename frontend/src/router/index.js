@@ -23,6 +23,7 @@ const router = createRouter({
         { path: '/questionnaire/createExamQuestion', component: () => import('@/views/questionnaire/createExamQuestionnaire.vue') },
         { path: '/questionnaire/viewQuestionnaire', component: () => import('@/views/questionnaire/viewQuestionnaire.vue') },
         { path: '/userCenter', component: () => import('@/views/questionnaire/userInfo.vue') },
+        { path: '/viewResult', component: () => import('@/views/questionnaire/viewResult.vue') },
         // { path: '/questionnaire/fill', component: () => import('@/views/questionnaire/fillQuestionnaire.vue') },
         { path: '/fill/:code', component: () => import('@/views/questionnaire/fillQuestionnaire.vue')},
       ]

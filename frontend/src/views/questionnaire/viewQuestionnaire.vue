@@ -1,78 +1,196 @@
 <script setup>
-import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
-import { userGetQuestionnaire } from '@/api/questionnaire' // 获取问卷的API
+import { ref, onMounted, watch } from 'vue'
+import { useRoute, onBeforeRouteLeave } from 'vue-router'
+import { userSubmitQuestionnaire, userUploadFile, userGetQuestionnaire } from '@/api/questionnaire'
 
 const route = useRoute()
 
-const title = ref('')  // 问卷标题
-const type = ref('')  // 问卷类型
+const questionnaireTitle = ref('')
+const questionnaireId = ref('')
+const type = ref('')
+const questions = ref([])
+const answers = ref([])
 const qusetionnaireId = ref(route.query.id) // 从路由传递问卷 ID
-const questions = ref([])  // 存储所有问题的数组
 
-// 获取已有问卷数据并初始化
+// 获取问卷数据
 onMounted(async () => {
+  try {
     const res = await userGetQuestionnaire(qusetionnaireId.value)
-    console.log('问卷数据:', res.data)
-    questions.value = res.data.questions
-    title.value = res.data.title
-    type.value = res.data.type
+    if (res.data) {
+      questionnaireTitle.value = res.data.title
+      questionnaireId.value = res.data.sid
+      type.value = res.data.type
+      questions.value = res.data.questions
+
+      answers.value = res.data.questions.map(q => ({
+        qid: q.qid,
+        content: [] 
+      }))
+    }
+  } catch (error) {
+    console.error('获取问卷失败', error)
+    ElMessage.error('加载问卷失败，请稍后重试')
+  }
+})
+
+const handleFileChange = (index, event) => {
+  const file = event.target.files[0]
+  console.log('选择的文件:', file)
+  if (file) {
+    answers.value[index].content = [file]
+  } else {
+    answers.value[index].content = []
+  }
+}
+
+// 检查必填项
+const validateSurvey = () => {
+  for (let i = 0; i < questions.value.length; i++) {
+    const question = questions.value[i]
+    const answer = answers.value[i].content
+
+    // 如果问题是必填项，并且没有回答，则返回 false
+    if (question.required && (!answer || answer.length === 0)) {
+      ElMessage.warning(`问题 ${i + 1} 是必填项，请完成后再提交`)
+      return false
+    }
+  }
+  return true
+}
+
+// 提交问卷
+const submitSurvey = async () => {
+  if (!validateSurvey()) return  // 如果必填项未通过检查，则不提交
+
+  try {
+    const surveyAnswers = []
+    for (let i = 0; i < questions.value.length; i++) {
+      const question = questions.value[i]
+      if (question.type !== 'file') {
+        surveyAnswers.push({
+          qid: question.qid,
+          content: answers.value[i].content
+        })
+      } else {
+        const file = answers.value[i].content[0]
+        if (file) {
+          const uploadRes = await userUploadFile(file)
+          console.log('上传文件结果:', uploadRes.data)
+          surveyAnswers.push({
+            qid: question.qid,
+            content: [uploadRes.data]
+          })
+        }
+      }
+    }
+
+    const res = await userSubmitQuestionnaire(questionnaireId.value, surveyAnswers)
+    if (res.msg === 'success') {
+      ElMessage.success('提交成功')
+      isCommit.value = true
+    } else {
+      ElMessage.error('提交失败，请稍后重试')
+    }
+  } catch (error) {
+    console.error('提交问卷失败', error)
+    ElMessage.error('提交失败，请稍后重试')
+  }
+}
+const isCommit = ref(false)  // 是否保存问卷
+
+// watch(answers, () => {
+//   isCommit.value = false
+//   console.log('回答发生改变', questions.value)
+// }, { deep: true })
+
+// 路由离开时提示用户（仅对当前页面生效）
+onBeforeRouteLeave((to, from, next) => {
+    // if (!isCommit.value) {
+    //     ElMessageBox.confirm('当前回答未提交或发生改变，是否确定要离开？', '提示', {
+    //         confirmButtonText: '离开',
+    //         cancelButtonText: '取消',
+    //         type: 'warning',
+    //     }).then(() => {
+    //         next() // 用户确认离开，允许路由跳转
+    //     }).catch(() => {
+    //         next(false) // 用户取消，阻止路由跳转
+    //     })
+    // } else {
+    //     next() // 已保存，允许路由跳转
+    // }
+    next()
 })
 
 </script>
 
 <template>
   <div>
-    <h2>{{ title }}</h2>
+    <h2>{{ questionnaireTitle }}</h2>
 
     <div class="question-list">
       <div v-for="(question, index) in questions" :key="index" class="question-item">
-        <div class="question-header">
-          <h4>Q{{ index + 1 }} 
-            <template v-if="question.type === 'single_choice'">单选题</template>
-            <template v-if="question.type === 'multiple_choice'">多选题</template>
-            <template v-if="question.type === 'fill_blank'">填空题</template>
-            <template v-if="question.type === 'file'">文件上传题</template>
-            <template v-if="question.type === 'code'">代码题</template>
-            <template v-if="question.required === true"> 必填</template>
+        <template v-if="question.type === 'single_choice'">
+          <h4>
+            <span v-if="question.required" class="required-marker">*</span> <!-- 必填标识符 -->
+            Q{{ index + 1 }} 
+            {{ question.title }} (单选题) <br>
+            问题描述：{{ question.description }}
           </h4>
-        </div>
-        
-        <!-- 问题内容 -->
-        <p><strong>问题标题:</strong> {{ question.title }}</p>
-        <p><strong>问题描述:</strong> {{ question.description }}</p>
-        
-        <!-- 选项展示 -->
-        <template v-if="question.type === 'single_choice' || question.type === 'multiple_choice'">
-          <ul>
-            <li v-for="(option, optIndex) in question.options" :key="optIndex">
-              选项 {{ optIndex + 1 }}: {{ option }}
-            </li>
-          </ul>
-          <p>答案:{{ question.answer }}</p>
-          <p v-if="question.score !== null"> 分值:{{ question.score }}</p>
+          <el-radio-group v-model="answers[index].content[0]">
+            <el-radio v-for="(option, optIndex) in question.options" :key="optIndex" :value="option">{{ option }}</el-radio>
+          </el-radio-group>
+
+          <div v-if="type === 'exam' && question.answer !== null">分数:{{ question.score }}</div>
         </template>
 
-        <!-- 填空题和文件上传题无需选项展示 -->
+        <template v-if="question.type === 'multiple_choice'">
+          <h4>
+            <span v-if="question.required" class="required-marker">*</span> <!-- 必填标识符 -->
+            Q{{ index + 1 }} 
+            {{ question.title }} (多选题) <br>
+            问题描述：{{ question.description }}
+          </h4>
+          <el-checkbox-group v-model="answers[index].content">
+            <el-checkbox v-for="(option, optIndex) in question.options" :key="optIndex" :value="option">{{ option }}</el-checkbox>
+          </el-checkbox-group>
+          <div v-if="type === 'exam' && question.answer !== null">分数:{{ question.score }}</div>
+        </template>
+
         <template v-if="question.type === 'fill_blank'">
-          <p>答案:{{ question.answer }}</p>
-          <p v-if="question.score !== null"> 分值:{{ question.score }}</p>
+          <h4>
+            <span v-if="question.required" class="required-marker">*</span> <!-- 必填标识符 -->
+            Q{{ index + 1 }} 
+            {{ question.title }} <br>
+            问题描述：{{ question.description }}
+          </h4>
+          <el-input v-model="answers[index].content[0]" type="textarea" placeholder="请输入您的答案" />
+          <div v-if="type === 'exam' && question.answer !== null">分数:{{ question.score }}</div>
         </template>
 
         <template v-if="question.type === 'file'">
-          <p>这是一个文件上传题。</p>
+          <h4>
+            <span v-if="question.required" class="required-marker">*</span> <!-- 必填标识符 -->
+            Q{{ index + 1 }} 
+            {{ question.title }} <br>
+            问题描述：{{ question.description }}
+          </h4>
+          <input type="file" @change="(event) => handleFileChange(index, event)" />
+          <div class="el-upload__tip">文件最大为 {{ question.maxFileSize }} MB</div>
         </template>
 
         <template v-if="question.type === 'code'">
-          <p v-if="question.score !== null"> 分值:{{ question.score }}</p>
+          <h4>
+            <span v-if="question.required" class="required-marker">*</span> <!-- 必填标识符 -->
+            Q{{ index + 1 }} 
+            {{ question.title }} <br>
+            问题描述：{{ question.description }}
+          </h4>
+          <input type="file" @change="(event) => handleFileChange(index, event)" />
+          <div class="el-upload__tip">文件最大为 {{ question.maxFileSize }} MB</div>
+          <div v-if="type === 'exam' && question.answer !== null">分数:{{ question.score }}</div>
         </template>
-      </div>
-    </div>
 
-    <!-- 问卷数据展示 -->
-    <div class="survey-data">
-      <h3>问卷数据</h3>
-      <pre>{{ questions }}</pre>
+      </div>
     </div>
   </div>
 </template>
@@ -81,17 +199,15 @@ onMounted(async () => {
 .question-list {
   margin-top: 20px;
 }
-
 .question-item {
   margin-bottom: 20px;
-  background-color: white;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  background-color: #fafafa;
 }
-
-.question-header {
-  margin-bottom: 10px;
-}
-
-.survey-data {
-  margin-top: 20px;
+.required-marker {
+  color: red;
+  margin-right: 5px;
 }
 </style>

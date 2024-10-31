@@ -1,8 +1,9 @@
 <script setup>
-import { onMounted, ref, watch, nextTick } from 'vue'
+import { onMounted, ref, watch, nextTick, computed } from 'vue'
 import { useRoute, onBeforeRouteLeave, useRouter } from 'vue-router'
 import { Edit, CircleCheckFilled, HelpFilled, EditPen, Checked, ArrowDownBold, ArrowUp, CloseBold, Plus, QuestionFilled, RemoveFilled, Tickets, Check } from '@element-plus/icons-vue'
 import { userGetQuestionnaire, userModifyQuestionnaireList } from '@/api/questionnaire' // 获取和修改问卷的API
+import { useUserStore } from "@/stores/user"
 
 const route = useRoute()
 const router = useRouter()
@@ -36,21 +37,45 @@ onMounted(async () => {
     questions.value = res.data.questions
     title.value = res.data.title
     type.value = res.data.type
+    console.log(type.value)
     await nextTick()
     isSave.value = true
 })
 
 // 添加问题的函数，新的问题添加到数组的最上方
 const addQuestion = (type) => {
-  const newQuestion = {
-    type: type,
-    title: '',
-    description: '',
-    maxFileSize: 20,
-    options: type === 'single_choice' || type === 'multiple_choice' ? ['选项1', '选项2'] : [],
-    required: false,
+  if (type === "code") {
+        const newQuestion = {
+        type: type,
+        title: '',  // 问题内容可编辑
+        description: '', // 问题描述
+        options: type === 'single_choice' || type === 'multiple_choice' 
+        ? ['选项1', '选项2'] // 默认两个选项
+        : [],  // 非选择题没有选项
+        required: true,  // 是否必填
+        score: null,        // 分数，默认为 null
+        timeLimit: 2000,
+        memoryLimit: 512,
+        stackLimit: 256,
+        languages: [],
+        inputFileUrls: [],
+        outputFileUrls: [],
+    }
+    questions.value.push(newQuestion)
+  } else {
+    const newQuestion = {
+        type: type,
+        title: '',  // 问题内容可编辑
+        description: '', // 问题描述
+        options: type === 'single_choice' || type === 'multiple_choice' 
+        ? ['选项1', '选项2'] // 默认两个选项
+        : [],  // 非选择题没有选项
+        required: true,  // 是否必填
+        score: null,        // 分数，默认为 null
+        answer: [],         // 答案，默认为空数组
+    }
+    questions.value.push(newQuestion)
   }
-  questions.value.push(newQuestion)
 }
 
 // 删除问题
@@ -103,6 +128,15 @@ const saveSurvey = async () => {
     ElMessage.warning('请添加问题')
     return
   }
+
+  // 检查选择题是否至少有一个选项
+  for (const question of questions.value) {
+    if ((question.type === 'single_choice' || question.type === 'multiple_choice') && question.options.length === 0) {
+      ElMessage.error('选择题必须至少有一个选项')
+      return
+    }
+  }
+
   surveyData.value = [...questions.value]
   try {
     const res = await 
@@ -132,6 +166,78 @@ onBeforeRouteLeave((to, from, next) => {
     } else {
         next() // 已保存，允许路由跳转
     }
+})
+
+// 错误处理
+const handleUploadError = (error) => {
+    console.log('上传文件失败:', error);
+  ElMessage.error(`文件上传失败：${error.message}`);
+}
+
+// 预上传钩子
+const beforeUploadIn = (file) => {
+  const isFileTypeValid = file.name.endsWith('.in');
+  if (!isFileTypeValid) {
+    ElMessage.error('只能上传 .in 文件');
+  }
+  return isFileTypeValid;
+}
+
+const beforeUploadOut = (file) => {
+  const isFileTypeValid = file.name.endsWith('.out');
+  if (!isFileTypeValid) {
+    ElMessage.error('只能上传 .out 文件');
+  }
+  return isFileTypeValid;
+}
+
+// 处理上传成功的回调（.in 文件）
+const handleUploadSuccessIn = (question) => {
+  return async (response) => {
+    try {
+      console.log('上传文件结果in:', response.data);
+      question.inputFileUrls.push(response.data); // 将接口返回的data填入inputFileUrls
+      ElMessage.success(`上传成功！`);
+    } catch (error) {
+      ElMessage.error(`上传失败：${error.message}`);
+    }
+  }
+}
+
+// 处理上传成功的回调（.out 文件）
+const handleUploadSuccessOut = (question) => {
+  return async (response) => {
+    try {
+      console.log('上传文件结果out:', response.data);
+      question.outputFileUrls.push(response.data); // 将接口返回的data填入outputFileUrls
+      ElMessage.success(`上传成功！`);
+    } catch (error) {
+      ElMessage.error(`上传失败：${error.message}`);
+    }
+  }
+}
+
+// 删除文件的处理函数
+const handleFileRemove = (file, question, type) => {
+  const fileArray = type === 'input' ? question.inputFileUrls : question.outputFileUrls;
+  const fileIndex = fileArray.findIndex(item => item === file.response.data);  // 根据 URL 查找索引
+      
+  if (fileIndex !== -1) {
+    fileArray.splice(fileIndex, 1);  // 根据索引位置删除对应的 URL
+    console.log(`已删除文件: ${file.name}，位于索引 ${fileIndex}`);
+    ElMessage.info(`文件已删除`);
+  } else {
+    ElMessage.error('未找到文件');
+  }
+}
+
+
+// 定义计算属性来返回请求头
+const uploadHeaders = computed(() => {
+  const userStore = useUserStore(); // 获取用户状态
+  return {
+    'token': userStore.token  // 设置 token 头
+  }
 })
 
 </script>
@@ -173,13 +279,83 @@ onBeforeRouteLeave((to, from, next) => {
           <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
           <el-input v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
           <el-input-number v-if="type === 'exam'" v-model="question.score" placeholder="分数" />
-          <el-input v-model="question.answer[0]" placeholder="请输入正确答案" />
+          <el-input v-if="type === 'exam'" v-model="question.answer[0]" placeholder="请输入正确答案" />
         </template>
 
         <template v-if="question.type === 'file'">
           <h4>Q{{ index + 1 }}文件上传题</h4>
           <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
           <el-input v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
+        </template>
+
+        <template v-if="question.type === 'code'">
+            <h4>Q{{ index + 1 }} 代码题</h4>
+            <div>
+                <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
+            </div>
+            <el-input v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
+            <el-input-number v-model="question.score" placeholder="分数" />
+
+            <div>运行时间(ms),不超过10000</div>
+            <el-input-number 
+              v-model="question.timeLimit" 
+              placeholder="运行时间(ms)"
+              :min="1" 
+              :max="10000"  
+            />
+            <div>空间限制(MB),不超过1024</div>
+            <el-input-number 
+              v-model="question.memoryLimit" 
+              placeholder="空间限制(MB)"
+              :min="1"
+              :max="1024" 
+            />
+            <div>栈空间限制(MB),不超过512</div>
+            <el-input-number 
+              v-model="question.stackLimit" 
+              placeholder="栈空间限制(MB)"
+              :min="1"
+              :max="512" 
+            />
+
+            <div>选择支持的编程语言</div>
+            <el-select 
+              v-model="question.languages" 
+              placeholder="选择编程语言" 
+              multiple 
+              style="width: 100%;"
+            >
+                <el-option label="Java" value="Java"></el-option>
+                <el-option label="Python" value="Python"></el-option>
+                <el-option label="C++" value="C++"></el-option>
+                <el-option label="C" value="C"></el-option>
+            </el-select>
+
+             <!-- 上传 .in 文件 -->         
+            <el-upload
+              :before-upload="beforeUploadIn"
+              action="http://59.110.163.198:8088/api/common/upload"
+              :headers="uploadHeaders"
+              :on-success="handleUploadSuccessIn(question)"
+              :on-error="handleUploadError"
+              :show-file-list="true"
+              :on-remove="(file) => handleFileRemove(file, question, 'input')"
+            >
+            <el-button>上传 .in 文件</el-button>
+            </el-upload>
+  
+            <!-- 上传 .out 文件 -->
+            <el-upload
+              :before-upload="beforeUploadOut"
+              action="http://59.110.163.198:8088/api/common/upload"
+              :headers="uploadHeaders"
+              :on-success="handleUploadSuccessOut(question)"
+              :on-error="handleUploadError"
+              :show-file-list="true"
+              :on-remove="(file) => handleFileRemove(file, question, 'output')"
+            >
+            <el-button>上传 .out 文件</el-button>
+            </el-upload>
         </template>
       </div>
     </div>

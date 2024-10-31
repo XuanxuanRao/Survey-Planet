@@ -2,15 +2,27 @@
 import { ref, onMounted } from 'vue'
 import { getCreatedQuestionnaireList, userDeleteQuestionnaire, userShareQuestionnaire, userCloseQuestionnaire, userExportResult } from '@/api/questionnaire'
 import { useRouter } from 'vue-router'
-// import { ElButton } from 'element-plus'
+//import { ElButton, ElMessage } from 'element-plus'
 import { VideoPause, VideoPlay} from '@element-plus/icons-vue'
 const createdQuestionnaireList = ref([]);  // 响应式变量，存储用户数据
+
+// 控制 Dialog 显示状态的变量
+const dialogVisible = ref(false);
+
+// Dialog 中显示的消息内容
+const dialogMessage = ref('');
+
+// 显示 Dialog 的函数
+function showDialog(data) {
+  dialogMessage.value = '请复制链接即可填写: ' + data;
+  dialogVisible.value = true; // 显示对话框
+}
+
 
 // 在组件挂载时获取数据
 onMounted(async () => {
     const res = await getCreatedQuestionnaireList();
     createdQuestionnaireList.value = res.data;
-    console.log(createdQuestionnaireList.value[0].questions)
 })
 
 const questionnaireTitle = ref('')  // 输入框的值
@@ -19,11 +31,11 @@ const questionnaireType = ref('')  // 下拉框的值
 const options = [
   {
     value: 'normal',
-    label: 'normal'
+    label: '普通问卷'
   },
   {
     value: 'exam',
-    label: 'exam'
+    label: '考试问卷'
   },
 ]
 
@@ -59,9 +71,20 @@ const deleteQuestionnaire = async (id) => {
   const res = await userDeleteQuestionnaire(id);
   console.log(res)
   if (res.msg === 'success') {
-    ElMessage.success('删除成功');
-    const res = await getCreatedQuestionnaireList();
-    createdQuestionnaireList.value = res.data;
+    ElMessageBox.confirm(
+          '确认删除?', 
+          '提示', 
+          {
+            confirmButtonText: '删除',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
+        ).then(async() => {
+          const res = await getCreatedQuestionnaireList();
+          createdQuestionnaireList.value = res.data;
+        }).catch(() => {
+          ElMessage.info('已取消删除');
+        })
   } else {
     ElMessage.error('删除失败');
   }
@@ -80,12 +103,7 @@ const shareOrCloseQuestionnaire = async (id, state) => {
     const res = await userShareQuestionnaire(id);
     console.log(res);
     if (res.msg === 'success') {
-        ElMessage({
-          showClose: true,
-          duration: 0,
-          message: '请复制链接即可填写:' + res.data,
-          type: 'success',
-        })
+        showDialog(res.data)
     } else {
       ElMessage.error('分享失败');
     }
@@ -141,7 +159,7 @@ const exportResult = async(id) => {
       <li v-for="(questionnaire, index) in createdQuestionnaireList" :key="index" class="infinite-list-item">
           <div class="name-description">
             <div class="left-content">
-              <span class="title" @click="view(questionnaire.sid)">{{ questionnaire.title }}</span>
+              <span class="title" @click="view(questionnaire.sid)">{{ questionnaire.title, questionnaire.type }}</span>
             </div>
             <div class="spacing"></div>
             <div class="right-content">
@@ -169,6 +187,13 @@ const exportResult = async(id) => {
       </li>
     </ul>
   </div>
+      <!-- Dialog 弹框 -->
+    <el-dialog v-model="dialogVisible" title="提示信息" width="30%" @close="dialogVisible = false">
+      <span>{{ dialogMessage }}</span> <br>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="dialogVisible = false">关闭</el-button>
+      </span>
+    </el-dialog>
 </div>
 
 </template>

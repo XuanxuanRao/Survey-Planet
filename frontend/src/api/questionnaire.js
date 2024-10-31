@@ -25,10 +25,6 @@ export const userGetFilledQuestionnaireList = () => {
 }
 
 export const userSendQuestionnaireList = (type, title, description, questions) => {
-    console.log(type)
-    console.log(title)
-    console.log(description)
-    console.log(questions)
     const data = {
         type: type,
         title: title,
@@ -167,4 +163,12 @@ export const userExportResult = async (id) => {
     } catch (error) {
         console.error("There was an error downloading the questionnaire:", error);
     }
+}
+
+export const userGetQuestionnaireResult = (rid) => {
+    return request.get(`/api/response/${rid}`, {
+        headers: {
+            'token': useUserStore().token,
+        }
+    })
 }

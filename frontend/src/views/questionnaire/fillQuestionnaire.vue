@@ -77,9 +77,14 @@ const submitSurvey = async () => {
         if (file) {
           const uploadRes = await userUploadFile(file)
           console.log('上传文件结果:', uploadRes.data)
+          if (!answers.value[i].content[1]) {
+            console.log('请选择编程语言')
+            ElMessage.error('请选择编程语言')
+            return
+          }
           surveyAnswers.push({
             qid: question.qid,
-            content: [uploadRes.data]
+            content: [uploadRes.data, answers.value[i].content[1]]
           })
         }
       }
@@ -124,6 +129,8 @@ onBeforeRouteLeave((to, from, next) => {
         next() // 已保存，允许路由跳转
     }
 })
+
+const availableLanguages = ['Python', 'JavaScript', 'Java', 'C++']
 
 </script>
 
@@ -188,7 +195,17 @@ onBeforeRouteLeave((to, from, next) => {
             {{ question.title }} <br>
             问题描述：{{ question.description }}
           </h4>
-          <input type="file" @change="(event) => handleFileChange(index, event)" />
+          <input type="file" @change="(event) => handleFileChange(index, event)" /> <br>
+            <!-- 多选编程语言 -->
+          <el-select v-model="answers[index].content[1]" placeholder="请选择编程语言" style="width: 300px; margin-bottom: 10px;">
+            <el-option
+              v-for="(language, langIndex) in availableLanguages"
+              :key="langIndex"
+              :label="language"
+              :value="language"
+            />
+          </el-select>
+          
           <div class="el-upload__tip">文件最大为 {{ question.maxFileSize }} MB</div>
           <div v-if="type === 'exam' && question.score !== null">分数:{{ question.score }}</div>
         </template>

@@ -164,7 +164,13 @@ export const userExportResult = async (id) => {
         console.error("There was an error downloading the questionnaire:", error);
     }
 }
-
+export const userGetAnswernaireResult = (qid) => {
+    return request.get(`/api/report/${qid}`, {
+        headers: {
+            'token': useUserStore().token,
+        }
+    })
+}
 export const userGetQuestionnaireResult = (rid) => {
     return request.get(`/api/response/${rid}`, {
         headers: {

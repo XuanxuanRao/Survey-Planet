@@ -15,15 +15,16 @@ const router = createRouter({
       // redirect: '/questionnaire/createQuestionnaire',
       redirect: '/login',
       children: [
+        { path: '/questionnaire/lookQuestionnaire', component: () => import('@/views/questionnaire/lookQuestionnaire.vue')},
         { path: '/questionnaire/CreateQuestionnaire', component: () => import('@/views/questionnaire/createQuestionnairePage.vue')},
         { path: '/questionnaire/questionnaireSquare', component: () => import('@/views/questionnaire/squarePage.vue')},
-        { path: '/questionnaire/fillQuestionnaire', component: () => import('@/views/questionnaire/fillQuestionnairePage.vue')},
-        { path: '/questionnaire/modifyQuestionnaire', component: () => import('@/views/questionnaire/modifyQuestionnaire.vue') },
-        { path: '/questionnaire/createQuestion', component: () => import('@/views/questionnaire/createQuestionnaire.vue') },
-        { path: '/questionnaire/createExamQuestion', component: () => import('@/views/questionnaire/createExamQuestionnaire.vue') },
-        { path: '/questionnaire/viewQuestionnaire', component: () => import('@/views/questionnaire/viewQuestionnaire.vue') },
+        { path: '/questionnaire/fillQuestionnaire', component: () => import('@/views/questionnaire/fillQuestionnairePage.vue')},   
+        { path: '/questionnaire/modifyQuestionnaire', component: () => import('@/views/questionnaire/modifyQuestionnaire.vue') },  //新增
+        { path: '/questionnaire/createQuestion', component: () => import('@/views/questionnaire/createQuestionnaire.vue') },       //新增
+        { path: '/questionnaire/createExamQuestion', component: () => import('@/views/questionnaire/createExamQuestionnaire.vue') },  //新增
+        { path: '/questionnaire/viewQuestionnaire', component: () => import('@/views/questionnaire/viewQuestionnaire.vue') },      //新增
         { path: '/userCenter', component: () => import('@/views/questionnaire/userInfo.vue') },
-        { path: '/viewResult', component: () => import('@/views/questionnaire/viewResult.vue') },
+        { path: '/viewResult', component: () => import('@/views/questionnaire/viewResult.vue') },   
         // { path: '/questionnaire/fill', component: () => import('@/views/questionnaire/fillQuestionnaire.vue') },
         { path: '/fill/:code', component: () => import('@/views/questionnaire/fillQuestionnaire.vue')},
       ]

@@ -65,16 +65,16 @@ export default {
       <ul>
         <li class="menu-item" @click="createQuestionnaire">
           <el-icon class="menu-icon"><Tickets /></el-icon>
-          <span v-if="isExpanded">创建</span>
+          <span v-if="isExpanded">主页</span>
         </li>
         <li class="menu-item" @click="fillQuestionnaire">
           <el-icon class="menu-icon"><EditPen /></el-icon>
-          <span v-if="isExpanded">填写</span>
+          <span v-if="isExpanded">历史</span>
         </li>
-        <li class="menu-item" @click="showSquare">
+        <!-- <li class="menu-item" @click="showSquare">
           <el-icon class="menu-icon"><ChatDotRound /></el-icon>
           <span v-if="isExpanded">广场</span>
-        </li>
+        </li> -->
         <li class="menu-item" @click="userCenter">
           <el-icon class="menu-icon"><User /></el-icon>
           <span v-if="isExpanded">用户</span>
@@ -87,7 +87,7 @@ export default {
 <style scoped>
 .menu-wrapper {
   width: 80px; /* 折叠状态的宽度 */
-  height: 300px; /* 侧边栏高度 */
+  height: 225px; /* 侧边栏高度 */
   background-color: white; /* 背景颜色 */
   border-radius: 0 10px 10px 0; /* 圆角 */
   transition: width 0.5s ease;

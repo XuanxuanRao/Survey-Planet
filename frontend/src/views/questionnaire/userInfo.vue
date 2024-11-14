@@ -72,29 +72,29 @@ const handleUpdateUserInfo = async () => {
   <!-- 修改密码和头像的表单 -->
   <div>
     <h3>修改用户信息</h3>
-    <el-form>
-      <el-form-item label="新密码">
-        <el-input
-          v-model="newPassword"
-          placeholder="输入新密码"
-          show-password
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="确认新密码">
-        <el-input
-          v-model="confirmPassword"
-          placeholder="再次输入新密码"
-          show-password
-        ></el-input>
-      </el-form-item>
-
-      <input type="file" @change="(event) => handleFileChange(index, event)" />
-      <el-form-item>
-        <el-button type="primary" @click="handleUpdateUserInfo">
-          更新信息
-        </el-button>
-      </el-form-item>
-    </el-form>
+      <el-form>
+        <el-form-item label="新密码">
+          <el-input
+            v-model="newPassword"
+            placeholder="输入新密码"
+            show-password
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="确认新密码">
+          <el-input
+            v-model="confirmPassword"
+            placeholder="再次输入新密码"
+            show-password
+          ></el-input>
+        </el-form-item>
+        <!--选择文件按钮-->
+        <input type="file" @change="(event) => handleFileChange(index, event)" />
+        <el-form-item>
+          <el-button type="primary" @click="handleUpdateUserInfo">
+            更新信息
+          </el-button>
+        </el-form-item>
+      </el-form>
   </div>
 
 

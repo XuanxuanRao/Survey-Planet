@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+
 import { getCreatedQuestionnaireList, userDeleteQuestionnaire, userShareQuestionnaire, userCloseQuestionnaire, userExportResult } from '@/api/questionnaire'
 import { useRouter } from 'vue-router'
 //import { ElButton, ElMessage } from 'element-plus'
@@ -116,7 +117,11 @@ const exportResult = async(id) => {
   console.log(id)
   userExportResult(id);
 }
-
+const analyseResult = (id) => {
+  console.log(id)
+  const dataToSend = {id: id};
+  router.push({ path: '/questionnaire/lookQuestionnaire', query: dataToSend })
+}
 </script>
 
 <template>
@@ -155,25 +160,35 @@ const exportResult = async(id) => {
   </div>
 
   <div class="showQues">
-    <ul class="infinite-list" style="overflow: auto">
+    <ul class="infinite-list" style="overflow: auto"> 
       <li v-for="(questionnaire, index) in createdQuestionnaireList" :key="index" class="infinite-list-item">
           <div class="name-description">
             <div class="left-content">
-              <span class="title" @click="view(questionnaire.sid)">{{ questionnaire.title, questionnaire.type }}</span>
+              <el-tooltip class="item" effect="dark" :content="questionnaire.description" placement="top">
+                <span class="title" @click="view(questionnaire.sid)">
+                  {{ questionnaire.title }} - <span :class="questionnaire.type === 'normal' ? 'questionnaire-type-normal' : 'questionnaire-type-exam'">
+                                                {{ questionnaire.type === 'normal' ? '调查问卷' : '考试问卷' }}
+                                              </span>
+                </span>
+              </el-tooltip>
+              
             </div>
             <div class="spacing"></div>
             <div class="right-content">
-              问卷描述：{{ questionnaire.description }}
+              
+              &nbsp;
+              <span :class="questionnaire.state === 'open' ? 'dot-green' : 'dot-gray'"></span>
+              {{ questionnaire.state === 'open' ? '已发布' : '未发布' }}
+              &nbsp;
+              答卷:{{ questionnaire.fillNum }}
+              &nbsp;
               {{ questionnaire.createTime }}
-              {{ questionnaire.updateTime }}
-              {{ questionnaire.fillNum }}
-              {{ index }}
             </div>
           </div>
           
           <div class="button-name-description">
             <div class="button-left-content">
-              <el-button>查看</el-button>
+              <el-button @click="analyseResult(questionnaire.sid)">查看</el-button>
               <el-button @click="exportResult(questionnaire.sid)">下载</el-button>
               <el-button @click="deleteQuestionnaire(questionnaire.sid)">删除</el-button>
               <el-button @click="modify(questionnaire.sid)">修改</el-button>
@@ -243,11 +258,17 @@ const exportResult = async(id) => {
 }
 
 .left-content {
+  flex: 1;
+  width: 250px; /* 设置固定宽度 */
   text-align: left;
+  white-space: nowrap; /* 防止内容换行 */
 }
 
 .right-content {
+  flex: 1;
+  width: 400px; /* 设置固定宽度 */
   text-align: right;
+  white-space: nowrap; /* 防止内容换行 */
 }
 
 .button-name-description {
@@ -295,5 +316,31 @@ const exportResult = async(id) => {
 .questionnaire-name {
   font-weight: bold;
   margin-bottom: 10px;
+}
+.questionnaire-type-normal {
+  font-size: 20px; /* 设置字体大小 */
+  color: blue; /* 设置普通问卷的颜色为浅蓝色 */
+}
+
+.questionnaire-type-exam {
+  font-size: 20px; /* 设置字体大小 */
+  color: red; /* 设置考试问卷的颜色为红色 */
+}
+.dot-green {
+  display: inline-block;
+  width: 8px; /* 点的宽度 */
+  height: 8px; /* 点的高度 */
+  background-color: green; /* 绿色 */
+  border-radius: 50%; /* 圆形 */
+  margin-right: 5px; /* 右侧间距 */
+}
+
+.dot-gray {
+  display: inline-block;
+  width:8px; /* 点的宽度 */
+  height: 8px; /* 点的高度 */
+  background-color: gray; /* 灰色 */
+  border-radius: 50%; /* 圆形 */
+  margin-right: 5px; /* 右侧间距 */
 }
 </style>

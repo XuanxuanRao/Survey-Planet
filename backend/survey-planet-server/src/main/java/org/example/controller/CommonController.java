@@ -4,13 +4,11 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.example.Result.Result;
+import org.example.annotation.ControllerLog;
 import org.example.dto.EmailSendCodeDTO;
 import org.example.service.EmailService;
 import org.example.utils.AliOSSUtil;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -27,6 +25,7 @@ public class CommonController {
     EmailService emailService;
 
     @PostMapping("/upload")
+    @ControllerLog(name = "upload", intoDB = true)
     public Result<String> upload(MultipartFile file) {
         try {
             String originalFilename = file.getOriginalFilename();
@@ -44,7 +43,14 @@ public class CommonController {
         return Result.error("file upload failed");
     }
 
+    @DeleteMapping("/delete")
+    public Result<String> delete(@RequestParam String fileUrl) {
+        aliOssUtil.delete(fileUrl);
+        return Result.success("File deleted successfully");
+    }
+
     @PostMapping("/email/code")
+    @ControllerLog(name = "sendCode2Email", intoDB = true)
     public Result<String> sendCode2Email(@RequestBody EmailSendCodeDTO emailSendCodeDTO) {
         emailService.sendVerificationCode(emailSendCodeDTO);
         return Result.success("Email sent successfully");

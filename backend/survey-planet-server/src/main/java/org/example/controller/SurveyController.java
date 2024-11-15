@@ -3,7 +3,10 @@ package org.example.controller;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
+import org.example.Result.PageResult;
 import org.example.Result.Result;
+import org.example.annotation.ControllerLog;
+import org.example.dto.ResponsePageQueryDTO;
 import org.example.dto.survey.CreateSurveyDTO;
 import org.example.entity.response.Response;
 import org.example.entity.survey.Survey;
@@ -29,7 +32,7 @@ import java.util.stream.Collectors;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/survey")
 public class SurveyController {
     @Resource
     private SurveyService surveyService;
@@ -38,10 +41,13 @@ public class SurveyController {
     @Resource
     private ResponseService responseService;
 
-    @GetMapping("/survey/list")
-    public Result<List<SurveyVO>> getSurveys(
+    @GetMapping("/list")
+    @ControllerLog(name = "getSurveyList")
+    public Result<List<? extends SurveyVO>> getSurveys(
             @RequestParam String type,  // 查找创建的问卷或是填写过的问卷
-            @RequestParam(defaultValue = "create_time") String sort)
+            @RequestParam(defaultValue = "create_time") String sort,
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "1") Integer pageSize)
     {
         if (!"created".equals(type) && !"filled".equals(type)) {
             throw new IllegalRequestException("", "Invalid type " + type);
@@ -51,9 +57,8 @@ public class SurveyController {
         }
 
         if ("created".equals(type)) {
-            return Result.success(surveyService.getSurveys(BaseContext.getCurrentId(), true, sort).stream().map(s -> {
+            return Result.success(surveyService.getSurveys(BaseContext.getCurrentId(), true, pageNum, pageSize, sort).stream().map(s -> {
                         CreatedSurveyVO surveyVO = CreatedSurveyVO.builder()
-                                // .questions(transfer(questionService.getBySid(s.getSid())))
                                 .type(s.getType().getValue())
                                 .state(s.getState().getValue())
                                 .build();
@@ -65,19 +70,11 @@ public class SurveyController {
 
         // todo: 按照填写时间降序排列
         else {
-            return Result.success(surveyService.getSurveys(BaseContext.getCurrentId(), false, sort).stream().map(s -> {
-                        FilledSurveyVO surveyVO = FilledSurveyVO.builder()
-                                .type(s.getType().getValue())
-                                .state(s.getState().getValue())
-                                .build();
-                        BeanUtils.copyProperties(s, surveyVO);
-                        return surveyVO;
-                    })
-                    .collect(Collectors.toList()));
+            return Result.success(surveyService.getFilledSurveys(BaseContext.getCurrentId(), pageNum, pageSize, sort).getList());
         }
     }
 
-    @GetMapping("/survey/{sid}")
+    @GetMapping("/{sid}")
     public Result<CreatedSurveyVO> getSurvey(@PathVariable Long sid) {
         // 获取问卷
         Survey survey = surveyService.getSurvey(sid);
@@ -98,7 +95,7 @@ public class SurveyController {
         return Result.success(createdSurveyVO);
     }
 
-    @PostMapping("/survey/add")
+    @PostMapping("/add")
     public Result<Long> createSurvey(@RequestBody CreateSurveyDTO createdSurveyDTO) {
         Long sid = surveyService.addSurvey(createdSurveyDTO).getSid();
         questionService.addQuestions(createdSurveyDTO.getQuestions(), sid);
@@ -106,7 +103,7 @@ public class SurveyController {
         return Result.success(sid);
     }
 
-    @PutMapping("/survey/{sid}")
+    @PutMapping("/{sid}")
     public Result<Void> modifySurvey(@PathVariable Long sid, @RequestBody CreateSurveyDTO createdSurveyDTO) {
         surveyService.updateSurvey(sid, createdSurveyDTO);
 
@@ -118,7 +115,7 @@ public class SurveyController {
      * @param sid 问卷 ID
      * @return 填写链接
      */
-    @PostMapping("/survey/{sid}/share")
+    @PostMapping("/{sid}/share")
     public Result<String> shareSurvey(@PathVariable Long sid) {
         return Result.success(surveyService.shareSurvey(sid));
     }
@@ -127,7 +124,7 @@ public class SurveyController {
      * 关闭问卷，停止填写
      * @param sid 问卷id
      */
-    @PutMapping("survey/{sid}/close")
+    @PutMapping("/{sid}/close")
     public Result<Void> closeSurvey(@PathVariable Long sid) {
         surveyService.closeSurvey(sid);
         return Result.success();
@@ -137,7 +134,7 @@ public class SurveyController {
      * 用户角度删除问卷，只是将问卷标记为删除状态，并不从数据库中删除
      * @param sid 问卷 ID
      */
-    @DeleteMapping("/survey/{sid}")
+    @DeleteMapping("/{sid}")
     public Result<Void> deleteSurvey(@PathVariable Long sid) {
         surveyService.modifyState(sid, SurveyState.DELETE);
         return Result.success();
@@ -148,9 +145,14 @@ public class SurveyController {
      * @param sid 问卷 ID
      * @return 问卷的填写结果
      */
-    @GetMapping("/survey/{sid}/response/detail")
-    public Result<List<Response>> getResponses(@PathVariable Long sid) {
+    @GetMapping("/{sid}/response/detail")
+    public Result<List<Response>> getResponsesDetail(@PathVariable Long sid) {
         return Result.success(responseService.getResponseBySid(sid));
+    }
+
+    @GetMapping("/response")
+    public Result<PageResult<Response>> getResponses(@RequestBody ResponsePageQueryDTO responsePageQueryDTO) {
+        return Result.success(responseService.pageQuery(responsePageQueryDTO));
     }
 
 //    @GetMapping("survey/{sid}/response/page")
@@ -162,12 +164,12 @@ public class SurveyController {
      * @param httpServletResponse http 响应，用于携带导出文件
      */
     @SneakyThrows
-    @GetMapping("/survey/{sid}/export")
+    @GetMapping("/{sid}/export")
     public void exportSurvey(@PathVariable Long sid, HttpServletResponse httpServletResponse) {
         responseService.export(sid, httpServletResponse);
     }
 
-    @GetMapping("survey/{sid}/link")
+    @GetMapping("/{sid}/link")
     public Result<String> link(@PathVariable Long sid) {
         Survey survey = surveyService.getSurvey(sid);
         if (survey == null || survey.getState() == SurveyState.DELETE) {

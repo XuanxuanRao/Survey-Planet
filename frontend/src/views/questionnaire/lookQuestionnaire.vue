@@ -2,10 +2,9 @@
 import * as echarts from 'echarts';
 import { ref, onMounted,nextTick,reactive,onBeforeUnmount, } from 'vue'
 import 'echarts-wordcloud'; // 引入 Word Cloud 插件
-
-
 import {userGetAnswernaireResult,userGetQuestionnaire,userGetPageResult} from '@/api/questionnaire'
 import { useRoute } from 'vue-router'
+
 const isDialogVisible = ref({});
 const background = ref(true)
 const pageView = reactive({}); //填空题
@@ -13,7 +12,6 @@ const pageSize=reactive({});
 const currentPages = reactive({});
 const route = useRoute()
 const sid = route.query.id
-const analyseQuestionnaireList = ref([]);   // 响应式变量，存储用户数据
 const qids = ref([]);
 const questions = ref([]); // 定义一个响应式容器
 const answers = ref([]); // 用于存储每个 qid 的答案
@@ -27,22 +25,20 @@ const transformedWordClouds = ref({}); // 创建一个对象来存储不同的 w
 const surveyType=ref()
 const codes = ref({});
 const selectedSubmitIds = ref([]);
+//初始化
 for (let i = 0; i <= 1000; i++) {
   currentPages[i] = 1;
   isDialogVisible[i] = false;  
   pageSize[i] = 5; 
   pageView[i] = [];
 }
-const handleSelectionChange = (selectedRows) => {
-  // 获取选中行的 submitId 并形成数组
-  selectedSubmitIds.value = selectedRows.map(row => row.submitId);
-  console.log(selectedSubmitIds.value); // 打印选中的 submitId 数组
-};
+
 // 在组件挂载时获取数据
 onMounted(async () => {
+    //获取问卷数据,包括questions(questionnaires),type
     const res = await userGetQuestionnaire(sid);
     console.log("res",res)
-    analyseQuestionnaireList.value = res.data;
+    //questionnaires数据不会再次变,为临时非响应变量
     const questionnaires = res.data.questions; 
     surveyType.value=res.data.type 
     console.log("surveyType.value",surveyType.value)
@@ -51,11 +47,12 @@ onMounted(async () => {
     qids.value = questionnaires
               .filter(questionnaire => questionnaire.type !== 'file') // 过滤掉 type 为 'file' 的项
               .map(questionnaire => questionnaire.qid); // 获取 qid
-    // 获取每个 qid 的答案，并提取 data 属性
+    // 获取每个 qid 的答案,合成数组results
     const results = await Promise.all(qids.value.map(qid => userGetAnswernaireResult(qid)));
     console.log("results",results)
+    //预处理,如果是exam 的填空题和代码题,则额外加上属性
     results.forEach(result => {
-        //exam 的填空题和代码题,排除选择题
+        //exam 的填空题和代码题,排除选择题grade,count,index
         if (result.data.answerCount==null  && surveyType.value === 'exam') {          
           codes.value[result.data.qid] = result.data; 
           const item = codes.value[result.data.qid];
@@ -65,16 +62,16 @@ onMounted(async () => {
             count: count,
             index: index + 1 // 添加 index 属性，从 1 开始
           }));
-
           // 如果需要将处理后的结果存储回 codes
           codes.value[result.data.qid] = processedCodes; // 更新 codes 中对应的 qid
           result.data.codes = processedCodes;         
         }
       });
       
-    // 合并所有结果的 data 到 answers.value
+    // 合并所有results的 result.data 到 answers.value
     answers.value = results.map(result => result.data); 
     console.log("answers.value",answers.value)
+    //合并questions和answers为mergedData
     mergedData.value = questions.value.map(question => {
         const answer = answers.value.find(ans => ans.qid === question.qid) || {};
         return {
@@ -83,6 +80,7 @@ onMounted(async () => {
         };
     });
     console.log("mergedData.valueBefore",mergedData.value)
+    //提取mergedData中的相关属性到tableData
     tableData.value = mergedData.value.map(item => {
     return {
       options: item.options ? Array.from(item.options) : [], // 将 Proxy(Array) 转换为普通数组
@@ -91,6 +89,7 @@ onMounted(async () => {
     };
     });
     console.log("tableData.value",tableData.value)
+    //将tableData相关属性转换为数组,添加到mergerdData作为其属性
     for (let i = 0; i < tableData.value.length; i++) {
     // 确保 tableData.value[i] 是一个对象而不是数组
     const item = tableData.value[i];
@@ -110,47 +109,48 @@ onMounted(async () => {
     // 将 newArray.value 添加到 newArray1
     newArray1.value[i].push(...newArray.value);  // 使用扩展运算符将元素添加到 newArray1
     mergedData.value[i].newArray1Data = newArray1.value[i]; // 作为新属性添加
-    newArray.value = null; // 清空 newArray.value
-    
+    newArray.value = null; // 清空 newArray.value   
     }
-    
-      mergedData.value.forEach((answernaire, index) => {
-      if (answernaire.type === 'single_choice' || answernaire.type === 'multiple_choice'||answernaire.type === 'code'||(surveyType.value=='exam'&&answernaire.type === 'fill_blank')) {
-        initCharts(answernaire, index); // 重新初始化图表
-      }
-      if(answernaire.type === 'fill_blank'||answernaire.type === 'code'||answernaire.type === 'file'){
-        console.log("pageSize[answernaire.qid]",pageSize[answernaire.qid])
-        handleCurrentChange(1,answernaire.qid,5,answernaire)        
-      }
-      });
-      console.log("mergedData.value",mergedData.value)
-      //词云 
-      mergedData.value.forEach((answernaire, index) => {
-          if (answernaire.type === 'fill_blank') { // 检查 type 属性
-              if (Array.isArray(answernaire.wordCloud)) { // 确保 wordCloud 是数组
-                  const qid = answernaire.qid; // 获取 qid
-                  const wordCloud = answernaire.wordCloud; // 获取 wordCloud 数组
-                  console.log("wordCloud",wordCloud)
-                  // 如果没有该 qid 的数组，则初始化一个空数组
-                 
-                  transformedWordClouds[qid] = ref([]);
-                  
-                  // 遍历 wordCloud 并压入对应的数组
-                  answernaire.wordCloud.forEach(item => {
-                      transformedWordClouds[qid].value.push({
-                          name: item.word,
-                          value: item.frequency
-                      });
-                  });       
-                  console.log("transformedWordClouds[qid].value",transformedWordClouds[qid].value)
-                  
-                  initChart1(transformedWordClouds[qid],index);
-                  
-              }
-          }
-      });
-     
+    //初始化饼图,柱状图和table表格
+    mergedData.value.forEach((answernaire, index) => {
+    if (answernaire.type === 'single_choice' || answernaire.type === 'multiple_choice'||answernaire.type === 'code'||(surveyType.value=='exam'&&answernaire.type === 'fill_blank')) {
+      initCharts(answernaire, index); // 重新初始化图表
+    }
+    if(answernaire.type === 'fill_blank'||answernaire.type === 'code'||answernaire.type === 'file'){
+      console.log("pageSize[answernaire.qid]",pageSize[answernaire.qid])
+      handleCurrentChange(1,answernaire.qid,5,answernaire)        
+    }
+    });
+    console.log("mergedData.value",mergedData.value)
+    //初始化词云 
+    mergedData.value.forEach((answernaire, index) => {
+        if (answernaire.type === 'fill_blank') { // 检查 type 属性
+            if (Array.isArray(answernaire.wordCloud)) { // 确保 wordCloud 是数组
+                const qid = answernaire.qid; // 获取 qid
+                const wordCloud = answernaire.wordCloud; // 获取 wordCloud 数组
+                console.log("wordCloud",wordCloud)
+                // 如果没有该 qid 的数组，则初始化一个空数               
+                transformedWordClouds[qid] = ref([]);               
+                // 遍历 wordCloud 并压入对应的数组
+                answernaire.wordCloud.forEach(item => {
+                    transformedWordClouds[qid].value.push({
+                        name: item.word,
+                        value: item.frequency
+                    });
+                });       
+                console.log("transformedWordClouds[qid].value",transformedWordClouds[qid].value)    
+                initChart1(transformedWordClouds[qid],index);               
+            }
+        }
+    });   
 })
+//文件题的勾选框
+const handleSelectionChange = (selectedRows) => {
+  // 获取选中行的 submitId 并形成数组
+  selectedSubmitIds.value = selectedRows.map(row => row.submitId);
+  console.log(selectedSubmitIds.value); // 打印选中的 submitId 数组
+};
+//分页表格
 const handleCurrentChange = async(pageNum,qid,Size,answernaire) => { 
   currentPages[qid]=pageNum
   const t = await userGetPageResult(qid,pageNum,Size);
@@ -183,6 +183,7 @@ const handleCurrentChange = async(pageNum,qid,Size,answernaire) => {
   }
   console.log("pageViewqid.value",qid,pageView[qid].value)
 }
+//分页表格
 const handleSizeChange = async(Size,qid,pageNum,answernaire) => {
   pageSize[qid] = Size;
   // pageView[qid] = ref([]);
@@ -212,6 +213,7 @@ const handleSizeChange = async(Size,qid,pageNum,answernaire) => {
   }
   console.log("pageView[qid].value",qid,pageView[qid].value)
 }
+//模式转换,对应按钮统计与分析,查看问卷
 const switchMode = (newMode) => {
   mode.value = newMode;
   if (newMode === 0) {
@@ -224,12 +226,14 @@ const switchMode = (newMode) => {
     });
   }
 };
+//模式转换1,对应查看表格
 const switchMode1 = async(newMode1,answernaire, index) => {
   console.log("newMode1",newMode1)
     mode1.value[index] = newMode1;
     
     initCharts(answernaire, index); // 重新初始化图表
 }
+//初始化饼图,柱状图
 const initCharts = async(answernaire, index)  => {
       // 图表初始化逻辑
       await nextTick(); // 确保 DOM 更新完成
@@ -371,7 +375,7 @@ const initCharts = async(answernaire, index)  => {
     };
     }
   
-
+  //初始化词云
   const initChart1 =async(datalist, index)  => {
     await nextTick(); // 确保 DOM 更新完成
     const chart = echarts.init(document.getElementById(`mywordcloud-${index}`));

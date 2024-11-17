@@ -13,9 +13,7 @@ import org.example.exception.CompileError;
 import org.example.exception.SubmitError;
 import org.example.exception.SystemError;
 import org.example.judge.utils.TestCaseUtil;
-import org.example.loader.LanguageConfigLoader;
 import org.example.utils.SandboxUtil;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -48,6 +46,12 @@ public class JudgeContext {
     @Resource
     private SandboxUtil SandboxUtil;
 
+    /**
+     * 开始评测任务，首先编译代码，得到 fileId，然后通过 fileId 执行编译得到的可执行文件，运行测试用例
+     * @param problem 题目信息
+     * @param judge   提交信息
+     * @return 评测结果
+     */
     public Judge judge(CodeQuestion problem, Judge judge) {
         // 加载语言配置
         LanguageConfig languageConfig = languageConfigLoader.getLanguageConfigByName(judge.getLanguage());

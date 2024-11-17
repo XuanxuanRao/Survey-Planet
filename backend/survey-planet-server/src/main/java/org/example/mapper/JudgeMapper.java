@@ -1,7 +1,6 @@
 package org.example.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.xmlbeans.impl.tool.XSTCTester;
 import org.example.annotation.AutoFill;
 import org.example.entity.judge.CaseJudgeResult;
 import org.example.entity.judge.Judge;
@@ -20,4 +19,6 @@ public interface JudgeMapper {
 
     Judge getJudgeBySubmitId(Long submitId);
 
+    @AutoFill(value = OperationType.UPDATE)
+    void updateJudgeResult(Judge judge);
 }

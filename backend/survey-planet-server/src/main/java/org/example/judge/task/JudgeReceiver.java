@@ -41,7 +41,7 @@ public class JudgeReceiver {
 
     @Async("judgeTaskAsyncPool")
     public void processWaitingTask() {
-        handleWaitingTask(JudgeTaskType.USER_SUBMIT, JudgeTaskType.REJUDGE);
+        handleWaitingTask(JudgeTaskType.USER_SUBMIT, JudgeTaskType.REJUDGE, JudgeTaskType.USER_TEST);
     }
 
     private void handleWaitingTask(JudgeTaskType... queues) {

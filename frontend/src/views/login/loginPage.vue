@@ -368,7 +368,7 @@ watch(loginMode, () => {
   height: 100vh; 
 }
 .spacingEle{
-    margin-right: 80px;
+    margin-right: 0px;
 }
  /* .login_page {
   display: flex;

@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <div id="BG">
+      
       <!-- 自定义组件，名为planet-b-g -->
       <!-- 使用了Vue的条件渲染指令v-if。条件是$route.meta.requiresParallax，意味着只有当路由的元信息（meta）中requiresParallax为真时，这个组件才会被渲染。 -->
       <planet-b-g v-if="$route.meta.requiresParallax"/>

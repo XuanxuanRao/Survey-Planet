@@ -165,7 +165,14 @@ export const userExportResult = async (id) => {
     }
 }
 export const userGetAnswernaireResult = (qid) => {
-    return request.get(`/api/report/${qid}`, {
+    return request.get(`/api/report/stat/${qid}`, {
+        headers: {
+            'token': useUserStore().token,
+        }
+    })
+}
+export const userGetPageResult = (qid,pageNum,pageSize) => {
+    return request.get(`/api/report/detail/${qid}?pageNum=${pageNum}&pageSize=${pageSize}`, {
         headers: {
             'token': useUserStore().token,
         }

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-
+import { Search,Delete, Edit,  Share, Upload, Download } from '@element-plus/icons-vue'
 import { getCreatedQuestionnaireList, userDeleteQuestionnaire, userShareQuestionnaire, userCloseQuestionnaire, userExportResult } from '@/api/questionnaire'
 import { useRouter } from 'vue-router'
 //import { ElButton, ElMessage } from 'element-plus'
@@ -127,7 +127,7 @@ const analyseResult = (id) => {
 <template>
   <div class="box">
     <div class="header">
-    <h1>创建问卷</h1>
+    <div class="head-text">创建问卷</div>
     <el-select
     v-model="questionnaireType"
     placeholder="请选择问卷类型"
@@ -150,6 +150,7 @@ const analyseResult = (id) => {
     />
 
     <el-button
+    class="custom-button"
     type="primary"
     size="large"
     style="width: 15vw"
@@ -188,10 +189,10 @@ const analyseResult = (id) => {
           
           <div class="button-name-description">
             <div class="button-left-content">
-              <el-button @click="analyseResult(questionnaire.sid)">查看</el-button>
-              <el-button @click="exportResult(questionnaire.sid)">下载</el-button>
-              <el-button @click="deleteQuestionnaire(questionnaire.sid)">删除</el-button>
-              <el-button @click="modify(questionnaire.sid)">修改</el-button>
+              <el-button :icon="Search" @click="analyseResult(questionnaire.sid)">查看</el-button>
+              <el-button :icon="Download" @click="exportResult(questionnaire.sid)">下载</el-button>
+              <el-button :icon="Delete" @click="deleteQuestionnaire(questionnaire.sid)">删除</el-button>
+              <el-button :icon="Edit" @click="modify(questionnaire.sid)">修改</el-button>
             </div>
             <div class="spacing2"></div>
             <div class="button-right-content">
@@ -244,9 +245,11 @@ const analyseResult = (id) => {
   align-items: center;
   justify-content: center;
   height: 100px;
-  background: wheat; /* 背景颜色 */
+  background: lightblue; /* 背景颜色 */
   margin: 10px;
-  /* color: white; 字体颜色 */
+  /* background: url('@/assets/img/2.jpg') no-repeat center center;
+  background-size: cover;
+  z-index: 20; */
 }
 
 .name-description {
@@ -278,6 +281,7 @@ const analyseResult = (id) => {
 }
 
 .button-left-content {
+  
   text-align: left;
 }
 
@@ -304,7 +308,7 @@ const analyseResult = (id) => {
   margin-right:600px; /* 调整这个值以满足实际需求 */
 }
 .spacing2 {
-  margin-right:900px; /* 调整这个值以满足实际需求 */
+  margin-right:780px; /* 调整这个值以满足实际需求 */
 }
 .button-group {
   display: flex;
@@ -342,5 +346,39 @@ const analyseResult = (id) => {
   background-color: gray; /* 灰色 */
   border-radius: 50%; /* 圆形 */
   margin-right: 5px; /* 右侧间距 */
+}
+.head-text{
+      font-size: 30px;
+      align-items: flex-end;
+      margin-bottom: 20px;
+      border-bottom: 2px solid black;
+}
+
+.custom-button {
+  position: relative;
+  width: 100px;
+  height: 45px;
+  text-align: center;
+  line-height: 60px;
+  color: #fff;
+  font-size: 18px;
+  text-decoration: none;
+  font-family: sans-serif;
+  border-radius: 30px;
+  background: linear-gradient(90deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4);
+  background-size: 400%;
+  transition: background-position 0.5s;
+}
+.custom-button:hover {
+  animation: animate 8s linear infinite;
+}
+
+@keyframes animate {
+  from {
+    background-position: 0%;
+  }
+  to {
+    background-position: 480%;
+  }
 }
 </style>

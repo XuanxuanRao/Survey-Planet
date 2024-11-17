@@ -98,7 +98,7 @@ export default {
 }
 
 .menu-wrapper.expanded {
-  width: 200px; /* 展开状态的宽度 */
+  width: 100px; /* 展开状态的宽度 */
 }
 
 .menu-content {

@@ -77,7 +77,7 @@ const submitSurvey = async () => {
         if (file) {
           const uploadRes = await userUploadFile(file)
           console.log('上传文件结果:', uploadRes.data)
-          if (!answers.value[i].content[1]) {
+          if (question.type === 'code' && !answers.value[i].content[1]) {
             console.log('请选择编程语言')
             ElMessage.error('请选择编程语言')
             return
@@ -97,6 +97,8 @@ const submitSurvey = async () => {
       console.log(res.data)
       if(type.value === 'exam') {
         router.push({ path: '/viewResult', query: { rid: res.data } })
+      } else if(type.value) {
+        router.push('/questionnaire/CreateQuestionnaire')
       }
     } else {
       ElMessage.error('提交失败，请稍后重试')
@@ -129,8 +131,6 @@ onBeforeRouteLeave((to, from, next) => {
         next() // 已保存，允许路由跳转
     }
 })
-
-const availableLanguages = ['Python', 'JavaScript', 'Java', 'C++']
 
 </script>
 
@@ -199,14 +199,13 @@ const availableLanguages = ['Python', 'JavaScript', 'Java', 'C++']
             <!-- 多选编程语言 -->
           <el-select v-model="answers[index].content[1]" placeholder="请选择编程语言" style="width: 300px; margin-bottom: 10px;">
             <el-option
-              v-for="(language, langIndex) in availableLanguages"
+              v-for="(language, langIndex) in question.languages"
               :key="langIndex"
               :label="language"
               :value="language"
             />
           </el-select>
           
-          <div class="el-upload__tip">文件最大为 {{ question.maxFileSize }} MB</div>
           <div v-if="type === 'exam' && question.score !== null">分数:{{ question.score }}</div>
         </template>
 

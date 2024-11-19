@@ -99,7 +99,8 @@ const toggleUrls = (index) => {
             {{ option }}
           </el-radio>
           </el-radio-group>
-          <br>本题得分：{{ item.grade }}
+          <br>
+          <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div>
         </template>
 
         <template v-if="item.question.type === 'multiple_choice'">
@@ -117,14 +118,14 @@ const toggleUrls = (index) => {
             {{ option }}
            </el-checkbox>
           </el-checkbox-group>
-          本题得分：{{ item.grade }}
+          <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div>
         </template>
 
         <template v-if="item.question.type === 'fill_blank'">
           <h4>
             Q{{ index + 1 }} {{ item.question.title }} (填空题) <br>
             问题描述：{{ item.question.description }} <br>
-            本题得分：{{ item.grade }}
+            <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div>
           </h4>
 
         </template>
@@ -133,7 +134,7 @@ const toggleUrls = (index) => {
           <h4>
             Q{{ index + 1 }} {{ item.question.title }} (代码题) <br>
             问题描述：{{ item.question.description }} <br>
-            本题得分：{{ item.grade }}
+            <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div>
           </h4>
 
           <div class="result-container" v-if="item.judge.caseJudgeResults.length > 0">

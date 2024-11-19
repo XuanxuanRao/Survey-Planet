@@ -13,7 +13,7 @@ export const updateUserInfo = (password, avatar) => {
     const data = {
         password: password,
         avatar: avatar
-    };
+    }
     const jsonData = JSON.stringify(data)
     return request.put('/api/user', jsonData, {
         headers: {

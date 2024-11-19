@@ -123,6 +123,20 @@ const saveExam = async() => {
       ElMessage.error('选择题必须至少有一个选项')
       return
     }
+    if(question.type === 'code') {
+      if(question.languages.length === 0) {
+        ElMessage.error('请选择编程语言')
+        return
+      }
+      if(question.inputFileUrls.length === 0 || question.outputFileUrls.length === 0) {
+        ElMessage.error('请上传输入输出文件')
+        return
+      }
+      if(question.inputFileUrls.length !== question.outputFileUrls.length) {
+        ElMessage.error('输入输出文件数量不一致')
+        return
+      }
+    }
   }
 
   examData.value = [...questions.value] // 将当前问卷的问题和选项保存到 examData
@@ -271,7 +285,7 @@ const uploadHeaders = computed(() => {
             <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
           </div>
           <el-input v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen"/>
-          <el-input-number v-model="question.score" placeholder="分数" />
+          <el-input-number v-model="question.score" placeholder="分数" :min="1" />
           <ul>
             <li v-for="(option, optIndex) in question.options" :key="optIndex">
               <el-input v-model="question.options[optIndex]" placeholder="选项内容">
@@ -294,7 +308,7 @@ const uploadHeaders = computed(() => {
             <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
           </div>
           <el-input v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
-          <el-input-number v-model="question.score" placeholder="分数" />
+          <el-input-number v-model="question.score" placeholder="分数" :min="1" />
           <!-- 设置填空题答案 -->
           <el-input v-model="question.answer[0]" placeholder="请输入正确答案" />
         </template>
@@ -305,15 +319,8 @@ const uploadHeaders = computed(() => {
                 <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
             </div>
             <el-input v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
-            <el-input-number v-model="question.score" placeholder="分数" :min="0"/>
+            <el-input-number v-model="question.score" placeholder="分数" :min="1"/>
 
-            <div>上传文件大小(MB)</div>
-            <el-input-number 
-              v-model="question.maxFileSize" 
-              placeholder="上传文件大小"
-              :min="1" 
-              :max="100"  
-            />
             <div>运行时间(ms),不超过10000</div>
             <el-input-number 
               v-model="question.timeLimit" 

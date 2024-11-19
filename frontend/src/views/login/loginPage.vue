@@ -201,67 +201,68 @@ watch(loginMode, () => {
             <span class="spacingEle"></span>
             <el-row>
                     <el-col :span="12" :offset="6" class="form">
+                        <!-- <div class="spacingblock"></div> -->
                         <div class="bordered-block">
                         <!-- 注册 -->
-                        <el-form :model="formModel" :rules="rules" ref="form" v-if="loginMode === 1">
+                        <el-form style="display: flex; justify-content: center; align-items: center; flex-direction: column;"  :model="formModel" :rules="rules" ref="form" v-if="loginMode === 1">
                             <el-form-item>
-                                <span class="spacing"></span>
+                                <!-- <span class="spacing5"></span> -->
                                 <h1 class="white">注册</h1>
                             </el-form-item>
-                            <el-form-item prop="username">
-                                <span class="spacingUsername"></span>
-                                <el-input style="width: 500px" v-model="formModel.username" :prefix-icon="User" placeholder="请输入用户名"></el-input>
+                            <el-form-item style="display: flex; justify-content: center; align-items: center;" prop="username">
+                                <!-- <span class="spacingUsername"></span> -->
+                                <el-input style="width: 400px" v-model="formModel.username" :prefix-icon="User" placeholder="请输入用户名"></el-input>
                             </el-form-item>
-                            <el-form-item prop="email">
-                                <span class="spacingUsername"></span>
-                                <el-input style="width: 400px" v-model="formModel.email" :prefix-icon="User" placeholder="请输入邮箱"></el-input>
+                            <el-form-item style="display: flex; justify-content: center; align-items: center;" prop="email">
+                                <!-- <span class="spacingUsername"></span> -->
+                                <el-input style="width: 300px" v-model="formModel.email" :prefix-icon="User" placeholder="请输入邮箱"></el-input>
                                 <el-button @click="getCode">
                                     {{seconds === totalSeconds? '获取验证码' : seconds + 's后重新发送'}}
                                 </el-button>
                             </el-form-item>
-                            <el-form-item prop="code">
-                                <span class="spacingUsername"></span>
-                                <el-input style="width: 500px" v-model="formModel.code" :prefix-icon="User" placeholder="请输入验证码"></el-input>
+                            <el-form-item style="display: flex; justify-content: center; align-items: center;" prop="code">
+                                <!-- <span class="spacingUsername"></span> -->
+                                <el-input style="width: 400px" v-model="formModel.code" :prefix-icon="User" placeholder="请输入验证码"></el-input>
                             </el-form-item>
-                            <el-form-item prop="password">
-                                <span class="spacingUsername"></span>
-                                <el-input style="width: 500px" v-model="formModel.password" :prefix-icon="Lock" type="password" placeholder="请输入密码"></el-input>
+                            <el-form-item style="display: flex; justify-content: center; align-items: center;" prop="password">
+                                <!-- <span class="spacingUsername"></span> -->
+                                <el-input style="width: 400px" v-model="formModel.password" :prefix-icon="Lock" type="password" placeholder="请输入密码"></el-input>
                             </el-form-item>
                             <el-form-item prop="repassword">
-                                <span class="spacingUsername"></span>
-                                <el-input style="width: 500px" v-model="formModel.repassword" :prefix-icon="Lock" type="password" placeholder="请再次输入密码"></el-input>
+                                <!-- <span class="spacingUsername"></span> -->
+                                <el-input style="width: 400px" v-model="formModel.repassword" :prefix-icon="Lock" type="password" placeholder="请再次输入密码"></el-input>
                             </el-form-item>
                             <el-form-item>
-                                <span class="spacing2"></span>
+                                <!-- <span class="spacing2"></span> -->
                                 <el-button @click="register" type="primary " class="custom-button">注册</el-button>
                             </el-form-item>
                             <el-form-item>
-                                <span class="spacing"></span>
-                                <el-link @click="loginMode = 0" class="white">&nbsp;去登录</el-link>
+                                <!-- <span class="spacing"></span> -->
+                                <el-link @click="loginMode = 0" class="white">去登录</el-link>
                             </el-form-item>
                         </el-form>
 
                         <!-- 登录 -->
-                        <el-form :model="formModel" :rules="rules" ref="form" v-else-if="loginMode === 0">
+                        <el-form style="display: flex; justify-content: center; align-items: center; flex-direction: column;" :model="formModel" :rules="rules" ref="form" v-else-if="loginMode === 0">
                             <div class="bgc">
                                 <el-form-item>
                                     <span class="spacing"></span>
                                     <h1 class="white" >登录</h1>
                                 </el-form-item >
-                                <el-form-item prop="username">
-                                    <span class="spacingUsername"></span>
-                                    <el-input style="width: 500px" v-model="formModel.username" :prefix-icon="User" placeholder="请输入用户名"></el-input>
+                                <el-form-item style="display: flex; justify-content: center; align-items: center;"  prop="username">
+                                    <!-- <span class="spacingUsername"></span> -->
+                                    <el-input style="width: 400px" v-model="formModel.username" :prefix-icon="User" placeholder="请输入用户名"></el-input>
                                 </el-form-item>
-                                <el-form-item prop="password">
-                                    <span class="spacingUsername"></span>
-                                    <el-input style="width: 500px" v-model="formModel.password" :prefix-icon="Lock" type="password" placeholder="请输入密码"></el-input>
+                                <el-form-item style="display: flex; justify-content: center; align-items: center;" prop="password">
+                                    <!-- <span class="spacingUsername"></span> -->
+                                    <el-input style="width: 400px" v-model="formModel.password" :prefix-icon="Lock" type="password" placeholder="请输入密码"></el-input>
                                 </el-form-item>
                                 <el-form-item>
                                     <span class="spacing2"></span>
                                     <el-button @click="login" type="primary" class="custom-button">登录</el-button>
                                 </el-form-item>
                                 <el-form-item>
-                                    <span class="spacing3"></span>
+                                    
                                     <span class="spacingQuZhuCe"></span>
                                     <el-link @click="loginMode = 1" class="white1">去注册</el-link>
                                     <span class="spacingWangJiMiMa"></span>
@@ -273,32 +274,32 @@ watch(loginMode, () => {
                         </el-form>
 
                         <!-- 忘记密码 -->
-                        <el-form :model="formModel" :rules="rules" ref="form" v-if="loginMode === 2">
+                        <el-form style="display: flex; justify-content: center; align-items: center; flex-direction: column;" :model="formModel" :rules="rules" ref="form" v-if="loginMode === 2">
                             <el-form-item>
-                                <span class="spacingWangJi"></span>
+                                <!-- <span class="spacingWangJi"></span> -->
                                 <h1 class="white" >忘记密码</h1>
                             </el-form-item>
                             <el-form-item prop="email">
-                                <span class="spacingUsername"></span>
-                                <el-input style="width: 400px" v-model="formModel.email" :prefix-icon="User" placeholder="请输入邮箱"></el-input>
+                                <!-- <span class="spacingUsername"></span> -->
+                                <el-input style="width: 300px" v-model="formModel.email" :prefix-icon="User" placeholder="请输入邮箱"></el-input>
                                 <el-button @click="getCode">
                                     {{seconds === totalSeconds? '获取验证码' : seconds + 's后重新发送'}}
                                 </el-button>
                             </el-form-item>
                             <el-form-item prop="code">
-                                <span class="spacingUsername"></span>
-                                <el-input v-model="formModel.code" :prefix-icon="User" placeholder="请输入验证码" style="width: 500px"></el-input>
+                                <!-- <span class="spacingUsername"></span> -->
+                                <el-input v-model="formModel.code" :prefix-icon="User" placeholder="请输入验证码" style="width: 400px"></el-input>
                             </el-form-item>
                             <el-form-item prop="password">
-                                <span class="spacingUsername"></span>
-                                <el-input v-model="formModel.password" :prefix-icon="Lock" type="password" placeholder="请输入密码" style="width: 500px"></el-input>
+                                <!-- <span class="spacingUsername"></span> -->
+                                <el-input v-model="formModel.password" :prefix-icon="Lock" type="password" placeholder="请输入密码" style="width: 400px"></el-input>
                             </el-form-item>
                             <el-form-item>
-                                <span class="spacing2"></span>
+                                <!-- <span class="spacing2"></span> -->
                                 <el-button @click="reset" type="primary" class="custom-button">重置密码</el-button>
                             </el-form-item>
                             <el-form-item>
-                                <span class="spacingQuDengRu"></span>
+                                <!-- <span class="spacingQuDengRu"></span> -->
                                 <el-link @click="loginMode = 0" class="white">去登录</el-link>
                             </el-form-item>
                         </el-form>
@@ -324,15 +325,29 @@ watch(loginMode, () => {
     color: white;
     border-bottom: 1px solid wheat; /* 简化写法 */
 }
+/* 登入 */
 .spacing {
-  margin-right:460px; /* 调整这个值以满足实际需求 */
+  margin-right:180px; /* 调整这个值以满足实际需求 */
 }
+.spacing2 {
+  margin-right:160px; /* 调整这个值以满足实际需求 */
+}
+.spacingQuZhuCe{
+    margin-right: 140px;
+}
+.spacingWangJiMiMa{
+    margin-right: 50px;
+}
+/* 注册 */
+.spacing5{
+    margin-right:285px; /* 调整这个值以满足实际需求 */
+}
+
+
 .spacing1 {
   margin-right:365px; /* 调整这个值以满足实际需求 */
 }
-.spacing2 {
-  margin-right:440px; /* 调整这个值以满足实际需求 */
-}
+
 .spacing3 {
   margin-right:100px; /* 调整这个值以满足实际需求 */
 }
@@ -341,8 +356,11 @@ watch(loginMode, () => {
      background: transparent;
      backdrop-filter: blur(7px); /* 背景模糊效果，提升用户体验 */
 } 
+.spacingblock{
+    margin-right:500px; /* 调整这个值以满足实际需求 */
+}
 .spacingUsername{
-    margin-right: 230px;
+    margin-right: 1700px;
 }
 .spacingQuDengRu{
     margin-right: 470px;
@@ -350,33 +368,27 @@ watch(loginMode, () => {
 .spacingWangJi{
     margin-right: 430px;
 }
-.spacingQuZhuCe{
-    margin-right: 320px;
-}
-.spacingWangJiMiMa{
-    margin-right: 50px;
-}
+
 .bordered-block {
   border: 1px solid white; /* 简化写法 */
   padding: 1px; /* 可选：增加内边距 */
-  width: 1000px;
+  width: 600px;
+  
 }
 .ele{
   display: flex;
   justify-content: top;
-  align-items: left;
   height: 100vh; 
+  /* margin-right: 1050px; */
 }
 .spacingEle{
-    margin-right: 0px;
+    margin-right: 300px;
 }
- /* .login_page {
+ .login_page {
   display: flex;
-  flex-direction: column; 
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;   
   height: 100vh; 
-}  */
+} 
 .vuetype-container {
   height: 30vh; /* 视口高度 */
   display: flex;

@@ -25,6 +25,7 @@ const transformedWordClouds = ref({}); // 创建一个对象来存储不同的 w
 const surveyType=ref()
 const codes = ref({});
 const selectedSubmitIds = ref([]);
+const title=ref()
 //初始化
 for (let i = 0; i <= 1000; i++) {
   currentPages[i] = 1;
@@ -37,6 +38,7 @@ for (let i = 0; i <= 1000; i++) {
 onMounted(async () => {
     //获取问卷数据,包括questions(questionnaires),type
     const res = await userGetQuestionnaire(sid);
+    title.value=res.data.title
     console.log("res",res)
     //questionnaires数据不会再次变,为临时非响应变量
     const questionnaires = res.data.questions; 
@@ -229,9 +231,14 @@ const switchMode = (newMode) => {
 //模式转换1,对应查看表格
 const switchMode1 = async(newMode1,answernaire, index) => {
   console.log("newMode1",newMode1)
+  if(mode1.value[index]==2&&newMode1==2){
+    mode1.value[index]=99;
+  }else{
     mode1.value[index] = newMode1;
+  }
     
-    initCharts(answernaire, index); // 重新初始化图表
+    if(newMode1==1||newMode1==0)initCharts(answernaire, index); // 重新初始化图表
+    else if(newMode1==2)initChart1(transformedWordClouds[answernaire.qid], index); 
 }
 //初始化饼图,柱状图
 const initCharts = async(answernaire, index)  => {
@@ -372,7 +379,7 @@ const initCharts = async(answernaire, index)  => {
       };
       barChart.setOption(barOption);      
       }      
-    };
+    }
     }
   
   //初始化词云
@@ -418,6 +425,7 @@ const initCharts = async(answernaire, index)  => {
 </script>
 
 <template>
+  
   <div style="display: flex;justify-content: center; gap: 10px;">
     <el-button class="custom-button" @click="switchMode(0)">
       统计与分析
@@ -428,20 +436,18 @@ const initCharts = async(answernaire, index)  => {
   </div>
   
   <ul v-if="mode==0" class="infinite-list" style="overflow: auto"> 
-      <!--调查问卷  -->
+    <h1 style="display: flex;justify-content: center; ">{{ title }}</h1>
+      <!--normal  -->
       <li v-if="surveyType=='normal'" v-for="(answernaire, index) in mergedData" :key="index" class="infinite-list-item">
           <!-- 单选题，多选题 -->    
           <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">第{{index+1}}题: &nbsp;     {{ answernaire.description }}&nbsp;
           {{ answernaire.type==='single_choice'? '[单选题]':'[多选题]' }}</p>
-          <el-table v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice' "
-           :data="answernaire.newArray1Data"
-           :default-sort="{ prop: 'answerCount', order: 'descending' }" border stripe   class="tableHead" >
-            <el-table-column prop="option"  label="选项"   />
-            <el-table-column prop="answerCount" sortable  label="小计" />
-            <el-table-column prop="rate" label="比例" />
-          </el-table>
-          <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">本题有效填写人数：{{answernaire.total}}</p>
+          
+          
+          <!-- <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">本题有效填写人数：{{answernaire.total}}</p> -->
           <div v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'" style="display: flex;justify-content: center; gap: 10px;">
+            <el-button class="custom-button" @click="switchMode1(3,answernaire, index)">
+            表格</el-button>
             <el-button class="custom-button" @click="switchMode1(0,answernaire, index)">
               饼状图
             </el-button>
@@ -452,13 +458,25 @@ const initCharts = async(answernaire, index)  => {
           <div v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'" style="display: flex; justify-content: space-between;">
             <span v-if="mode1[index] === 0"  :id="'main-' + index" style="width: 400px; height: 400px;"></span>
             <span v-if="mode1[index] === 1"  :id="'main1-' + index" style="width: 400px; height: 400px;"></span>
+            <span v-if="mode1[index] === 3"   >
+              <el-table v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice' "
+              :data="answernaire.newArray1Data"
+              :default-sort="{ prop: 'answerCount', order: 'descending' }" border stripe   class="tableHead" >
+                <el-table-column prop="option"  label="选项"   />
+                <el-table-column prop="answerCount" sortable  label="小计" />
+                <el-table-column prop="rate" label="比例" />
+              </el-table>
+            </span>
           </div>
           <!-- 填空题 -->
           <p v-if="answernaire.type === 'fill_blank'">
             第{{index+1}}题: &nbsp;     {{ answernaire.description }}&nbsp;[填空题]
           </p>
+
           <div v-if="answernaire.type === 'fill_blank'" class="demo-pagination-block">            
             <el-button class="custom-button" @click="isDialogVisible[answernaire.qid]=true">显示表格</el-button>
+            <el-button class="custom-button" @click="switchMode1(2,answernaire, index)">显示词云</el-button>
+            <!-- <el-button class="custom-button" @click="switchMode1(4,answernaire, index)">关闭词云</el-button> -->
             <el-dialog v-model="isDialogVisible[answernaire.qid]" title="表格数据" >
               <el-table :data="pageView[answernaire.qid].value" border stripe class="tableHead">
                 <el-table-column prop="index" label="序号"  />
@@ -486,13 +504,18 @@ const initCharts = async(answernaire, index)  => {
             </el-dialog>
                       
           </div>
-          <!-- 词云 -->
-          <div v-if="answernaire.type === 'fill_blank'"
-              :id=" 'mywordcloud-' + index"
-              :style="{ width: '100%', height: '300px' }"
-              :data="answernaire.wordCloud"
-            ></div>
-          <p v-if="answernaire.type === 'fill_blank'">本题有效填写人数：{{answernaire.total}}</p>
+          <div v-if="answernaire.type === 'fill_blank'" >
+            <span v-if="mode1[index] === 2"  style="display: flex; justify-content: center; align-items: center; width: 1000px; height: 400px;">
+                <!-- 词云 -->
+                <div class="borederCiYun" v-if="answernaire.type === 'fill_blank'"
+                    :id=" 'mywordcloud-' + index"
+                    :style="{ width: '100%', height: '300px' }"
+                    :data="answernaire.wordCloud"
+                ></div>
+            </span>
+          </div>
+          
+          <!-- <p v-if="answernaire.type === 'fill_blank'">本题有效填写人数：{{answernaire.total}}</p> -->
           <!-- 文件题 -->
           <p v-if="answernaire.type === 'file'">
             第{{index+1}}题: &nbsp;     {{ answernaire.description }}&nbsp;[文件题]
@@ -534,20 +557,24 @@ const initCharts = async(answernaire, index)  => {
             </el-dialog>
           </div>
       </li>
+      <!-- exam -->
       <li v-if="surveyType=='exam'" v-for="(answernaire, index) in mergedData" :key="index" class="infinite-list-item">
           <!-- 单选题，多选题 -->    
           <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">第{{index+1}}题: &nbsp;     {{ answernaire.description }}&nbsp;
           {{ answernaire.type==='single_choice'? '[单选题]':'[多选题]' }}</p>
 
-          <el-table v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice' "
+          <!-- <el-table v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice' "
            :data="answernaire.newArray1Data"
            :default-sort="{ prop: 'answerCount', order: 'descending' }" border stripe   class="tableHead" >
             <el-table-column prop="option"  label="选项"   />
             <el-table-column prop="answerCount" sortable  label="小计" />
             <el-table-column prop="rate"  label="比例" />
-          </el-table>
-          <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">本题有效填写人数：{{answernaire.total}}</p>
+            
+          </el-table> -->
+          <!-- <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">本题有效填写人数：{{answernaire.total}}</p> -->
           <div v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'" style="display: flex;justify-content: center; gap: 10px;">
+            <el-button class="custom-button" @click="switchMode1(3,answernaire, index)">
+            表格</el-button>
             <el-button class="custom-button" @click="switchMode1(0,answernaire, index)">
               饼状图
             </el-button>
@@ -558,25 +585,46 @@ const initCharts = async(answernaire, index)  => {
           <div v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'" style="display: flex; justify-content: space-between;">
             <span v-if="mode1[index] === 0"  :id="'main-' + index" style="width: 400px; height: 400px;"></span>
             <span v-if="mode1[index] === 1"  :id="'main1-' + index" style="width: 400px; height: 400px;"></span>
+            <span v-if="mode1[index] === 3"   >
+              <el-table v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice' "
+              :data="answernaire.newArray1Data"
+              :default-sort="{ prop: 'answerCount', order: 'descending' }" border stripe   class="tableHead" >
+                <el-table-column prop="option"  label="选项"   />
+                <el-table-column prop="answerCount" sortable  label="小计" />
+                <el-table-column prop="rate"  label="比例" />
+                
+              </el-table>
+            </span>
           </div>
           <!-- 填空题 -->
           <p v-if="answernaire.type === 'fill_blank'">
             第{{index+1}}题: &nbsp;     {{ answernaire.description }}&nbsp;[填空题]
           </p>
+
           <div v-if="answernaire.type === 'fill_blank'" style="display: flex;justify-content: center; gap: 10px;">
+            <el-button class="custom-button" @click="isDialogVisible[answernaire.qid]=true">显示表格</el-button>
             <el-button class="custom-button" @click="switchMode1(0,answernaire, index)">
               饼状图
             </el-button>
-            <el-button class="custom-button" @click="switchMode1(1,answernaire, index)">
-              柱状图
-            </el-button>
+            <el-button class="custom-button" @click="switchMode1(1,answernaire, index)">柱状图</el-button>
+            <el-button class="custom-button" @click="switchMode1(2,answernaire, index)">显示词云</el-button>
+              
           </div>
           <div v-if="answernaire.type === 'fill_blank'"  style="display: flex; justify-content: space-between;">
             <span v-if="mode1[index] === 0"  :id="'main-' + index" style="width: 400px; height: 400px;"></span>
             <span v-if="mode1[index] === 1"  :id="'main1-' + index" style="width: 400px; height: 400px;"></span>
+            <span v-if="mode1[index] === 2"  style="display: flex; justify-content: center; align-items: center; width: 1000px; height: 400px;">
+                <!-- 词云 -->
+
+                <div class="borederCiYun"
+                  :id=" 'mywordcloud-' + index"
+                  :style="{ width: '50%', height: '300px' }"
+                  :data="answernaire.wordCloud"
+                ></div>
+            </span>
           </div>
+
           <div v-if="answernaire.type === 'fill_blank'" class="demo-pagination-block">                        
-            <el-button class="custom-button" @click="isDialogVisible[answernaire.qid]=true">显示表格</el-button>
             <el-dialog v-model="isDialogVisible[answernaire.qid]" title="表格数据" >
               <el-table :data="pageView[answernaire.qid].value" border stripe class="tableHead">
                 <el-table-column prop="index" label="序号"  />
@@ -601,21 +649,19 @@ const initCharts = async(answernaire, index)  => {
                 </el-button>
               </div>
             </template>
-            </el-dialog>
-                      
+            </el-dialog>          
           </div>
-          <!-- 词云 -->
-          <div v-if="answernaire.type === 'fill_blank'"
-              :id=" 'mywordcloud-' + index"
-              :style="{ width: '100%', height: '300px' }"
-              :data="answernaire.wordCloud"
-            ></div>
-          <p v-if="answernaire.type === 'fill_blank'">本题有效填写人数：{{answernaire.total}}</p>
+          
+          <!-- <p v-if="answernaire.type === 'fill_blank'">本题有效填写人数：{{answernaire.total}}</p> -->
           <!-- 代码题 -->
           <p v-if="answernaire.type === 'code'">
             第{{index+1}}题: &nbsp;     {{ answernaire.description }}&nbsp;[代码题]
           </p>
+          
+          
+          
           <div v-if="answernaire.type === 'code'" style="display: flex;justify-content: center; gap: 10px;">
+            <el-button class="custom-button" @click="isDialogVisible[answernaire.qid]=true">查看详细信息</el-button>
             <el-button class="custom-button" @click="switchMode1(0,answernaire, index)">
               饼状图
             </el-button>
@@ -627,36 +673,46 @@ const initCharts = async(answernaire, index)  => {
             <span v-if="mode1[index] === 0"  :id="'main-' + index" style="width: 400px; height: 400px;"></span>
             <span v-if="mode1[index] === 1"  :id="'main1-' + index" style="width: 400px; height: 400px;"></span>
           </div>
-          
+          <!-- 表格 -->
           <div v-if="answernaire.type === 'code'" class="demo-pagination-block"> 
-          <el-button class="custom-button" @click="isDialogVisible[answernaire.qid]=true">显示表格</el-button>
-          <el-dialog v-model="isDialogVisible[answernaire.qid]" title="表格数据" >
-              <el-table  :data="pageView[answernaire.qid].value" border stripe class="tableHead">
-                  <el-table-column prop="index" label="序号" width="80" />
-                  <el-table-column prop="language" label="编程语言" width="100" />
-                  <el-table-column prop="url"  label="文件url" />
-              </el-table>
-              <el-pagination
-              v-if="answernaire.type === 'code'"
-              v-model:current-page="currentPages[answernaire.qid]"
-              v-model:page-size="pageSize[answernaire.qid]"
-              :page-sizes="[5, 10, 20]"
-              :background="background"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="answernaire.total"
-              @size-change="(size) =>handleSizeChange(size, answernaire.qid,currentPages[answernaire.qid],answernaire)"
-              @current-change="(page) => handleCurrentChange(page, answernaire.qid,pageSize[answernaire.qid],answernaire)"
-              />
-              <template #footer>
-              <div class="dialog-footer">
-                <el-button @click="isDialogVisible[answernaire.qid] = false">Cancel</el-button>
-                <el-button type="primary" @click="isDialogVisible[answernaire.qid] = false">
-                  Confirm
-                </el-button>
-              </div>
-            </template>
-          </el-dialog>
-          </div>
+            <el-dialog width="800px"  v-model="isDialogVisible[answernaire.qid]" title="表格数据" >
+                <el-table  :data="pageView[answernaire.qid].value" border stripe class="tableHead">
+                    <el-table-column prop="index" label="序号" width="80" />
+                    <el-table-column prop="language" label="编程语言" width="100" />
+                    <el-table-column label="文件url">
+                      <template #default="scope">
+                        <el-tooltip content="点击此处下载源代码" placement="top">
+                          <el-link :href="scope.row.content[0]" target="_blank">{{scope.row.content[0]}}</el-link>
+                        </el-tooltip>
+                        
+                      </template>
+                    </el-table-column>  
+                    <!-- <el-table-column prop="url"  label="文件url" /> -->
+                </el-table>
+                <el-pagination
+                v-if="answernaire.type === 'code'"
+                v-model:current-page="currentPages[answernaire.qid]"
+                v-model:page-size="pageSize[answernaire.qid]"
+                :page-sizes="[5, 10, 20]"
+                :background="background"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="answernaire.total"
+                @size-change="(size) =>handleSizeChange(size, answernaire.qid,currentPages[answernaire.qid],answernaire)"
+                @current-change="(page) => handleCurrentChange(page, answernaire.qid,pageSize[answernaire.qid],answernaire)"
+                />
+                <template #footer>
+                <div class="dialog-footer">
+                  <el-button @click="isDialogVisible[answernaire.qid] = false">Cancel</el-button>
+                  <el-button type="primary" @click="isDialogVisible[answernaire.qid] = false">
+                    Confirm
+                  </el-button>
+                </div>
+              </template>
+            </el-dialog>
+          
+         </div>
+          
+          
       </li>
   </ul>
   
@@ -678,6 +734,8 @@ const initCharts = async(answernaire, index)  => {
   
   border-radius: 10px;
   background-color: white;
+  align-items: center;
+  justify-content: center;
   height: 80vh;
   padding: 20px;
   margin: 10px;
@@ -696,7 +754,10 @@ const initCharts = async(answernaire, index)  => {
   background-size: cover;
   z-index: 20; */
 }
-
+.borederCiYun{
+  border: 1px solid white;
+  
+}
 .tableHead{
   width: 800px;
   border: 1px solid black; 
@@ -704,7 +765,7 @@ const initCharts = async(answernaire, index)  => {
 }
 .custom-button {
   position: relative;
-  width: 100px;
+  width: 150px;
   height: 45px;
   text-align: center;
   line-height: 60px;

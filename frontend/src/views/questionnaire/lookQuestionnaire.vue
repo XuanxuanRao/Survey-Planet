@@ -716,7 +716,8 @@ const initCharts = async(answernaire, index)  => {
       </li>
   </ul>
   
-  <ul v-if="mode==1" class="infinite-list" style="overflow: auto"> 
+  <ul v-if="mode==1" class="infinite-list" style="overflow: auto">
+
   </ul>
   
 </template>

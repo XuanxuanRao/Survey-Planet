@@ -69,26 +69,27 @@ const modify = (id) => {
 }
 
 const deleteQuestionnaire = async (id) => {
-  const res = await userDeleteQuestionnaire(id);
-  console.log(res)
-  if (res.msg === 'success') {
-    ElMessageBox.confirm(
-          '确认删除?', 
-          '提示', 
-          {
-            confirmButtonText: '删除',
-            cancelButtonText: '取消',
-            type: 'warning',
-          }
-        ).then(async() => {
-          const res = await getCreatedQuestionnaireList();
-          createdQuestionnaireList.value = res.data;
-        }).catch(() => {
-          ElMessage.info('已取消删除');
-        })
-  } else {
-    ElMessage.error('删除失败');
-  }
+  ElMessageBox.confirm(
+        '确认删除?', 
+        '提示', 
+        {
+          confirmButtonText: '删除',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      ).then(async() => {
+        const info = await userDeleteQuestionnaire(id);
+        console.log(info)
+        if (info.msg === 'success') {
+          ElMessage.success('删除成功')
+          const res = await getCreatedQuestionnaireList()
+          createdQuestionnaireList.value = res.data
+        } else {
+          ElMessage.error('删除失败');
+        }
+      }).catch(() => {
+        ElMessage.info('已取消删除');
+      })
 }
 
 const shareOrCloseQuestionnaire = async (id, state) => {

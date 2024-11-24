@@ -53,7 +53,7 @@ const totalSeconds = ref(60)
 const seconds = ref(60)
 const timer = ref(null)
 
-const getCode = async () => {
+const getCode = async (tmp) => {
     try {
         await form.value.validateField('email')
         if (form.value.fields.email?.validateState === 'error') {
@@ -69,7 +69,7 @@ const getCode = async () => {
                     timer.value = null
                 }
             }, 1000)
-            const res = await getEmailCode(formModel.value.email, 'reg')
+            const res = await getEmailCode(formModel.value.email, tmp)
             if (res.code === 1) {
                 ElMessage({
                     // showClose: true,
@@ -216,7 +216,7 @@ watch(loginMode, () => {
                             <el-form-item style="display: flex; justify-content: center; align-items: center;" prop="email">
                                 <!-- <span class="spacingUsername"></span> -->
                                 <el-input style="width: 300px" v-model="formModel.email" :prefix-icon="User" placeholder="请输入邮箱"></el-input>
-                                <el-button @click="getCode">
+                                <el-button @click="getCode('reg')">
                                     {{seconds === totalSeconds? '获取验证码' : seconds + 's后重新发送'}}
                                 </el-button>
                             </el-form-item>
@@ -282,7 +282,7 @@ watch(loginMode, () => {
                             <el-form-item prop="email">
                                 <!-- <span class="spacingUsername"></span> -->
                                 <el-input style="width: 300px" v-model="formModel.email" :prefix-icon="User" placeholder="请输入邮箱"></el-input>
-                                <el-button @click="getCode">
+                                <el-button @click="getCode('reset')">
                                     {{seconds === totalSeconds? '获取验证码' : seconds + 's后重新发送'}}
                                 </el-button>
                             </el-form-item>

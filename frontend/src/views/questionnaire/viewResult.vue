@@ -5,7 +5,7 @@ import { useRoute } from 'vue-router'
 
 const response = ref();
 let intervalId = null;
-const isShowDetail = ref(false)
+const isShowDetail = ref(true)
 const loadingInstance = ref(null); // 控制 loading 实例
 
 const route = useRoute()
@@ -94,13 +94,17 @@ const toggleUrls = (index) => {
             v-for="(option, optIndex) in item.question.options"
             :key="optIndex"
             :value="option"
-            :class="{ 'correct-answer': item.answer.includes(option) }"
+            :class="{ 'correct-answer': item.content.includes(option),
+                      'wrong-answer': !item.answer.includes(option) && item.content.includes(option) }"
           >
             {{ option }}
           </el-radio>
           </el-radio-group>
           <br>
           <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div>
+          <div v-if="item.answer">
+            正确答案：{{ item.answer.join(", ") }}
+          </div>
         </template>
 
         <template v-if="item.question.type === 'multiple_choice'">
@@ -113,21 +117,38 @@ const toggleUrls = (index) => {
             v-for="(option, optIndex) in item.question.options" 
             :key="optIndex" 
             :value="option"
-            :class="{ 'correct-answer': item.answer.includes(option) }"
+            :class="{ 'correct-answer': item.content.includes(option),
+                      'wrong-answer': !item.answer.includes(option) && item.content.includes(option) }"
             >
             {{ option }}
            </el-checkbox>
           </el-checkbox-group>
           <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div>
+          <div v-if="item.answer">
+            正确答案：{{ item.answer.join(", ") }}
+          </div>
         </template>
 
         <template v-if="item.question.type === 'fill_blank'">
           <h4>
             Q{{ index + 1 }} {{ item.question.title }} (填空题) <br>
             问题描述：{{ item.question.description }} <br>
+            <div v-if="item.content">
+              你的答案：{{ item.content.join(", ") }}
+            </div>
+            <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div>
+            <div v-if="item.answer">
+              正确答案：{{ item.answer.join(", ") }}
+            </div>
+          </h4>
+        </template>
+
+        <template v-if="item.question.type === 'file'">
+          <h4>
+            Q{{ index + 1 }} {{ item.question.title }} (文件题) <br>
+            问题描述：{{ item.question.description }} <br>
             <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div>
           </h4>
-
         </template>
 
         <template v-if="item.question.type === 'code'">
@@ -216,5 +237,20 @@ const toggleUrls = (index) => {
 .correct-answer ::v-deep .el-checkbox__inner {
   border-color: green; /* 边框变绿 */
   background-color: green; /* 背景变浅绿色 */
+}
+
+
+.wrong-answer {
+  color: red;
+}
+
+.wrong-answer ::v-deep .el-radio__inner {
+  border-color: red;
+  background-color: red;
+}
+
+.wrong-answer ::v-deep .el-checkbox__inner {
+  border-color: red; 
+  background-color: red;
 }
 </style>

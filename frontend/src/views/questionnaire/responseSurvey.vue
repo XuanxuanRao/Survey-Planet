@@ -1,26 +1,28 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { getSurveyResponse, userGetQuestionnaire } from "@/api/questionnaire";
+import { getSurveyResponse, userGetQuestionnaire, userModifyAnswer } from "@/api/questionnaire";
 import { useRoute } from "vue-router";
+import router from "@/router";
 
 const route = useRoute();
-const sid = route.query.id
+const sid = route.query.id;
+const total = ref(0); // 总记录数
 
-// 筛选条件管理
-const filters = ref([
-  { questionId: "", option: "" }, // 初始化默认一个空筛选条件
-]);
+const filters = ref([{ questionId: "", type: "", value: "" }]); // 筛选条件数组
+const questions = ref([]); // 问卷题目
+const isLoading = ref(false); // 数据加载状态
+const responseData = ref(null); // 问卷回答数据
+const isShow = ref(false)
 
-const responseData = ref(null);
 const queryParams = ref({
   sid: Number(sid),
   pageNum: 1,
   pageSize: 10,
-  queryMap: {}, // 筛选条件映射
+  queryMap: {},
+  valid: true, // 默认查询有效答卷
+  gradeLb: 0, // 分数下限
+  gradeUb: null, // 分数上限
 });
-
-const questions = ref([]); // 存储题目列表
-const isLoading = ref(false);
 
 // 加载问卷题目
 const userGetQuestions = async () => {
@@ -36,84 +38,121 @@ const userGetQuestions = async () => {
   }
 };
 
-// 加载问卷回答数据
-const fetchSurveyResponses = async () => {
+// 处理题目变化
+const handleQuestionChange = (filter) => {
+  const selectedQuestion = questions.value.find((q) => q.qid === filter.questionId);
+  filter.type = selectedQuestion ? selectedQuestion.type : "";
+  filter.value = ""; // 清空之前填写的筛选值
+};
+
+// 执行查询
+const handleSearch = async () => {
+  queryParams.value.queryMap = filters.value.reduce((map, filter) => {
+    if (filter.questionId && filter.value) {
+      map[filter.questionId] = filter.value;
+    }
+    return map;
+  }, {});
+
   isLoading.value = true;
   try {
     const res = await getSurveyResponse(queryParams.value);
     if (res.msg === "success") {
       responseData.value = res.data;
+      total.value = res.data.total;
     } else {
       console.error("获取问卷回答失败");
     }
   } catch (error) {
-    console.error("获取问卷回答失败：", error);
+    console.error("查询数据失败：", error);
   } finally {
     isLoading.value = false;
   }
 };
 
-// 更新筛选条件并重新查询
-const updateQueryConditions = () => {
-  // 清空 queryMap，重构筛选条件
-  queryParams.value.queryMap = {};
-  filters.value.forEach((filter) => {
-    if (filter.questionId && filter.option) {
-      queryParams.value.queryMap[filter.questionId] = filter.option;
-    }
-  });
-  fetchSurveyResponses(); // 查询数据
+// 处理分页变化
+const handleSizeChange = async (size) => {
+  queryParams.value.pageSize = size;
+  await handleSearch();
 };
 
-// 新增筛选条件
-const addFilter = () => {
-  filters.value.push({ questionId: "", option: "" });
-};
-
-// 删除筛选条件
-const removeFilter = (index) => {
-  filters.value.splice(index, 1);
-  updateQueryConditions();
+const handleCurrentChange = async (page) => {
+  queryParams.value.pageNum = page;
+  await handleSearch();
 };
 
 // 初始化加载数据
-onMounted(() => {
-  userGetQuestions();
-  fetchSurveyResponses();
+onMounted(async () => {
+  await userGetQuestions(); // 加载问卷题目
+  await handleSearch(); // 加载所有数据
 });
+
+// Dialog相关逻辑
+const isDialogVisible = ref(false); // 控制Dialog显示/隐藏
+const detailUrl = ref(""); // 动态详情页URL
+
+const openDetailDialog = (rid) => {
+  console.log('Opening Dialog with RID:', rid)
+  //router.push({ path: '/viewResult', query: { rid } })
+  detailUrl.value = `/viewResult?rid=${rid}`
+  console.log('Detail URL:', detailUrl.value)
+  isDialogVisible.value = true
+}
+
+const deleteAnswer = async(sid) => {
+    const res = await userModifyAnswer(sid, false)
+    if (res.msg === 'success') {
+      console.log('删除答卷成功')
+      handleSearch()
+    } else {
+      console.error('删除答卷失败')
+    }
+}
+
+const setValidFilter = (valid) => {
+  queryParams.value.valid = valid
+  handleSearch()
+};
 </script>
 
+
 <template>
-  <div class="survey-analysis">
-    <h1>问卷回答数据分析</h1>
+  <div>
+    <h1>问卷回答筛选</h1>
+
+    <!-- 筛选有效与无效问卷按钮 -->
+    <div class="valid-filter">
+      <button @click="setValidFilter(true)">有效问卷</button>
+      <button @click="setValidFilter(false)">无效问卷</button>
+    </div>
 
     <!-- 筛选条件 -->
-    <div class="filter-panel">
-      <h3>筛选条件：</h3>
-      <div
-        class="filter-item"
-        v-for="(filter, index) in filters"
-        :key="index"
-      >
-        <!-- 问卷题目选择框 -->
-        <select
-          v-model="filter.questionId"
-          @change="updateQueryConditions"
-        >
-          <option value="">问题题目</option>
+    <span @click="isShow = !isShow">筛选条件</span>
+    <div v-if="isShow === true">
+      <div v-for="(filter, index) in filters" :key="index" class="filter-group">
+        <select v-model="filter.questionId" @change="handleQuestionChange(filter)">
+          <option value="">请选择题目</option>
           <option v-for="question in questions" :key="question.qid" :value="question.qid">
             {{ question.title }}
           </option>
         </select>
 
-        <!-- 答案选项选择框 -->
+        <!-- 填空题输入框 -->
+        <input
+          v-if="filter.type === 'fill_blank'"
+          v-model="filter.value"
+          type="text"
+          placeholder="请输入答案内容"
+        />
+
+        <!-- 选择题下拉框 -->
         <select
-          v-model="filter.option"
-          @change="updateQueryConditions"
+          v-else-if="filter.type === 'multiple_choice' || filter.type === 'single_choice'"
+          v-model="filter.value"
         >
-          <option value="">选项</option>
+          <option value="">请选择选项</option>
           <option
-            v-for="option in questions.find(q => q.qid === filter.questionId)?.options || []"
+            v-for="option in questions.find((q) => q.qid === filter.questionId)?.options || []"
             :key="option"
             :value="option"
           >
@@ -121,75 +160,108 @@ onMounted(() => {
           </option>
         </select>
 
-        <!-- 删除按钮 -->
-        <button @click="removeFilter(index)">删除</button>
+        <button @click="filters.splice(index, 1)">删除</button>
       </div>
 
-      <!-- 新增筛选条件按钮 -->
-      <button @click="addFilter">添加筛选条件</button>
+      <button @click="filters.push({ questionId: '', type: '', value: '' })">添加筛选条件</button>
+
+      <!-- 分数筛选 -->
+      <div class="score-filter">
+        <label>
+          分数下限:
+          <input v-model.number="queryParams.gradeLb" type="number" placeholder="最低分" />
+        </label>
+        <label>
+          分数上限:
+          <input v-model.number="queryParams.gradeUb" type="number" placeholder="最高分" />
+        </label>
+      </div>
+      <!-- 查询按钮 -->
+      <button @click="handleSearch">查询</button>
     </div>
 
-    <!-- 数据表格 -->
-    <div v-if="responseData">
+    <!-- 加载状态 -->
+    <p v-if="isLoading">数据加载中...</p>
+
+    <!-- 数据展示 -->
+    <div v-else-if="responseData && responseData.total > 0">
       <p>共 {{ responseData.total }} 条记录</p>
       <table>
         <thead>
           <tr>
+            <th>操作</th>
             <th>序号</th>
             <th>用户ID</th>
             <th>提交时间</th>
             <th>更新时间</th>
             <th>答卷总分</th>
-            <th>是否完成</th>
-            <th>详细回答</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(record, index) in responseData.records" :key="record.rid">
-            <td>{{ index + 1 }}</td>
+            <td>
+              <span @click="deleteAnswer(record.rid)" v-if="queryParams.valid === true">删除</span>
+              <span @click="openDetailDialog(record.rid)">查看</span>
+            </td>
+            <td>{{ (queryParams.pageNum - 1) * queryParams.pageSize + index + 1 }}</td>
             <td>{{ record.uid }}</td>
             <td>{{ record.createTime }}</td>
             <td>{{ record.updateTime }}</td>
             <td>{{ record.grade ?? "N/A" }}</td>
-            <td>{{ record.finished ? "是" : "否" }}</td>
-            <td>
-              <ul>
-                <li v-for="item in record.items" :key="item.submitId">
-                  题目ID: {{ item.qid }} - 答案: {{ item.content.join(", ") }}
-                </li>
-              </ul>
-            </td>
           </tr>
         </tbody>
       </table>
+
+      <!-- 分页组件 -->
+      <el-pagination
+        v-model:current-page="queryParams.pageNum"
+        v-model:page-size="queryParams.pageSize"
+        :page-sizes="[5, 10, 20, 50]"
+        :total="total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
     </div>
-    <p v-else-if="isLoading">数据加载中...</p>
-    <p v-else>暂无数据</p>
+    <p v-else-if="responseData && responseData.total === 0">暂无数据</p>
+
+    <!-- 弹窗展示详情 -->
+    <el-dialog
+      title="答卷详情"
+      v-model="isDialogVisible"
+      width="80%"
+    >
+      <iframe
+        v-if="detailUrl"
+        :src="detailUrl"
+        width="100%"
+        :style="{ height: '70vh', padding: 10 }"
+        style="border: none;"
+      ></iframe>
+    </el-dialog>
+
   </div>
 </template>
 
+
 <style scoped>
-.survey-analysis {
-  font-family: Arial, sans-serif;
-}
-
-.filter-panel {
-  margin-bottom: 20px;
-}
-
-.filter-item {
+.filter-group {
   margin-bottom: 10px;
-  display: flex;
-  align-items: center;
 }
 
-.filter-item select {
+.filter-group select,
+.filter-group input {
   margin-right: 10px;
+}
+
+.score-filter {
+  margin: 20px 0;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 20px;
 }
 
 table th,
@@ -198,4 +270,6 @@ table td {
   padding: 8px;
   text-align: left;
 }
+
+
 </style>

@@ -83,7 +83,9 @@ export const userGetQuestionnaire = (sid) => {
 }
 
 export const userShareQuestionnaire = (sid) => {
-    return request.post(`/api/survey/${sid}/share`, null, {
+    const data = {};
+    const jsonData = JSON.stringify(data)
+    return request.post(`/api/survey/${sid}/share`, jsonData, {
         headers: {
             'token': useUserStore().token,
         }
@@ -189,7 +191,22 @@ export const getSurveyResponse = (data) => {
     const jsonData = JSON.stringify(data)
     console.log(jsonData)
     console.log(useUserStore().token)
-    return request.get(`/api/survey/response`, jsonData, {
+    return request.post(`/api/survey/response`, jsonData, {
+        headers: {
+            'token': useUserStore().token,
+            'Content-Type': 'application/json'
+        }
+    })
+}
+
+export const userModifyAnswer = (rid, valid) => {
+    const data = {
+        rid: rid,
+        valid: valid
+    }
+    const jsonData = JSON.stringify(data)
+    console.log(jsonData)
+    return request.put(`/api/response/${rid}`, jsonData, {
         headers: {
             'token': useUserStore().token,
             'Content-Type': 'application/json'

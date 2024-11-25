@@ -4,6 +4,9 @@ import { ref, onMounted,nextTick,reactive,onBeforeUnmount, } from 'vue'
 import 'echarts-wordcloud'; // 引入 Word Cloud 插件
 import {userGetAnswernaireResult,userGetQuestionnaire,userGetPageResult} from '@/api/questionnaire'
 import { useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const isDialogVisible = ref({});
 const background = ref(true)
@@ -226,6 +229,9 @@ const switchMode = (newMode) => {
         }
       });
     });
+  }
+  if(newMode === 1) {
+    router.push({ path: '/responseSurvey', query: { id: sid } });
   }
 };
 //模式转换1,对应查看表格

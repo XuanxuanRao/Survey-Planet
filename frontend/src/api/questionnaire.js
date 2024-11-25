@@ -165,7 +165,7 @@ export const userExportResult = async (id) => {
     }
 }
 export const userGetAnswernaireResult = (qid) => {
-    return request.get(`/api/report/stat/${qid}`, {
+    return request.get(`/api/report/stat/question/${qid}`, {
         headers: {
             'token': useUserStore().token,
         }
@@ -182,6 +182,17 @@ export const userGetQuestionnaireResult = (rid) => {
     return request.get(`/api/response/${rid}`, {
         headers: {
             'token': useUserStore().token,
+        }
+    })
+}
+export const getSurveyResponse = (data) => {
+    const jsonData = JSON.stringify(data)
+    console.log(jsonData)
+    console.log(useUserStore().token)
+    return request.get(`/api/survey/response`, jsonData, {
+        headers: {
+            'token': useUserStore().token,
+            'Content-Type': 'application/json'
         }
     })
 }

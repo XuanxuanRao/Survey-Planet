@@ -5,7 +5,7 @@ import 'echarts-wordcloud'; // 引入 Word Cloud 插件
 import {userGetAnswernaireResult,userGetQuestionnaire,userGetPageResult} from '@/api/questionnaire'
 import { useRoute } from 'vue-router'
 import { useRouter } from 'vue-router'
-
+const listItems = ref([]);
 const router = useRouter()
 const isDialogVisible = ref({});
 const background = ref(true)
@@ -148,8 +148,32 @@ onMounted(async () => {
                 initChart1(transformedWordClouds[qid],index);               
             }
         }
-    });   
+    }); 
+    // nextTick(() => {
+    //     adjustHeight(); // 初始化时调整高度
+
+    //     // 使用 ResizeObserver 监听高度变化
+    //     const observer = new ResizeObserver(adjustHeight);
+    //     const listItems = document.querySelectorAll('.infinite-list-item');
+    //     listItems.forEach(item => observer.observe(item));
+
+    //     // 清理观察者
+    //     return () => {
+    //       listItems.forEach(item => observer.unobserve(item));
+    //     };
+    //   });      
 })
+const adjustHeight = () => {
+      const listItems = document.querySelectorAll('.infinite-list-item');
+      listItems.forEach(item => {
+        const contentHeight = item.scrollHeight; // 获取内容高度
+        const newMinHeight = Math.max(contentHeight , 200);
+        console.log("contentHeight", contentHeight);
+        if (item.style.minHeight !== `${newMinHeight}px`) {
+          item.style.minHeight = `${newMinHeight}px`; // 设置最小高度
+        }
+      });
+    };
 //文件题的勾选框
 const handleSelectionChange = (selectedRows) => {
   // 获取选中行的 submitId 并形成数组
@@ -494,7 +518,7 @@ const initCharts = async(answernaire, index)  => {
   <ul v-if="mode==0" class="infinite-list" style="overflow: auto"> 
     <h1 style="display: flex;justify-content: center; ">{{ title }}</h1>
       <!--normal  -->
-      <li v-if="surveyType=='normal'" v-for="(answernaire, index) in mergedData" :key="index" class="infinite-list-item">
+      <li v-if="surveyType=='normal'" v-for="(answernaire, index) in mergedData" :key="index" class="infinite-list-item" ref="listItems">
           <!-- 单选题，多选题 -->    
           <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">第{{index+1}}题: &nbsp;{{ answernaire.description }}&nbsp;
           {{ answernaire.type==='single_choice'? '[单选题]':'[多选题]' }}</p>
@@ -625,7 +649,7 @@ const initCharts = async(answernaire, index)  => {
           </div>
       </li>
       <!-- exam -->
-      <li v-if="surveyType=='exam'" v-for="(answernaire, index) in mergedData" :key="index" class="infinite-list-item">
+      <li v-if="surveyType=='exam'" v-for="(answernaire, index) in mergedData" :key="index" class="infinite-list-item" ref="listItems">
           <!-- 单选题，多选题 -->    
           <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">第{{index+1}}题: &nbsp;     {{ answernaire.description }}&nbsp;
           {{ answernaire.type==='single_choice'? '[单选题]':'[多选题]' }}</p>
@@ -795,23 +819,10 @@ const initCharts = async(answernaire, index)  => {
       </li>
   </ul>
   </div>
-  <!-- <ul v-if="mode==1" class="infinite-list" style="overflow: auto">
-
-  </ul> -->
-  
 </template>
 
 <style scoped>
-.artistic-text {
-  font-family: 'Cursive', sans-serif; /* 使用艺术字体 */
-  font-size: 48px; /* 设置字体大小 */
-  color: #ff6347; /* 设置字体颜色 */
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* 添加阴影效果 */
-  letter-spacing: 2px; /* 字母间距 */
-  text-align: center; /* 居中对齐 */
-}
-.infinite-list {
-  
+.infinite-list {  
   border-radius: 10px;
   background-color: white;
   align-items: center;
@@ -823,6 +834,7 @@ const initCharts = async(answernaire, index)  => {
   width: 1000px;
 }
 .infinite-list .infinite-list-item {
+  height: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -831,10 +843,10 @@ const initCharts = async(answernaire, index)  => {
   background-color:  lightcyan;
   border: 2px solid #000; /* 添加黑色边框，宽度为2px */
   border-radius: 4px; /* 可选：设置圆角边框 */
+  /* min-height: 290px;  */
 }
 .borederCiYun{
-  border: 1px solid white;
-  
+  border: 1px solid white; 
 }
 .tableHead{
   width: 800px;

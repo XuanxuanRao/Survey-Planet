@@ -427,6 +427,7 @@ const initCharts = async(answernaire, index)  => {
       };
       barChart.setOption(barOption);
       }else{
+      console.log("answernaire.newArray1Data",answernaire)
         const barChart = echarts.init(barChartDom);
         const barOption = {
         title: {
@@ -439,7 +440,7 @@ const initCharts = async(answernaire, index)  => {
         },
         xAxis: {
           type: 'category',
-          data: answernaire.newArray1Data.map(item => item.grade),
+          data: answernaire.codes.map(item => item.grade),
           name: '得分'
         },
         yAxis: {

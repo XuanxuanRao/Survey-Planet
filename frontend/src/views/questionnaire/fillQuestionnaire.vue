@@ -62,7 +62,6 @@ const validateSurvey = () => {
 // 提交问卷
 const submitSurvey = async () => {
   if (!validateSurvey()) return  // 如果必填项未通过检查，则不提交
-
   try {
     const surveyAnswers = []
     for (let i = 0; i < questions.value.length; i++) {

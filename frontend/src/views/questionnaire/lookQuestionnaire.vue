@@ -7,7 +7,6 @@ import { useRoute } from 'vue-router'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-
 const isDialogVisible = ref({});
 const background = ref(true)
 const pageView = reactive({}); //填空题
@@ -23,12 +22,13 @@ const tableData = ref([]);
 const newArray = ref([]);
 const newArray1 = ref([]);
 const mode = ref(0);
-const mode1 = ref(Array(10000).fill(0)); // 初始化为长度为 n 的数组，所有元素为 0
+const mode1 = ref(Array(10000).fill(99)); // 初始化为长度为 n 的数组，所有元素为 0
 const transformedWordClouds = ref({}); // 创建一个对象来存储不同的 wordCloud
 const surveyType=ref()
 const codes = ref({});
 const selectedSubmitIds = ref([]);
 const title=ref()
+const isActive = ref([]); // 用于存储每个按钮的状态
 //初始化
 for (let i = 0; i <= 1000; i++) {
   currentPages[i] = 1;
@@ -118,9 +118,10 @@ onMounted(async () => {
     }
     //初始化饼图,柱状图和table表格
     mergedData.value.forEach((answernaire, index) => {
-    if (answernaire.type === 'single_choice' || answernaire.type === 'multiple_choice'||answernaire.type === 'code'||(surveyType.value=='exam'&&answernaire.type === 'fill_blank')) {
-      initCharts(answernaire, index); // 重新初始化图表
-    }
+      //初始时不显示
+    // if (answernaire.type === 'single_choice' || answernaire.type === 'multiple_choice'||answernaire.type === 'code'||(surveyType.value=='exam'&&answernaire.type === 'fill_blank')) {
+    //   initCharts(answernaire, index); // 重新初始化图表
+    // }
     if(answernaire.type === 'fill_blank'||answernaire.type === 'code'||answernaire.type === 'file'){
       console.log("pageSize[answernaire.qid]",pageSize[answernaire.qid])
       handleCurrentChange(1,answernaire.qid,5,answernaire)        
@@ -246,6 +247,51 @@ const switchMode1 = async(newMode1,answernaire, index) => {
     if(newMode1==1||newMode1==0)initCharts(answernaire, index); // 重新初始化图表
     else if(newMode1==2)initChart1(transformedWordClouds[answernaire.qid], index); 
 }
+//模式转换1,对应查看表格
+const switchMode1AndtoggleActive = async(newMode1,answernaire, index,index1) => {
+  console.log("newMode1",newMode1)
+  isActive.value[index1] = !isActive.value[index1]; // 切换对应按钮的状态
+  //选择是否取消3 4对应按钮的高亮,保证同一时间只有至多一个高亮
+  if(index1==3){
+    if(isActive.value[4]==1)isActive.value[4]=0;
+  }else if(index1==4){
+    if(isActive.value[3]==1)isActive.value[3]=0;
+  }
+  //1 2
+  if(index1==2){
+    if(isActive.value[1]==1)isActive.value[1]=0;
+  }else if(index1==1){
+    if(isActive.value[2]==1)isActive.value[2]=0;
+  }
+  //5 6 7
+  if(index1==5){
+    if(isActive.value[6]==1)isActive.value[6]=0;
+    if(isActive.value[7]==1)isActive.value[7]=0;
+  }else if(index1==6){
+    if(isActive.value[5]==1)isActive.value[5]=0;
+    if(isActive.value[7]==1)isActive.value[7]=0;
+  }else if(index1==7){
+    if(isActive.value[5]==1)isActive.value[5]=0;
+    if(isActive.value[6]==1)isActive.value[6]=0;
+  }
+  //9 10
+  if(index1==9){
+    if(isActive.value[10]==1)isActive.value[10]=0;
+  }else if(index1==10){
+    if(isActive.value[9]==1)isActive.value[9]=0;
+  }
+  if(mode1.value[index]==2&&newMode1==2){
+    mode1.value[index]=99;
+  }else if(mode1.value[index]==1&&newMode1==1){
+    mode1.value[index]=99;
+  }else if(mode1.value[index]==0&&newMode1==0){
+    mode1.value[index]=99;
+  }else{
+    mode1.value[index] = newMode1;
+  }
+    if(newMode1==1||newMode1==0)initCharts(answernaire, index); // 重新初始化图表
+    else if(newMode1==2)initChart1(transformedWordClouds[answernaire.qid], index); 
+}
 //初始化饼图,柱状图
 const initCharts = async(answernaire, index)  => {
       // 图表初始化逻辑
@@ -271,10 +317,12 @@ const initCharts = async(answernaire, index)  => {
             name: '选项',
             type: 'pie',
             radius: '50%',
-            data: answernaire.newArray1Data.map(item => ({
-              value: item.answerCount,
-              name: item.option
-            })),
+            data: answernaire.newArray1Data
+                .filter(item => item.answerCount > 0) // 过滤掉 answerCount 为 0 的选项
+                .map(item => ({
+                    value: item.answerCount,
+                    name: item.option
+                })),
             emphasis: {
               itemStyle: {
                 shadowBlur: 10,
@@ -287,7 +335,7 @@ const initCharts = async(answernaire, index)  => {
       };
       pieChart.setOption(pieOption);
       }else{
-        //exam 代码题,填空题的饼图,柱状图
+        //exam 代码题,填空题的饼图
         const pieOption = {
         title: {
           text: '得分情况',
@@ -302,7 +350,9 @@ const initCharts = async(answernaire, index)  => {
             name: '得分',
             type: 'pie',
             radius: '50%',
-            data: answernaire.codes.map(item => ({
+            data: answernaire.codes
+            .filter(item => item.count > 0)
+            .map(item => ({
               value: item.count,
               name: item.grade
             })),
@@ -440,7 +490,7 @@ const initCharts = async(answernaire, index)  => {
       查看问卷
     </el-button>
   </div>
-  
+  <div style="display: flex; justify-content: center; align-content: center; text-align: center; ">
   <ul v-if="mode==0" class="infinite-list" style="overflow: auto"> 
     <h1 style="display: flex;justify-content: center; ">{{ title }}</h1>
       <!--normal  -->
@@ -448,31 +498,42 @@ const initCharts = async(answernaire, index)  => {
           <!-- 单选题，多选题 -->    
           <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">第{{index+1}}题: &nbsp;     {{ answernaire.description }}&nbsp;
           {{ answernaire.type==='single_choice'? '[单选题]':'[多选题]' }}</p>
-          
-          
-          <!-- <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">本题有效填写人数：{{answernaire.total}}</p> -->
+          <div v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">
+            <el-table v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice' "
+              :data="answernaire.newArray1Data"
+              :default-sort="null" border stripe   class="tableHead" >
+                <el-table-column prop="option"  label="选项"   />
+                <el-table-column prop="answerCount" sortable  label="小计" />
+                <el-table-column prop="rate" label="比例" />
+              </el-table>
+          </div>
           <div v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'" style="display: flex;justify-content: center; gap: 10px;">
-            <el-button class="custom-button" @click="switchMode1(3,answernaire, index)">
+            <el-button class="custom-button" >
+              表格
+            </el-button>
+            
+            <el-button 
+              :class="{'custom-button': isActive[3], 'custom-buttonDark': !isActive[3]}" 
+              @click="switchMode1AndtoggleActive(0,answernaire, index,3)">
+              饼状图
+            </el-button>
+            <el-button 
+              :class="{'custom-button': isActive[4], 'custom-buttonDark': !isActive[4]}" 
+              @click="switchMode1AndtoggleActive(1,answernaire, index,4)">
+              柱状图
+            </el-button>
+            <!-- <el-button class="custom-button" @click="switchMode1(3,answernaire, index)">
             表格</el-button>
             <el-button class="custom-button" @click="switchMode1(0,answernaire, index)">
               饼状图
             </el-button>
             <el-button class="custom-button" @click="switchMode1(1,answernaire, index)">
               柱状图
-            </el-button>
+            </el-button> -->
           </div>
           <div v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'" style="display: flex; justify-content: space-between;">
             <span v-if="mode1[index] === 0"  :id="'main-' + index" style="width: 400px; height: 400px;"></span>
             <span v-if="mode1[index] === 1"  :id="'main1-' + index" style="width: 400px; height: 400px;"></span>
-            <span v-if="mode1[index] === 3"   >
-              <el-table v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice' "
-              :data="answernaire.newArray1Data"
-              :default-sort="{ prop: 'answerCount', order: 'descending' }" border stripe   class="tableHead" >
-                <el-table-column prop="option"  label="选项"   />
-                <el-table-column prop="answerCount" sortable  label="小计" />
-                <el-table-column prop="rate" label="比例" />
-              </el-table>
-            </span>
           </div>
           <!-- 填空题 -->
           <p v-if="answernaire.type === 'fill_blank'">
@@ -568,60 +629,67 @@ const initCharts = async(answernaire, index)  => {
           <!-- 单选题，多选题 -->    
           <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">第{{index+1}}题: &nbsp;     {{ answernaire.description }}&nbsp;
           {{ answernaire.type==='single_choice'? '[单选题]':'[多选题]' }}</p>
-
-          <!-- <el-table v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice' "
-           :data="answernaire.newArray1Data"
-           :default-sort="{ prop: 'answerCount', order: 'descending' }" border stripe   class="tableHead" >
-            <el-table-column prop="option"  label="选项"   />
-            <el-table-column prop="answerCount" sortable  label="小计" />
-            <el-table-column prop="rate"  label="比例" />
-            
-          </el-table> -->
-          <!-- <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">本题有效填写人数：{{answernaire.total}}</p> -->
+          <div>
+            <el-table v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice' "
+              :data="answernaire.newArray1Data"
+              :default-sort="null" border stripe   class="tableHead" >
+                <el-table-column prop="option"  label="选项"   />
+                <el-table-column prop="answerCount" sortable  label="小计" />
+                <el-table-column prop="rate"  label="比例" />
+              </el-table>
+          </div>
           <div v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'" style="display: flex;justify-content: center; gap: 10px;">
-            <el-button class="custom-button" @click="switchMode1(3,answernaire, index)">
-            表格</el-button>
-            <el-button class="custom-button" @click="switchMode1(0,answernaire, index)">
+            <el-button class="custom-button" >
+              表格
+            </el-button>
+            <el-button 
+              :class="{'custom-button': isActive[1], 'custom-buttonDark': !isActive[1]}" 
+              @click="switchMode1AndtoggleActive(0,answernaire, index,1)">
+              饼状图
+            </el-button>
+            <el-button 
+              :class="{'custom-button': isActive[2], 'custom-buttonDark': !isActive[2]}" 
+              @click="switchMode1AndtoggleActive(1,answernaire, index,2)">
+              柱状图
+            </el-button>
+            <!-- <el-button class="custom-button" @click="switchMode1(0,answernaire, index)">
               饼状图
             </el-button>
             <el-button class="custom-button" @click="switchMode1(1,answernaire, index)">
               柱状图
-            </el-button>
+            </el-button> -->
           </div>
           <div v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'" style="display: flex; justify-content: space-between;">
             <span v-if="mode1[index] === 0"  :id="'main-' + index" style="width: 400px; height: 400px;"></span>
-            <span v-if="mode1[index] === 1"  :id="'main1-' + index" style="width: 400px; height: 400px;"></span>
-            <span v-if="mode1[index] === 3"   >
-              <el-table v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice' "
-              :data="answernaire.newArray1Data"
-              :default-sort="{ prop: 'answerCount', order: 'descending' }" border stripe   class="tableHead" >
-                <el-table-column prop="option"  label="选项"   />
-                <el-table-column prop="answerCount" sortable  label="小计" />
-                <el-table-column prop="rate"  label="比例" />
-                
-              </el-table>
-            </span>
+            <span v-if="mode1[index] === 1"  :id="'main1-' + index" style="width: 400px; height: 400px;"></span>           
           </div>
           <!-- 填空题 -->
           <p v-if="answernaire.type === 'fill_blank'">
             第{{index+1}}题: &nbsp;     {{ answernaire.description }}&nbsp;[填空题]
           </p>
-
           <div v-if="answernaire.type === 'fill_blank'" style="display: flex;justify-content: center; gap: 10px;">
             <el-button class="custom-button" @click="isDialogVisible[answernaire.qid]=true">显示表格</el-button>
-            <el-button class="custom-button" @click="switchMode1(0,answernaire, index)">
+            <el-button 
+              :class="{'custom-button': isActive[5], 'custom-buttonDark': !isActive[5]}" 
+              @click="switchMode1AndtoggleActive(0,answernaire, index,5)">
               饼状图
             </el-button>
-            <el-button class="custom-button" @click="switchMode1(1,answernaire, index)">柱状图</el-button>
-            <el-button class="custom-button" @click="switchMode1(2,answernaire, index)">显示词云</el-button>
-              
+            <el-button 
+              :class="{'custom-button': isActive[6], 'custom-buttonDark': !isActive[6]}" 
+              @click="switchMode1AndtoggleActive(1,answernaire, index,6)">
+              柱状图
+            </el-button>
+            <el-button 
+              :class="{'custom-button': isActive[7], 'custom-buttonDark': !isActive[7]}" 
+              @click="switchMode1AndtoggleActive(2,answernaire, index,7)">
+              显示词云
+            </el-button> 
           </div>
           <div v-if="answernaire.type === 'fill_blank'"  style="display: flex; justify-content: space-between;">
             <span v-if="mode1[index] === 0"  :id="'main-' + index" style="width: 400px; height: 400px;"></span>
             <span v-if="mode1[index] === 1"  :id="'main1-' + index" style="width: 400px; height: 400px;"></span>
             <span v-if="mode1[index] === 2"  style="display: flex; justify-content: center; align-items: center; width: 1000px; height: 400px;">
                 <!-- 词云 -->
-
                 <div class="borederCiYun"
                   :id=" 'mywordcloud-' + index"
                   :style="{ width: '50%', height: '300px' }"
@@ -657,23 +725,28 @@ const initCharts = async(answernaire, index)  => {
             </template>
             </el-dialog>          
           </div>
-          
-          <!-- <p v-if="answernaire.type === 'fill_blank'">本题有效填写人数：{{answernaire.total}}</p> -->
           <!-- 代码题 -->
           <p v-if="answernaire.type === 'code'">
             第{{index+1}}题: &nbsp;     {{ answernaire.description }}&nbsp;[代码题]
-          </p>
-          
-          
-          
+          </p>         
           <div v-if="answernaire.type === 'code'" style="display: flex;justify-content: center; gap: 10px;">
-            <el-button class="custom-button" @click="isDialogVisible[answernaire.qid]=true">查看详细信息</el-button>
-            <el-button class="custom-button" @click="switchMode1(0,answernaire, index)">
+            <el-button class="custom-button" @click="isDialogVisible[answernaire.qid]=true">详细信息</el-button>
+            <el-button 
+              :class="{'custom-button': isActive[9], 'custom-buttonDark': !isActive[9]}" 
+              @click="switchMode1AndtoggleActive(0,answernaire, index,9)">
+              饼状图
+            </el-button>
+            <el-button 
+              :class="{'custom-button': isActive[10], 'custom-buttonDark': !isActive[10]}" 
+              @click="switchMode1AndtoggleActive(1,answernaire, index,10)">
+              柱状图
+            </el-button>
+            <!-- <el-button class="custom-button" @click="switchMode1(0,answernaire, index)">
               饼状图
             </el-button>
             <el-button class="custom-button" @click="switchMode1(1,answernaire, index)">
               柱状图
-            </el-button>
+            </el-button> -->
           </div>
           <div v-if="answernaire.type === 'code'"  style="display: flex; justify-content: space-between;">
             <span v-if="mode1[index] === 0"  :id="'main-' + index" style="width: 400px; height: 400px;"></span>
@@ -721,10 +794,10 @@ const initCharts = async(answernaire, index)  => {
           
       </li>
   </ul>
-  
-  <ul v-if="mode==1" class="infinite-list" style="overflow: auto">
+  </div>
+  <!-- <ul v-if="mode==1" class="infinite-list" style="overflow: auto">
 
-  </ul>
+  </ul> -->
   
 </template>
 
@@ -747,19 +820,17 @@ const initCharts = async(answernaire, index)  => {
   padding: 20px;
   margin: 10px;
   list-style: none;
+  width: 1000px;
 }
 .infinite-list .infinite-list-item {
-  overflow: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 1000px;
   margin: 10px;
-  background-color:  lightblue;
-  /* background: url('@/assets/img/2.jpg') no-repeat center center;
-  background-size: cover;
-  z-index: 20; */
+  background-color:  lightcyan;
+  border: 2px solid #000; /* 添加黑色边框，宽度为2px */
+  border-radius: 4px; /* 可选：设置圆角边框 */
 }
 .borederCiYun{
   border: 1px solid white;
@@ -769,6 +840,22 @@ const initCharts = async(answernaire, index)  => {
   width: 800px;
   border: 1px solid black; 
   margin-bottom: 30px;
+}
+.custom-buttonDark {
+  border-color: #d3d3d3; /* 灰暗边框颜色 */
+  position: relative;
+  width: 150px;
+  height: 45px;
+  text-align: center;
+  line-height: 60px;
+  color: #666; /* 灰暗字体颜色 */
+  font-size: 18px;
+  text-decoration: none;
+  font-family: sans-serif;
+  border-radius: 30px;
+  background-color: #d3d3d3; /* 灰暗颜色 */
+  background-size: 400%;
+  transition: background-position 0.5s;
 }
 .custom-button {
   position: relative;
@@ -797,5 +884,4 @@ const initCharts = async(answernaire, index)  => {
     background-position: 480%;
   }
 }
-
 </style>

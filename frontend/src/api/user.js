@@ -9,10 +9,11 @@ export const getUserInfo = () => {
     })
 }
 
-export const updateUserInfo = (password, avatar) => {
+export const updateUserInfo = (password, avatar,description) => {
     const data = {
         password: password,
-        avatar: avatar
+        avatar: avatar,
+        description:description
     }
     const jsonData = JSON.stringify(data)
     return request.put('/api/user', jsonData, {

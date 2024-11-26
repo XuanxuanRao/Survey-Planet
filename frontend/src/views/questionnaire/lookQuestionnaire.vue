@@ -484,7 +484,7 @@ const initCharts = async(answernaire, index)  => {
   
   <div style="display: flex;justify-content: center; gap: 10px;">
     <el-button class="custom-button" @click="switchMode(0)">
-      统计与分析
+      统计分析
     </el-button>
     <el-button class="custom-button" @click="switchMode(1)">
       查看问卷
@@ -496,7 +496,7 @@ const initCharts = async(answernaire, index)  => {
       <!--normal  -->
       <li v-if="surveyType=='normal'" v-for="(answernaire, index) in mergedData" :key="index" class="infinite-list-item">
           <!-- 单选题，多选题 -->    
-          <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">第{{index+1}}题: &nbsp;     {{ answernaire.description }}&nbsp;
+          <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">第{{index+1}}题: &nbsp;{{ answernaire.description }}&nbsp;
           {{ answernaire.type==='single_choice'? '[单选题]':'[多选题]' }}</p>
           <div v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">
             <el-table v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice' "
@@ -844,8 +844,8 @@ const initCharts = async(answernaire, index)  => {
 .custom-buttonDark {
   border-color: #d3d3d3; /* 灰暗边框颜色 */
   position: relative;
-  width: 150px;
-  height: 45px;
+  width: 80px;
+  height: 35px;
   text-align: center;
   line-height: 60px;
   color: #666; /* 灰暗字体颜色 */
@@ -856,11 +856,12 @@ const initCharts = async(answernaire, index)  => {
   background-color: #d3d3d3; /* 灰暗颜色 */
   background-size: 400%;
   transition: background-position 0.5s;
+  margin-bottom: 10px;
 }
 .custom-button {
   position: relative;
-  width: 150px;
-  height: 45px;
+  width: 80px;
+  height: 35px;
   text-align: center;
   line-height: 60px;
   color: #fff;
@@ -871,6 +872,7 @@ const initCharts = async(answernaire, index)  => {
   background: linear-gradient(90deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4);
   background-size: 400%;
   transition: background-position 0.5s;
+  margin-bottom: 10px;
 }
 .custom-button:hover {
   animation: animate 8s linear infinite;

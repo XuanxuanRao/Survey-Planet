@@ -213,3 +213,27 @@ export const userModifyAnswer = (rid, valid) => {
         }
     })
 }
+
+export const userGetUnreadmessage = () => {
+    return request.get(`/api/message/list?isRead=0`, {
+        headers: {
+            'token': useUserStore().token,
+        }
+    })
+}
+
+export const userGetMessageDetail = (mid) => {
+    return request.get(`/api/message/${mid}`, {
+        headers: {
+            'token': useUserStore().token,
+        }
+    })
+}
+
+export const userSetMessageUnread = (mid, isRead) => {
+    return request.put(`/api/message/${mid}?isRead=${isRead}`, {
+        headers: {
+            'token': useUserStore().token,
+        }
+    })
+}

@@ -195,6 +195,8 @@ const setValidFilter = (valid) => {
             <th>提交时间</th>
             <th>更新时间</th>
             <th>答卷总分</th>
+
+            <th v-for="(question, index) in questions" :key="question.qid">{{ question.title }}</th>
           </tr>
         </thead>
         <tbody>
@@ -208,6 +210,14 @@ const setValidFilter = (valid) => {
             <td>{{ record.createTime }}</td>
             <td>{{ record.updateTime }}</td>
             <td>{{ record.grade ?? "N/A" }}</td>
+
+            <td v-for="(item, idx) in record.items" :key="item.qid">
+              <!-- <div v-for="(answer, index) in item.content" :key="index">
+                {{ answer }}
+                <span v-if="index < item.content.length - 1">, </span>
+              </div> -->
+              {{item.content.join(", ")}}
+            </td>
           </tr>
         </tbody>
       </table>

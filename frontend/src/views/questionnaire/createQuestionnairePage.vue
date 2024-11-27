@@ -1,10 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { Search,Delete, Edit,  Share, Upload, Download } from '@element-plus/icons-vue'
-import { getCreatedQuestionnaireList, userDeleteQuestionnaire, userShareQuestionnaire, userCloseQuestionnaire, userExportResult } from '@/api/questionnaire'
+import { getCreatedQuestionnaireList, userDeleteQuestionnaire, userShareQuestionnaire, userCloseQuestionnaire, userExportResult, userGetUnreadmessage, userGetMessageDetail, userSetMessageUnread } from '@/api/questionnaire'
 import { useRouter } from 'vue-router'
 //import { ElButton, ElMessage } from 'element-plus'
-import { VideoPause, VideoPlay} from '@element-plus/icons-vue'
+import { VideoPause, VideoPlay, Bell} from '@element-plus/icons-vue'
+import { useUserStore } from "@/stores/user"
+
 const createdQuestionnaireList = ref([]);  // 响应式变量，存储用户数据
 
 // 控制 Dialog 显示状态的变量
@@ -19,6 +21,98 @@ function showDialog(data) {
   dialogVisible.value = true; // 显示对话框
 }
 
+const unreadMessage = ref([])
+const getUnreadmessage = async () => {
+  const res = await userGetUnreadmessage()
+  if (res.msg === 'success') {
+    unreadMessage.value = res.data
+  } else {
+    ElMessage.error('获取未读消息失败')
+  }
+  console.log(res.msg)
+}
+
+const dialogVisible1 = ref(false);  // 控制弹窗显示与隐藏
+const dialogContent = ref('');     // 用于存储弹窗的内容
+
+// 创建 WebSocket 连接
+const socket = new WebSocket('ws://59.110.163.198:8088/ws?token=' + useUserStore().token);
+const socketData = ref('');  // 用于存储 WebSocket 返回的数据
+
+// 监听 WebSocket 消息
+socket.addEventListener('message', async function (event) {
+  const data = JSON.parse(event.data);  // 假设服务器返回的消息是 JSON 格式
+  console.log(data)
+  socketData.value = data
+  await getUnreadmessage()
+  console.log(unreadMessage.value)
+  showPopup(data);  // 传递包含 mid 和 content 的数据
+});
+
+// 显示弹窗函数
+function showPopup(data) {
+  dialogContent.value = data.content;   // 设置弹窗的内容
+  dialogVisible1.value = true;           // 显示弹窗
+}
+
+// 关闭弹窗时的处理函数
+function handleClose() {
+  console.log('Dialog closed');
+  dialogVisible1.value = false;
+}
+
+async function handleClose2() {
+  await getUnreadmessage();
+  dialogVisible2.value = false;
+}
+
+const detailsData = ref(null)
+const dialogVisible2 = ref(false)
+
+// 点击“显示详情”按钮触发的函数
+async function showDetails() {
+  console.log('Show details');
+  console.log(socketData.value)
+  dialogVisible1.value = false;
+  if(socketData.value.mid) {
+    const res = await userGetMessageDetail(socketData.value.mid)
+    if(res.msg === 'success') {
+      detailsData.value = res.data
+      dialogVisible2.value = true
+    } else {
+      ElMessage.error('获取消息详情失败')
+    }
+  } else {
+    await getUnreadmessage();
+    detailsData.value = unreadMessage.value
+    dialogVisible2.value = true
+  }
+}
+
+async function loadMessageDetails(mid) {
+  console.log('Loading details for mid:', mid);
+  const res = await userGetMessageDetail(mid);
+  if (res.msg === 'success') {
+    detailsData.value = res.data
+    console.log(detailsData.value)
+  } else {
+    ElMessage.error('Failed to load message details')
+  }
+}
+
+async function openMessagesDialog() {
+  await getUnreadmessage();
+  detailsData.value = unreadMessage.value
+  dialogVisible2.value = true;
+}
+
+// 处理复选框变化的事件
+async function handleReadStatusChange() {
+  const checked = detailsData.value.isRead;
+  const mid = detailsData.value.mid;
+
+  await userSetMessageUnread(mid, checked ? 0 : 1);
+}
 
 // 在组件挂载时获取数据
 onMounted(async () => {
@@ -123,12 +217,109 @@ const analyseResult = (id) => {
   const dataToSend = {id: id};
   router.push({ path: '/questionnaire/lookQuestionnaire', query: dataToSend })
 }
+
 </script>
 
 <template>
+  <div>
+    <!-- WebSocket 连接 -->
+    <el-dialog
+      v-model="dialogVisible1"
+      :title="'New Message'"
+      width="400px"
+      @close="handleClose"
+    >
+      <p>{{ dialogContent }}</p> <!-- 弹窗内容 -->
+      <template #footer>
+        <el-button @click="showDetails">ShowDetails</el-button> <!-- 显示详情按钮 -->
+        <el-button @click="dialogVisible1 = false">Close</el-button> <!-- 关闭按钮 -->
+      </template>
+    </el-dialog>
+
+    <!-- 详情弹窗 -->
+    <el-dialog
+      v-model="dialogVisible2"
+      :title="'Details Data'"
+      width="600px"
+      @close="handleClose2"
+    >
+      <template v-if="detailsData">
+        <!-- if 数据渲染 -->
+        <div v-if="Array.isArray(detailsData)" class="scroll-container">
+          <h3>Unread Messages</h3>
+          <el-table
+            :data="detailsData"
+            style="width: 100%"
+            height="400px"
+            border
+          >
+            <el-table-column prop="type" label="Type" width="200"></el-table-column>
+            <el-table-column prop="invitationMessage" label="Message" width="250">
+              <template #default="scope">
+                {{ scope.row.invitationMessage || 'No message' }}
+              </template>
+            </el-table-column>
+            <el-table-column label="Action" width="150">
+              <template #default="scope">
+                <el-button
+                  type="text"
+                  size="small"
+                  @click="loadMessageDetails(scope.row.mid)"
+                >
+                  Details
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+
+        <!-- else 数据渲染 -->
+        <div v-else>
+          <div class="container" v-if="detailsData.surveyReportLink">
+            <h1>问卷有新回复</h1>
+            <p class="message">
+              您的问卷 <a href="{{detailsData.surveyReportLink}}" target="_blank" class="highlight-link">{{detailsData.surveyTitle}}</a>（类型：{{detailsData.surveyType}}）在
+             <span class="highlight">{{detailsData.submitTime}}</span> 收到一份新提交。
+           </p>
+            <a href="{{detailsData.submitLink}}" target="_blank" class="action-button">查看详情</a>
+            <p class="create-time">{{detailsData.createTime}}</p>
+          </div>
+
+          <div class="container" v-if="detailsData.senderName">
+            <h1>问卷填写邀请</h1>
+            <p class="info">接收时间: <span class="highlight">{{detailsData.createTime}}</span></p>
+            <p class="info">邀请人: <span class="highlight">{{detailsData.senderName}}</span></p>
+            <p class="message">
+                你被邀请填写一份{{detailsData.surveyType}}问卷：<span class="highlight">{{detailsData.surveyTitle}}</span>。
+            </p>
+            <div class="invitation-box">
+                {{detailsData.invitationMessage}}
+            </div>
+            <a href="{{detailsData.surveyFillLink}}" target="_blank" class="action-button">填写问卷</a>
+          </div>
+
+          <div>
+          <el-checkbox v-model="detailsData.isRead" @change="handleReadStatusChange()">
+            Mark as UnRead
+          </el-checkbox>
+          </div>
+        </div>
+
+        <!-- 添加复选框 -->
+      </template>
+
+      <template #footer>
+        <el-button @click="dialogVisible2 = false">Close</el-button>
+      </template>
+    </el-dialog>
+
+  </div>
+
+  
   <div class="box">
     <div class="header">
     <div class="head-text">创建问卷</div>
+
     <el-select
     v-model="questionnaireType"
     placeholder="请选择问卷类型"
@@ -159,6 +350,17 @@ const analyseResult = (id) => {
     >
     创建问卷
     </el-button>
+
+        <!-- 消息图标和未读消息数 -->
+    <el-badge
+      :value="unreadMessage.length"
+      class="message-badge"
+      type="danger"
+      :max="99"
+      @click="openMessagesDialog"
+    >
+      <el-icon class="message-icon"><Bell /></el-icon>
+    </el-badge>
   </div>
 
   <div class="showQues">
@@ -216,6 +418,16 @@ const analyseResult = (id) => {
 </template>
 
 <style>
+.message-badge {
+  cursor: pointer;
+  margin-left: 10px;
+  display: inline-block;
+}
+
+.message-icon {
+  font-size: 30px; /* 增加图标的大小，默认大小是 1rem，设置为 36px */
+  color: #a5aeb8;
+}
 .box {
   margin-left: 0px; /* 给侧边栏留出空间 */
   margin-right: 10px; /* 给侧边栏留出空间 */

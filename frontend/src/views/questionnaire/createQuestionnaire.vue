@@ -3,7 +3,9 @@ import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { Edit,CircleCheckFilled,HelpFilled,EditPen,Checked,ArrowDownBold,ArrowUp,CloseBold,Plus,QuestionFilled,RemoveFilled,Tickets,Check} from '@element-plus/icons-vue'
 import { userSendQuestionnaireList, userModifyQuestionnaireList } from '@/api/questionnaire'
-
+const isEditing=ref()
+const isEditingTianKong=ref()
+const isEditingWenjian=ref()
 const route = useRoute()
 const isDark = ref(false)
 const questionnaireTitle = route.query.title
@@ -141,91 +143,140 @@ onMounted(async () => {
     
     <!-- 显示添加的问题 -->
     <div class="question-list">
-      <div v-for="(question, index) in questions" :key="index" class="question-item">
-        <div class="question-header">
-          <!-- 上移、下移按钮 -->
-          <button @click="moveUp(index)" v-if="index !== 0"><el-icon><ArrowUp /></el-icon>上移</button>
-          <button @click="moveDown(index)" v-if="index !== questions.length - 1"><el-icon><ArrowDownBold /></el-icon>下移</button>
-          <!-- 删除问题按钮 -->
-          <button @click="removeQuestion(index)"><el-icon><CloseBold /></el-icon>删除问题</button>
-          <!-- 是否必填按钮 -->
-          <button @click="question.required = true"><el-icon><QuestionFilled /></el-icon>是否必填</button>
-        </div>
-        
+      <div v-for="(question, index) in questions" :key="index" class="question-item">        
         <!-- 根据问题类型渲染不同的题目 -->
         <template v-if="question.type === 'single_choice' || question.type === 'multiple_choice'">
-          <h4>Q{{ index + 1 }} {{ question.type === 'single_choice' ? '单选题' : '多选题' }} </h4>
-          <div>
-            <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
-          </div>
-          <el-input v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen"/>
+          <h4>
+            {{ question.required == true ? "*" : "" }}Q{{ index + 1 }}
+            <el-input 
+              v-model="question.title" 
+              style="width: 400px;" 
+              placeholder="标题" 
+              @focus="isEditing = true" 
+              @blur="isEditing = false" 
+            />
+            <span v-if="!isEditing">
+              {{ question.type === 'single_choice' ? '[单选题]' : '[多选题]' }}
+            </span>
+          </h4>
+          <el-input @focus="isEditing = true" 
+              @blur="isEditing = false" 
+               v-model="question.description" style="width: 600px;"  placeholder="请填入问题描述" :prefix-icon="EditPen"/>
           <ul>
             <li v-for="(option, optIndex) in question.options" :key="optIndex">
-              <el-input v-model="question.options[optIndex]" placeholder="选项内容" >
+              <el-input @focus="isEditing = true" 
+                @blur="isEditing = false" 
+               style="width: 550px;" v-model="question.options[optIndex]" placeholder="选项内容" >
                 <template #append>
-                <el-button @click="removeOption(question, optIndex)"><el-icon><RemoveFilled /></el-icon>删除选项</el-button>
+                <el-button @focus="isEditing = true" 
+                @blur="isEditing = false" 
+                 @click="removeOption(question, optIndex)"><el-icon><RemoveFilled /></el-icon>删除选项</el-button>
+                <el-button @focus="isEditing = true" 
+                @blur="isEditing = false" 
+                  :dark="isDark" plain @click="addOption(question)"><el-icon><Plus /></el-icon>添加选项</el-button>
                 </template>
               </el-input>
             </li>
-          </ul>
-          <el-button  :dark="isDark" plain @click="addOption(question)"><el-icon><Plus /></el-icon>添加选项</el-button>
+          </ul> 
+          <div class="question-header">
+          <!-- 上移、下移按钮 -->
+          <button @click="moveUp(index)" v-if="index !== 0 && (!isEditing)" style="margin: 10px;"><el-icon><ArrowUp /></el-icon>上移</button>
+          <button @click="moveDown(index)" v-if="index !== questions.length - 1 && !isEditing" style="margin: 10px;" ><el-icon><ArrowDownBold /></el-icon>下移</button>
+          <!-- 删除问题按钮 -->
+          <button @click="removeQuestion(index)" v-if="!isEditing" style="margin: 10px;"><el-icon><CloseBold /></el-icon>删除问题</button>
+          <!-- 是否必填按钮 -->
+          <button @click="question.required = true" v-if="!isEditing" style="margin: 10px;"><el-icon><QuestionFilled /></el-icon>是否必填</button>
+          <button @click="isEditing=flase" v-if="isEditing" style="margin: 10px;">完成编辑</button>
+        </div>        
         </template>
 
         <template v-if="question.type === 'fill_blank'">
-          <h4>Q{{ index + 1 }}填空题 </h4>
+          <h4>{{ question.required == true ? "*" : "" }}Q{{ index + 1 }}
+            <el-input  @focus="isEditingTianKong = true" 
+                @blur="isEditingTianKong = false" style="width: 400px;"  v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
+            <span v-if="!isEditingTianKong">[填空题] </span>
+          </h4>
           <div>
-            <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
+            
           </div>
-          <el-input v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
+          <el-input @focus="isEditingTianKong = true" style="width: 500px;"
+                @blur="isEditingTianKong = false" v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
+                <div class="question-header">
+                  <!-- 上移、下移按钮 -->
+                  <button @click="moveUp(index)" v-if="index !== 0 && (!isEditingTianKong)" style="margin: 10px;"><el-icon><ArrowUp /></el-icon>上移</button>
+                  <button @click="moveDown(index)" v-if="index !== questions.length - 1 && !isEditingTianKong" style="margin: 10px;" ><el-icon><ArrowDownBold /></el-icon>下移</button>
+                  <!-- 删除问题按钮 -->
+                  <button @click="removeQuestion(index)" v-if="!isEditingTianKong" style="margin: 10px;"><el-icon><CloseBold /></el-icon>删除问题</button>
+                  <!-- 是否必填按钮 -->
+                  <button @click="question.required = true" v-if="!isEditingTianKong" style="margin: 10px;"><el-icon><QuestionFilled /></el-icon>是否必填</button>
+                  <button @click="isEditing=flase" v-if="isEditingTianKong" style="margin: 10px;">完成编辑</button>
+                </div>   
         </template>
 
         <template v-if="question.type === 'file'">
-          <h4>Q{{ index + 1 }}文件上传题 </h4>
+          <h4>{{ question.required == true ? "*" : "" }}Q{{ index + 1 }}
+            <el-input @focus="isEditingWenjian = true" 
+                @blur="isEditingWenjian = false" style="width: 400px;"  v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
+            <span v-if="!isEditingWenjian">[文件上传题] </span> 
+           </h4>
           <div>
-            <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
+            
           </div>
-          <div>上传文件大小(MB)</div>
-            <el-input-number 
+          <div>上传文件大小(MB):&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<el-input-number 
+            @focus="isEditingWenjian = true" 
+                @blur="isEditingWenjian = false"
               v-model="question.maxFileSize" 
               placeholder="上传文件大小"
               :min="1" 
               :max="100"  
-            />
-          <el-input v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
+            /></div>
+            
+          <el-input @focus="isEditingWenjian = true" style="width: 500px;"
+                @blur="isEditingWenjian = false" v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
+          <div class="question-header">
+            <!-- 上移、下移按钮 -->
+            <button @click="moveUp(index)" v-if="index !== 0 && (!isEditingWenjian)" style="margin: 10px;"><el-icon><ArrowUp /></el-icon>上移</button>
+            <button @click="moveDown(index)" v-if="index !== questions.length - 1 && !isEditingWenjian" style="margin: 10px;" ><el-icon><ArrowDownBold /></el-icon>下移</button>
+            <!-- 删除问题按钮 -->
+            <button @click="removeQuestion(index)" v-if="!isEditingWenjian" style="margin: 10px;"><el-icon><CloseBold /></el-icon>删除问题</button>
+            <!-- 是否必填按钮 -->
+            <button @click="question.required = true" v-if="!isEditingWenjian" style="margin: 10px;"><el-icon><QuestionFilled /></el-icon>是否必填</button>
+            <button @click="isEditing=flase" v-if="isEditingWenjian" style="margin: 10px;">完成编辑</button>
+          </div>   
         </template>
-
-        <!-- <template v-if="question.type === 'rating'">
-          <h4>Q{{ index + 1 }}打分题 </h4>
-          <div>
-            <input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets"/>
-          </div>
-          <div>
-            <span v-for="n in 5" :key="n">★</span>
-          </div>
-          <textarea v-model="question.description" placeholder="请填入问题描述" :prefix-icon="Tickets"></textarea>
-        </template> -->
-
+        <!-- <div class="question-header">
+      
+          <button @click="moveUp(index)" v-if="index !== 0 && (!isEditing)" style="margin: 10px;"><el-icon><ArrowUp /></el-icon>上移</button>
+          <button @click="moveDown(index)" v-if="index !== questions.length - 1 && !isEditing" style="margin: 10px;" ><el-icon><ArrowDownBold /></el-icon>下移</button>
+      
+          <button @click="removeQuestion(index)" v-if="!isEditing" style="margin: 10px;"><el-icon><CloseBold /></el-icon>删除问题</button>
+         
+          <button @click="question.required = true" v-if="!isEditing" style="margin: 10px;"><el-icon><QuestionFilled /></el-icon>是否必填</button>
+          <button @click="isEditing=flase" v-if="isEditing" style="margin: 10px;">完成编辑</button>
+        </div> -->
       </div>
     </div>
+    <h3 style="">点击添加问题</h3>
+      <!-- 问题类型按钮 -->
+      <div class="question-types">
+        <button @click="addQuestion('single_choice')" ><el-icon><HelpFilled /></el-icon>单选题</button>
+        
+        <button @click="addQuestion('multiple_choice')"><el-icon><CircleCheckFilled /></el-icon>多选题</button>
+        
+        <button @click="addQuestion('fill_blank')"><el-icon><Edit /></el-icon>填空题</button>
+        
+        <button @click="addQuestion('file')"><el-icon><Edit /></el-icon>文件上传题</button>
+      </div>
 
-    <h3>点击添加问题</h3>
-    <!-- 问题类型按钮 -->
-    <div class="question-types">
-      <button @click="addQuestion('single_choice')" ><el-icon><HelpFilled /></el-icon>单选题</button>
-      <button @click="addQuestion('multiple_choice')"><el-icon><CircleCheckFilled /></el-icon>多选题</button>
-      <button @click="addQuestion('fill_blank')"><el-icon><Edit /></el-icon>填空题</button>
-      <!-- <button @click="addQuestion('rating')"><el-icon><EditPen /></el-icon>打分题</button> -->
-      <button @click="addQuestion('file')"><el-icon><Edit /></el-icon>文件上传题</button>
-    </div>
+      <!-- 保存按钮 -->
+      <button @click="saveSurvey" ><el-icon><Checked /></el-icon>保存问卷</button>
 
-    <!-- 保存按钮 -->
-    <button @click="saveSurvey" ><el-icon><Checked /></el-icon>保存问卷</button>
-
-    <!-- 显示存储的问卷信息 -->
-    <div class="survey-data">
-      <h3>问卷数据</h3>
-      <pre>{{ surveyData }}</pre>
-    </div>
+      <!-- 显示存储的问卷信息 -->
+      <div class="survey-data">
+        <h3>问卷数据</h3>
+        <pre>{{ surveyData }}</pre>
+      </div>
+    
   </div>
 </template>
 
@@ -251,16 +302,20 @@ button:hover {
 
 .question-list {
   margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .question-item {
   margin-bottom: 20px;
   background-color: white;
+  width: 1200px;
 }
 
 .question-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: right;
   align-items: center;
   margin-bottom: 10px;
 }

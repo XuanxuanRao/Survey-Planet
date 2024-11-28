@@ -1,0 +1,76 @@
+.infinite-list {
+  
+  border-radius: 10px;
+  background-color: white;
+  align-items: center;
+  justify-content: center;
+  height: 80vh;
+  padding: 20px;
+  margin: 10px;
+  list-style: none;
+  width: 1000px;
+}
+.infinite-list .infinite-list-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 10px;
+  background-color:  lightcyan;
+  border: 2px solid #000; /* 添加黑色边框，宽度为2px */
+  border-radius: 4px; /* 可选：设置圆角边框 */
+}
+.borederCiYun{
+  border: 1px solid white;
+  
+}
+.tableHead{
+  width: 800px;
+  border: 1px solid black; 
+  margin-bottom: 30px;
+}
+.custom-buttonDark {
+  border-color: #d3d3d3; /* 灰暗边框颜色 */
+  position: relative;
+  width: 80px;
+  height: 35px;
+  text-align: center;
+  line-height: 60px;
+  color: #666; /* 灰暗字体颜色 */
+  font-size: 18px;
+  text-decoration: none;
+  font-family: sans-serif;
+  border-radius: 30px;
+  background-color: #d3d3d3; /* 灰暗颜色 */
+  background-size: 400%;
+  transition: background-position 0.5s;
+  margin-bottom: 10px;
+}
+.custom-button {
+  position: relative;
+  width: 80px;
+  height: 35px;
+  text-align: center;
+  line-height: 60px;
+  color: #fff;
+  font-size: 18px;
+  text-decoration: none;
+  font-family: sans-serif;
+  border-radius: 30px;
+  background: linear-gradient(90deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4);
+  background-size: 400%;
+  transition: background-position 0.5s;
+  margin-bottom: 10px;
+}
+.custom-button:hover {
+  animation: animate 8s linear infinite;
+}
+
+@keyframes animate {
+  from {
+    background-position: 0%;
+  }
+  to {
+    background-position: 480%;
+  }
+}

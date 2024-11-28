@@ -21,7 +21,7 @@ body{
   align-items: center;
   /* 渐变背景 */
   /* background: linear-gradient(125deg, #ffffff, #ffe0e6, #ffcccb); */
-  background: linear-gradient(125deg, white, #ffe0e6, #bbdefb, #ffffff);
+  background: linear-gradient(125deg, white, #bbdefb, #ffffff);
   /* background: linear-gradient(125deg, white, #e1bee7, #bbdefb, #ffffff); */
   /* background: linear-gradient(125deg, #ffebee, #e1bee7, #bbdefb); */
   /* background: linear-gradient(125deg,#2c3e50,#27ae60,#2980b9,#e74c3c,#8e44ad); */

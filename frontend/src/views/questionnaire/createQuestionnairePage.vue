@@ -389,7 +389,6 @@ const analyseResult = (id) => {
               {{ questionnaire.createTime }}
             </div>
           </div>
-          
           <div class="button-name-description">
             <div class="button-left-content">
               <el-button :icon="Search" @click="analyseResult(questionnaire.sid)">查看</el-button>

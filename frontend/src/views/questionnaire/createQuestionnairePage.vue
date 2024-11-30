@@ -8,7 +8,7 @@ import { VideoPause, VideoPlay, Bell} from '@element-plus/icons-vue'
 import { useUserStore } from "@/stores/user"
 
 const createdQuestionnaireList = ref([]);  // 响应式变量，存储用户数据
-
+const surveyTypeText = ref('');  // 问卷类型的文本
 // 控制 Dialog 显示状态的变量
 const dialogVisible = ref(false);
 
@@ -77,6 +77,7 @@ async function showDetails() {
   if(socketData.value.mid) {
     const res = await userGetMessageDetail(socketData.value.mid)
     if(res.msg === 'success') {
+      res.data.createTime = res.data.createTime.replace('T', ' ');
       detailsData.value = res.data
       dialogVisible2.value = true
     } else {
@@ -84,6 +85,9 @@ async function showDetails() {
     }
   } else {
     await getUnreadmessage();
+    unreadMessage.value.forEach(item => {
+      item.createTime = item.createTime.replace('T', ' ');
+    })
     detailsData.value = unreadMessage.value
     dialogVisible2.value = true
   }
@@ -92,6 +96,9 @@ async function showDetails() {
 async function loadMessageDetails(mid) {
   console.log('Loading details for mid:', mid);
   const res = await userGetMessageDetail(mid);
+  surveyTypeText.value = res.data.surveyType === 'normal' ? '调查' : '考试';
+  res.data.createTime = res.data.createTime.replace('T', ' ');
+  console.log(res.data);
   if (res.msg === 'success') {
     detailsData.value = res.data
     console.log(detailsData.value)
@@ -102,6 +109,9 @@ async function loadMessageDetails(mid) {
 
 async function openMessagesDialog() {
   await getUnreadmessage();
+  unreadMessage.value.forEach(item => {
+    item.createTime = item.createTime.replace('T', ' ');
+  })
   detailsData.value = unreadMessage.value
   dialogVisible2.value = true;
 }
@@ -253,13 +263,9 @@ const analyseResult = (id) => {
             height="400px"
             border
           >
-            <el-table-column prop="type" label="Type" width="200"></el-table-column>
-            <el-table-column prop="invitationMessage" label="Message" width="250">
-              <template #default="scope">
-                {{ scope.row.invitationMessage || 'No message' }}
-              </template>
-            </el-table-column>
-            <el-table-column label="Action" width="150">
+            <el-table-column prop="type" label="主题" width="200"></el-table-column>
+            <el-table-column prop="createTime" label="时间" width="200"/>
+            <el-table-column label="状态" width="150">
               <template #default="scope">
                 <el-button
                   type="text"
@@ -276,13 +282,13 @@ const analyseResult = (id) => {
         <!-- else 数据渲染 -->
         <div v-else>
           <div class="container" v-if="detailsData.surveyReportLink">
-            <h1>问卷有新回复</h1>
-            <p class="message">
-              您的问卷 <a href="{{detailsData.surveyReportLink}}" target="_blank" class="highlight-link">{{detailsData.surveyTitle}}</a>（类型：{{detailsData.surveyType}}）在
-             <span class="highlight">{{detailsData.submitTime}}</span> 收到一份新提交。
-           </p>
-            <a href="{{detailsData.submitLink}}" target="_blank" class="action-button">查看详情</a>
-            <p class="create-time">{{detailsData.createTime}}</p>
+            <h1>问卷有新答卷</h1>
+              <p class="info">接收时间: <span class="highlight">{{detailsData.createTime}}</span></p>
+              <p class="message">
+                您发布的{{surveyTypeText}}问卷 <a :href="detailsData.surveyReportLink" class="highlight-link">{{detailsData.surveyTitle}}</a> 在
+                <span class="highlight">{{detailsData.submitTime}}</span> 收到一份新提交。
+              </p>
+              <a :href="detailsData.submitLink" class="action-button">查看详情</a>
           </div>
 
           <div class="container" v-if="detailsData.senderName">
@@ -290,17 +296,17 @@ const analyseResult = (id) => {
             <p class="info">接收时间: <span class="highlight">{{detailsData.createTime}}</span></p>
             <p class="info">邀请人: <span class="highlight">{{detailsData.senderName}}</span></p>
             <p class="message">
-                你被邀请填写一份{{detailsData.surveyType}}问卷：<span class="highlight">{{detailsData.surveyTitle}}</span>。
+                你被邀请填写一份{{surveyTypeText}}问卷：<span class="highlight">{{detailsData.surveyTitle}}</span>。
             </p>
             <div class="invitation-box">
                 {{detailsData.invitationMessage}}
             </div>
-            <a href="{{detailsData.surveyFillLink}}" target="_blank" class="action-button">填写问卷</a>
+            <a :href="detailsData.surveyFillLink" target="_blank" class="action-button">填写问卷</a>
           </div>
 
           <div>
           <el-checkbox v-model="detailsData.isRead" @change="handleReadStatusChange()">
-            Mark as UnRead
+            标记为未读
           </el-checkbox>
           </div>
         </div>
@@ -389,6 +395,7 @@ const analyseResult = (id) => {
               {{ questionnaire.createTime }}
             </div>
           </div>
+          
           <div class="button-name-description">
             <div class="button-left-content">
               <el-button :icon="Search" @click="analyseResult(questionnaire.sid)">查看</el-button>
@@ -592,5 +599,57 @@ const analyseResult = (id) => {
   to {
     background-position: 480%;
   }
+}
+h1 {
+    color: #0056b3;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.info {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.highlight {
+    font-weight: bold;
+    color: #d9534f;
+}
+
+.message {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 20px;
+    line-height: 1.8;
+}
+
+.invitation-box {
+    padding: 15px;
+    border-left: 4px solid #007bff;
+    background: #f1f9ff;
+    font-size: 16px;
+    color: #0056b3;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    border-radius: 8px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.action-button {
+    display: inline-block;
+    font-size: 16px;
+    padding: 12px 25px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: #ffffff;
+    border-radius: 25px;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: background 0.3s, transform 0.2s;
+}
+
+.action-button:hover {
+    background: linear-gradient(135deg, #0056b3, #004494);
+    transform: translateY(-3px);
 }
 </style>

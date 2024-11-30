@@ -231,7 +231,7 @@ export const userGetMessageDetail = (mid) => {
 }
 
 export const userSetMessageUnread = (mid, isRead) => {
-    return request.put(`/api/message/${mid}?isRead=${isRead}`, {
+    return request.put(`/api/message/${mid}?isRead=${isRead}`, {}, {
         headers: {
             'token': useUserStore().token,
         }

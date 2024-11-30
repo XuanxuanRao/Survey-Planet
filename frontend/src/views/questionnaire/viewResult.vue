@@ -2,7 +2,7 @@
 import { userGetQuestionnaireResult } from '@/api/questionnaire'
 import { onMounted, ref, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
-
+import{Download} from '@element-plus/icons-vue'
 const response = ref();
 let intervalId = null;
 const isShowDetail = ref(true)
@@ -10,15 +10,58 @@ const loadingInstance = ref(null); // 控制 loading 实例
 
 const route = useRoute()
 const rid = route.query.rid
+const fileContent = ref(''); // 用于存储文件内容
+const fileContent1 = ref(''); // 用于存储文件内容
+const fileContent2 = ref(''); // 用于存储文件内容
+const fetchFileContent = async (url) => {
+      try {
+        const response = await fetch(url);
+        console.log("response",response);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        fileContent.value = await response.text(); // 获取文件内容并存储
+        console.log("fileContent.value",fileContent.value)
+      } catch (error) {
+        console.error('Error fetching file:', error);
+      }
+};
 
+const fetchFileContent1 = async (url) => {
+      try {
+        const response = await fetch(url);
+        console.log("response",response);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        fileContent1.value = await response.text(); // 获取文件内容并存储
+        console.log("fileContent1.value",fileContent1.value)
+      } catch (error) {
+        console.error('Error fetching file:', error);
+      }
+};
+
+const fetchFileContent2 = async (url) => {
+      try {
+        const response = await fetch(url);
+        console.log("response",response);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        fileContent2.value = await response.text(); // 获取文件内容并存储
+        console.log("fileContent2.value",fileContent2.value)
+      } catch (error) {
+        console.error('Error fetching file:', error);
+      }
+};
 const fetchData = async () => {
   try {
     const res = await userGetQuestionnaireResult(rid)
-
     if (res.msg !== "SUBMIT_IS_BEEN_PROCESSED") {
       clearInterval(intervalId); // 停止请求
       response.value = res.data;
-      console.log(res.data);
+      console.log("res.data",res.data);
+      console.log("response.value",response.value);
       loadingInstance.value.close() // 数据加载完成后关闭 loading
     }
   } catch (error) {
@@ -26,19 +69,28 @@ const fetchData = async () => {
     loadingInstance.value.close()
   }
 };
-
+const loadingContent= `
+        <svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="25" cy="25" r="20" stroke="#409EFF" stroke-width="4" fill="none" />
+          <path d="M15 25l5 5 10-10" stroke="#409EFF" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <animate attributeName="stroke-dasharray" from="0, 20" to="20, 0" dur="0.5s" fill="freeze" />
+            <animate attributeName="stroke-dashoffset" from="0" to="0" dur="0.5s" fill="freeze" />
+          </path>
+        </svg>
+      `;
 // 初始化加载状态和轮询
 onMounted(() => {
   loadingInstance.value = ElLoading.service({
     lock: true,
     text: '加载中，请稍候...',
+    svg: loadingContent, // 使用 SVG 动画
     background: 'rgba(0, 0, 0, 0.7)',
   });
   fetchData();
   intervalId = setInterval(fetchData, 2000);
 })
 
-// 组件卸载前清除轮询
+// 组件卸载前清除轮询，这里是必要的，确保fetchData的clearInterval(intervalId);loadingInstance.value.close()必定完成
 onBeforeUnmount(() => {
   clearInterval(intervalId);
   if (loadingInstance.value) {
@@ -69,8 +121,12 @@ const getStatusMeaning = (status) => {
 // 用于切换每个测试点的 URL 显示状态
 const visibleUrls = ref({})
 
-const toggleUrls = (index) => {
+const toggleUrls = async(index,test1) => {
   visibleUrls.value[index] = !visibleUrls.value[index];
+  fetchFileContent(test1.inputDataUrl);
+  fetchFileContent1(test1.outputDataUrl);
+  fetchFileContent2(test1.userOutput);
+
 }
 
 </script>
@@ -82,26 +138,35 @@ const toggleUrls = (index) => {
 
     <h3 @click="changeView">点击查看详情</h3> <!-- 修复了额外的引号 -->
     
-    <div class="detail" v-if="isShowDetail">
-      <div v-for="(item, index) in response.items" :key="index">
-        <template v-if="item.question.type === 'single_choice'">
-          <h4>
+    <div  v-if="isShowDetail">
+      <div class="lookUnder" v-for="(item, index) in response.items" :key="index">
+        <template class="single_choice" v-if="item.question.type === 'single_choice'">
+          <!-- <div> -->
+            <h4>
             Q{{ index + 1 }} {{ item.question.title }} (单选题) <br>
             问题描述：{{ item.question.description }} <br>
-          </h4>
-          <el-radio-group>
-            <el-radio
-            v-for="(option, optIndex) in item.question.options"
-            :key="optIndex"
-            :value="option"
-            :class="{ 'correct-answer': item.content.includes(option),
-                      'wrong-answer': !item.answer.includes(option) && item.content.includes(option) }"
-          >
-            {{ option }}
-          </el-radio>
-          </el-radio-group>
+            </h4>
+          <!-- </div> -->
           <br>
-          <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div>
+          <!-- <div> -->
+              <el-radio-group>
+                <el-radio
+                v-for="(option, optIndex) in item.question.options"
+                :key="optIndex"
+                :value="option"
+                :class="{ 'correct-answer': item.content.includes(option),
+                          'wrong-answer': !item.answer.includes(option) && item.content.includes(option) }"
+              >
+                {{ option }}
+              </el-radio>
+              </el-radio-group>
+          <!-- </div> -->
+          
+          <br>
+          <div v-if="item.grade !== null">
+            本题得分：{{ item.grade }} 
+          </div>
+          <br>
           <div v-if="item.answer">
             正确答案：{{ item.answer.join(", ") }}
           </div>
@@ -159,10 +224,10 @@ const toggleUrls = (index) => {
           </h4>
 
           <div class="result-container" v-if="item.judge.caseJudgeResults.length > 0">
-            <h2>测试点结果</h2>
+            <h4>测试点结果</h4>
             <div v-for="(test, index) in item.judge.caseJudgeResults" :key="index" class="test-case">
               <div class="test-case-details">
-                <button @click="toggleUrls(index)" class="toggle-arrow">
+                <button @click="toggleUrls(index,test)" class="toggle-arrow">
                   {{ visibleUrls[index] ? '▼' : '▶' }}
                 </button>
                 <div class="test-case-index">测试点 #{{ index + 1 }}</div>
@@ -178,10 +243,41 @@ const toggleUrls = (index) => {
 
               <!-- URL 列表，位于详细信息下方 -->
               <div v-if="visibleUrls[index]" class="url-list">
-                <span>点击下载:</span>
-                <a :href="test.inputDataUrl" target="_blank">标准输入</a>
+                <!-- <span>点击下载:</span> -->
+                <!-- {{test.inputDataUrl}} -->
+                
+                <h4 style="color: black;" @click="fetchFileContent(test.inputDataUrl)">标准输入：
+                  <!-- <i class="fas fa-download"></i> -->
+                  <a style="margin-left: 500px;" :href="test.inputDataUrl" target="_blank"><el-icon><Download /></el-icon></a>
+                  <br><el-input
+                    type="textarea"
+                    :rows="5"
+                    v-model="fileContent"
+                    placeholder="文件内容"
+                    style="width: 600px;"
+                  ></el-input></h4>
+                
+                <h4 style="color: black;" @click="fetchFileContent1(test.outputDataUrl)">标准输出：
+                  <a style="margin-left: 500px;" :href="test.outputDataUrl" target="_blank"><el-icon><Download /></el-icon></a>
+                  <br><el-input
+                    type="textarea"
+                    :rows="5"
+                    v-model="fileContent1"
+                    placeholder="文件内容"
+                    style="width: 600px;"
+                  ></el-input></h4>
+                <h4 style="color: black;" @click="fetchFileContent2(test.userOutput)">你的输出：
+                  <a style="margin-left: 500px; " :href="test.userOutput" target="_blank"><el-icon><Download /></el-icon></a>
+                  <br><el-input
+                    type="textarea"
+                    :rows="5"
+                    v-model="fileContent2"
+                    placeholder="文件内容"
+                    style="width: 600px;"
+                  ></el-input></h4>
+                <!-- <a :href="test.inputDataUrl" target="_blank">标准输入</a>
                 <a :href="test.outputDataUrl" target="_blank">标准输出</a>
-                <a :href="test.userOutput" target="_blank">输出</a>
+                <a :href="test.userOutput" target="_blank">输出</a> -->
               </div>
             </div>
           </div>
@@ -207,7 +303,7 @@ const toggleUrls = (index) => {
 .status.failed { color: red; }
 
 /* 详情和URL列表的布局 */
-.details { display: flex; color: #555; margin-left: 200px;}
+.details { display: flex; color: #555; margin-left: 200px; }
 
 /* 小箭头按钮 */
 .toggle-arrow { cursor: pointer; background: none; border: none; color: blue; font-size: 1em; }
@@ -218,12 +314,32 @@ const toggleUrls = (index) => {
     margin-left: 20px; /* 增加左边距，使它在详情下方居中 */
     color: blue; 
     display: flex; 
+    flex-direction: column; /* 设置为竖直方向 */
     gap: 15px; 
-    align-items: center;
+    align-items: flex-start; /* 可以根据需要调整对齐方式 */
 }
 .url-list span { font-weight: bold; color: #333; }
 .url-list a { text-decoration: none; color: #1a73e8; }
 .url-list a:hover { text-decoration: underline; }
+
+.single_choice{
+  display: flex;
+  flex-direction: column; 
+  align-items: flex-start; 
+  justify-content: space-between; 
+
+}
+/* .lookUnder{
+   align-items: center;
+   justify-content: center; 
+   display: flex;
+} */
+
+.download-icon {
+  margin-left: 10px; /* 左边距 */
+  color: #4CAF50; /* 图标颜色 */
+  font-size: 20px; /* 图标大小 */
+}
 
 .correct-answer {
   color: green; /* 选项文字变为绿色 */

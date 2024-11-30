@@ -5,7 +5,7 @@ import router from './router'
 import pinia from '@/stores/index'
 import vuetyped from 'vue3typed'
 import '@/assets/main.scss'
-
+import '@fortawesome/fontawesome-free/css/all.css';
 import ElementPlus from 'element-plus'
 
 const app = createApp(App)

@@ -70,13 +70,15 @@ const fetchData = async () => {
   }
 };
 const loadingContent= `
-        <svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="25" cy="25" r="20" stroke="#409EFF" stroke-width="4" fill="none" />
-          <path d="M15 25l5 5 10-10" stroke="#409EFF" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <animate attributeName="stroke-dasharray" from="0, 20" to="20, 0" dur="0.5s" fill="freeze" />
-            <animate attributeName="stroke-dashoffset" from="0" to="0" dur="0.5s" fill="freeze" />
-          </path>
-        </svg>
+<svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+  <!-- 外部圆 -->
+  <circle cx="25" cy="25" r="50" stroke="#409EFF" stroke-width="4" fill="none" />
+  <!-- 充满效果的圆 -->
+  <circle cx="25" cy="25" r="0" fill="#409EFF">
+    <!-- 动画:从半径0扩展到20 -->
+    <animate attributeName="r" from="0" to="50" dur="2.0s" fill="freeze" />
+  </circle>
+</svg>
       `;
 // 初始化加载状态和轮询
 onMounted(() => {

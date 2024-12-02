@@ -6,7 +6,7 @@ import { useRouter } from 'vue-router'
 //import { ElButton, ElMessage } from 'element-plus'
 import { VideoPause, VideoPlay, Bell} from '@element-plus/icons-vue'
 import { useUserStore } from "@/stores/user"
-
+const activeName = ref('1')
 const createdQuestionnaireList = ref([]);  // 响应式变量，存储用户数据
 const surveyTypeText = ref('');  // 问卷类型的文本
 // 控制 Dialog 显示状态的变量
@@ -374,11 +374,25 @@ const analyseResult = (id) => {
   </div>
 
   <div class="showQues">
+    <!-- <div class="demo-collapse">
+    <el-collapse v-model="activeName" accordion>
+      <el-collapse-item title="Consistency" name="1">
+        <div>
+          Consistent with real life: in line with the process and logic of real
+          life, and comply with languages and habits that the users are used to;
+        </div>
+        <div>
+          Consistent within interface: all elements should be consistent, such
+          as: design style, icons and texts, position of elements, etc.
+        </div>
+      </el-collapse-item>
+    </el-collapse>
+  </div> -->
     <ul class="infinite-list" style="overflow: auto"> 
       <li v-for="(questionnaire, index) in createdQuestionnaireList" :key="index" class="infinite-list-item">
           <div class="name-description">
             <div class="left-content">
-              <el-tooltip class="item" effect="dark" :content="questionnaire.description" placement="top">
+              <el-tooltip  class="item" effect="light" :content="questionnaire.description" placement="top">
                 <span class="title" @click="view(questionnaire.sid)">
                   {{ questionnaire.title }} - <span :class="questionnaire.type === 'normal' ? 'questionnaire-type-normal' : 'questionnaire-type-exam'">
                                                 {{ questionnaire.type === 'normal' ? '调查问卷' : '考试问卷' }}

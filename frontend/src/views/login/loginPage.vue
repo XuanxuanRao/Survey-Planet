@@ -282,7 +282,7 @@ watch(loginMode, () => {
                             <el-form-item prop="email">
                                 <!-- <span class="spacingUsername"></span> -->
                                 <el-input style="width: 300px" v-model="formModel.email" :prefix-icon="User" placeholder="请输入邮箱"></el-input>
-                                <el-button @click="getCode('reset')">
+                                <el-button @click="getCode('reset')" style="width: 100px">
                                     {{seconds === totalSeconds? '获取验证码' : seconds + 's后重新发送'}}
                                 </el-button>
                             </el-form-item>

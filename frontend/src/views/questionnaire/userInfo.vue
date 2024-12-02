@@ -89,10 +89,10 @@ const handleUpdateUserInfo = async () => {
 </script>
 
 <template>
-  <div v-if="userInfo" style="margin-top: 30px; ">
+  <div v-if="userInfo" style="margin-top: 30px;">
     <div class="common-layout" >
       <el-container >
-        <div style="margin-right: 500px;"></div>
+        <div style="margin-right: 430px;"></div>
         <el-aside width="100px" >
           <img :src="userInfo.avatar" alt="用户头像" @click="triggerFileInput"/>
           <input type="file" ref="fileInput" @change="(event) => handleFileChange(index, event)" style="display: none;" />
@@ -103,17 +103,17 @@ const handleUpdateUserInfo = async () => {
         </el-container>
       </el-container>
     </div>  
-    <div style="margin-left: 550px; margin-top: 30px; border-radius: 10px;"><el-icon><UserFilled /></el-icon> &nbsp;用户名: {{ userInfo.username }}</div>    
-    <div style="margin-left: 550px; margin-top: 30px;"><el-icon><Message /></el-icon>&nbsp;&nbsp;邮箱: {{ userInfo.email }}</div>
-    <div style="margin-left: 550px; margin-top: 30px;">      
+    <div style="margin-left: 450px; margin-top: 30px; border-radius: 10px;"><el-icon><UserFilled /></el-icon>&nbsp;用&nbsp;&nbsp;户&nbsp;&nbsp;名&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{ userInfo.username }}</div>    
+    <div style="margin-left:450px; margin-top: 30px;"><el-icon><Message /></el-icon>&nbsp;邮&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;箱&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ userInfo.email }}</div>
+    <div style="margin-left: 450px; margin-top: 30px;">      
         <div class="textarea-container" @mouseover="isHovered = true" @mouseleave="isHovered = false">
-          <el-icon><ChatSquare /></el-icon>&nbsp;个人描述:&nbsp;&nbsp;
-          <textarea style="width: 400px;" v-model="newDescription" placeholder="请输入个人简介"></textarea>&nbsp;&nbsp;
-          <button style="" class="edit-button" v-if="isHovered">编辑</button>
-          <button style="" class="edit-button" v-if="isHovered" @click="updateDescription">保存</button>
+          <el-icon><ChatSquare /></el-icon>&nbsp;个人描述&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <el-input style="width: 400px;" v-model="newDescription" placeholder="请输入个人简介"></el-input>&nbsp;&nbsp;
+          <el-button style="" class="edit-button" v-if="isHovered">编辑</el-button>
+          <el-button style="" class="edit-button" v-if="isHovered" @click="updateDescription">保存</el-button>
         </div>
     </div>
-</div>
+  </div>
   <!-- 修改密码和头像的表单 -->
   <div>
     <!--选择文件按钮-->
@@ -178,5 +178,38 @@ img {
 .edit-button {
   display: inline-block; /* 使按钮在 textarea 下方显示 */
   margin-top: 0px; /* 添加一些间距 */
+}
+@font-face {
+  font-family: DancingScript_Regular;
+  font-weight: normal;
+  src: url(@/assets/font/DancingScript-Regular.ttf) format("truetype");
+  text-rendering: optimizeLegibility;
+}
+.custom-button {
+  position: relative;
+  width: 100px;
+  height: 45px;
+  text-align: center;
+  line-height: 60px;
+  color: #fff;
+  font-size: 18px;
+  text-decoration: none;
+  font-family: sans-serif;
+  border-radius: 30px;
+  background: linear-gradient(90deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4);
+  background-size: 400%;
+  transition: background-position 0.5s;
+}
+.custom-button:hover {
+  animation: animate 8s linear infinite;
+}
+
+@keyframes animate {
+  from {
+    background-position: 0%;
+  }
+  to {
+    background-position: 480%;
+  }
 }
 </style>

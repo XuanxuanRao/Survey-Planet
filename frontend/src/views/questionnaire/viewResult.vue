@@ -74,19 +74,49 @@ const fetchData = async () => {
               console.log("item.a",item.a);
               // 特殊处理 item.status
               switch (item.judge.status) {
-                  case -1:
-                      item.a[0].status = "答案错误";
-                      
+    //             case -3: return "输出格式错误";
+    // case -2: return "编译错误";
+    // case -1: return "答案错误";
+    // case 0: return "通过";
+    // case 1: return "CPU时间超出限制";
+    // case 2: return "真实时间超出限制";
+    // case 3: return "空间超出限制";
+    // case 4: return "运行错误";
+    // case 5: return "系统错误";
+    // case 10: return "提交失败";
+    // default: return "未知状态";
+                  case 10: 
+                      item.a[0].status ="提交失败";
+                      break;
+                  case 5: 
+                      item.a[0].status = "系统错误";
+                      break;
+                  case 4:
+                     item.a[0].status = "运行错误";
+                      break;
+                  case 3:
+                      item.a[0].status = "空间超出限制";
+                      break;
+                  case 2: 
+                      item.a[0].status ="真实时间超出限制";
+                      break;
+                  case 1: 
+                      item.a[0].status = "CPU时间超出限制";
                       break;
                   case 0:
                      item.a[0].status = "通过";
                       break;
+                  case -1:
+                      item.a[0].status = "答案错误";
+                      break;
                   case -2:
                       item.a[0].status = "编译错误";
                       break;
+                  case -3: 
+                      item.a[0].status = "输出格式错误";
+                      break;
                   default:
                       item.a[0].status = "unknownError";
-                      
                       break;
               }
               console.log(item.judge.status)
@@ -273,20 +303,19 @@ const toggleUrls = async(index,test1) => {
                       {{ item.a[0].status }}
                     </span>
                 </el-table-column>
-                <el-table-column  label="分数" width="180">
+                <el-table-column  label="分数" width="80">
                     <span :class="{ 'green-text': item.a.status == '通过', 'red-text': item.a.status != '通过' }">
                       {{ item.a[0].score }}
                     </span>
                 </el-table-column>
                 <!-- <el-table-column prop="score" label="分数" width="180" /> -->
-                <el-table-column prop="language" label="所用语言" />
-                <el-table-column prop="createTime" label="提交时间"width="180" />
-                <el-table-column v-if="item.a.errorMessage != null"  prop="errorMessage" label="错误信息" />
-                
+                <el-table-column prop="language" label="语言" width="80"/>
+                <el-table-column prop="createTime" label="提交时间" width="180" />
+                <el-table-column   prop="errorMessage" label="错误信息" width="280"/>               
               </el-table>
             
-            <h4>各个测试点结果</h4>
-            <div v-for="(test, index) in item.judge.caseJudgeResults" :key="index" class="test-case">
+            <h4 v-if="item.a[0].status!='编译错误'&&item.a[0].status!='系统错误'&&item.a[0].status!='提交失败'">各个测试点结果</h4>
+            <div v-if="item.a[0].status!='编译错误'&&item.a[0].status!='系统错误'&&item.a[0].status!='提交失败'" v-for="(test, index) in item.judge.caseJudgeResults" :key="index" class="test-case">
               <div class="test-case-details">
                 <button @click="toggleUrls(index,test)" class="toggle-arrow">
                   {{ visibleUrls[index] ? '▼' : '▶' }}
@@ -359,8 +388,6 @@ const toggleUrls = async(index,test1) => {
 .red-text {
     color: red;
 }
-
-
 
 .result-container { max-width: 800px;}
 .test-case { border-bottom: 1px solid #ddd; padding: 10px 0; display: flex; flex-direction: column; }
@@ -486,5 +513,32 @@ const toggleUrls = async(index,test1) => {
 .wrong-answer ::v-deep .el-checkbox__inner {
   border-color: red; 
   background-color: red;
+}
+.custom-button {
+  position: relative;
+  width: 100px;
+  height: 45px;
+  text-align: center;
+  line-height: 60px;
+  color: #fff;
+  font-size: 18px;
+  text-decoration: none;
+  font-family: sans-serif;
+  border-radius: 30px;
+  background: linear-gradient(90deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4);
+  background-size: 400%;
+  transition: background-position 0.5s;
+}
+.custom-button:hover {
+  animation: animate 8s linear infinite;
+}
+
+@keyframes animate {
+  from {
+    background-position: 0%;
+  }
+  to {
+    background-position: 480%;
+  }
 }
 </style>

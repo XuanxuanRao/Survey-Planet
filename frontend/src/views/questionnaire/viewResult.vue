@@ -2,13 +2,14 @@
 import { userGetQuestionnaireResult } from '@/api/questionnaire'
 import { onMounted, ref, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
-import{Download} from '@element-plus/icons-vue'
+import{Download,Check,Close} from '@element-plus/icons-vue'
 const response = ref();
 let intervalId = null;
 const isShowDetail = ref(true)
 const loadingInstance = ref(null); // 控制 loading 实例
-
+const total=ref();
 const route = useRoute()
+const tableData = ref([{  }]); // 声明为只有一个元素的数组
 const rid = route.query.rid
 const fileContent = ref(''); // 用于存储文件内容
 const fileContent1 = ref(''); // 用于存储文件内容
@@ -60,8 +61,38 @@ const fetchData = async () => {
     if (res.msg !== "SUBMIT_IS_BEEN_PROCESSED") {
       clearInterval(intervalId); // 停止请求
       response.value = res.data;
-      console.log("res.data",res.data);
+      // 计算总得分
+      total.value = res.data.items.reduce((accumulator, item) => {
+          return accumulator + (item.question.score || 0); // 确保 score 存在，避免 NaN
+      }, 0);
+      
       console.log("response.value",response.value);
+      // 将judge转化为数组a
+      res.data.items.forEach(item => {
+          if (item.judge !== null) {
+              item.a = [ { ...item.judge } ]; // 新增属性 a，包含 judge 对象的所有属性
+              console.log("item.a",item.a);
+              // 特殊处理 item.status
+              switch (item.judge.status) {
+                  case -1:
+                      item.a[0].status = "答案错误";
+                      
+                      break;
+                  case 0:
+                     item.a[0].status = "通过";
+                      break;
+                  case -2:
+                      item.a[0].status = "编译错误";
+                      break;
+                  default:
+                      item.a[0].status = "unknownError";
+                      
+                      break;
+              }
+              console.log(item.judge.status)
+              console.log("item.a",item.a);
+          }
+      });
       loadingInstance.value.close() // 数据加载完成后关闭 loading
     }
   } catch (error) {
@@ -137,11 +168,10 @@ const toggleUrls = async(index,test1) => {
   <div v-if="response">
     <h1>结果信息</h1>
     <div class="score-card">
-    <div class="score">5</div>
-    <div class="total">总分10</div>
+      <div class="score">{{ response.grade }}</div>
+      <div class="total">总分{{ total }}
+    </div>
   </div>
-    <p>你的总分: {{ response.grade }}</p>
-
     <!-- <h3 @click="changeView">点击查看详情</h3>  -->
     
     <div  v-if="isShowDetail">
@@ -229,10 +259,33 @@ const toggleUrls = async(index,test1) => {
           </h3>
           <h4>
             问题描述：{{ item.question.description }} <br>
-            <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div>
+            
           </h4>
           <div class="result-container" v-if="item.judge.caseJudgeResults.length > 0">
-            <h4>测试点结果</h4>
+            <!-- 代码题总的评测结果 -->
+              <h4>该题总评测结果</h4>
+              <el-table :data="item.a" border style="width: 100%">
+                <!-- <el-table-column prop="status" label="状态" width="180" /> -->
+                <el-table-column  label="状态" width="180">
+                    <span :class="{ 'green-text': item.a.status == '通过', 'red-text': item.a.status != '通过' }">
+                      <i v-if="item.a[0].status == '通过'" ><el-icon><Check /></el-icon></i> <!-- 打勾图标 -->
+                      <i v-else ><el-icon><Close /></el-icon></i> <!-- 错误图标 -->
+                      {{ item.a[0].status }}
+                    </span>
+                </el-table-column>
+                <el-table-column  label="分数" width="180">
+                    <span :class="{ 'green-text': item.a.status == '通过', 'red-text': item.a.status != '通过' }">
+                      {{ item.a[0].score }}
+                    </span>
+                </el-table-column>
+                <!-- <el-table-column prop="score" label="分数" width="180" /> -->
+                <el-table-column prop="language" label="所用语言" />
+                <el-table-column prop="createTime" label="提交时间"width="180" />
+                <el-table-column v-if="item.a.errorMessage != null"  prop="errorMessage" label="错误信息" />
+                
+              </el-table>
+            
+            <h4>各个测试点结果</h4>
             <div v-for="(test, index) in item.judge.caseJudgeResults" :key="index" class="test-case">
               <div class="test-case-details">
                 <button @click="toggleUrls(index,test)" class="toggle-arrow">
@@ -299,6 +352,16 @@ const toggleUrls = async(index,test1) => {
 </template>
 
 <style scoped>
+.green-text {
+    color: green;
+}
+
+.red-text {
+    color: red;
+}
+
+
+
 .result-container { max-width: 800px;}
 .test-case { border-bottom: 1px solid #ddd; padding: 10px 0; display: flex; flex-direction: column; }
 

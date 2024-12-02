@@ -90,9 +90,9 @@ async function showDetails() {
       item.createTime = item.createTime.replace('T', ' ');
     })
     detailsData.value = unreadMessage.value
-    console.log("detailsData.value",detailsData.value)
-    detailsData.value.isRead = true;
-    console.log("detailsData.value",detailsData.value)
+    // console.log("detailsData.value",detailsData.value)
+    // detailsData.value.isRead = true;
+    // console.log("detailsData.value",detailsData.value)
     dialogVisible2.value = true
   }
 }

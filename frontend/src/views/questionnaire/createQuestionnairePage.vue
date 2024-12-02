@@ -42,7 +42,7 @@ const socketData = ref('');  // 用于存储 WebSocket 返回的数据
 // 监听 WebSocket 消息
 socket.addEventListener('message', async function (event) {
   const data = JSON.parse(event.data);  // 假设服务器返回的消息是 JSON 格式
-  console.log(data)
+  console.log("data",data)
   socketData.value = data
   await getUnreadmessage()
   console.log(unreadMessage.value)
@@ -76,6 +76,7 @@ async function showDetails() {
   dialogVisible1.value = false;
   if(socketData.value.mid) {
     const res = await userGetMessageDetail(socketData.value.mid)
+    console.log("as")
     if(res.msg === 'success') {
       res.data.createTime = res.data.createTime.replace('T', ' ');
       detailsData.value = res.data
@@ -89,6 +90,9 @@ async function showDetails() {
       item.createTime = item.createTime.replace('T', ' ');
     })
     detailsData.value = unreadMessage.value
+    console.log("detailsData.value",detailsData.value)
+    detailsData.value.isRead = true;
+    console.log("detailsData.value",detailsData.value)
     dialogVisible2.value = true
   }
 }
@@ -101,7 +105,7 @@ async function loadMessageDetails(mid) {
   console.log(res.data);
   if (res.msg === 'success') {
     detailsData.value = res.data
-    console.log(detailsData.value)
+    console.log("asd",detailsData.value)
   } else {
     ElMessage.error('Failed to load message details')
   }

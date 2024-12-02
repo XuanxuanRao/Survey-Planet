@@ -127,7 +127,7 @@ const toggleUrls = async(index,test1) => {
   visibleUrls.value[index] = !visibleUrls.value[index];
   fetchFileContent(test1.inputDataUrl);
   fetchFileContent1(test1.outputDataUrl);
-  fetchFileContent2(test1.userOutput);
+  // fetchFileContent2(test1.userOutput);
 
 }
 
@@ -135,19 +135,23 @@ const toggleUrls = async(index,test1) => {
 
 <template>
   <div v-if="response">
-    <h2>结果信息</h2>
+    <h1>结果信息</h1>
+    <div class="score-card">
+    <div class="score">5</div>
+    <div class="total">总分10</div>
+  </div>
     <p>你的总分: {{ response.grade }}</p>
 
-    <h3 @click="changeView">点击查看详情</h3> <!-- 修复了额外的引号 -->
+    <!-- <h3 @click="changeView">点击查看详情</h3>  -->
     
     <div  v-if="isShowDetail">
       <div class="lookUnder" v-for="(item, index) in response.items" :key="index">
         <template class="single_choice" v-if="item.question.type === 'single_choice'">
           <!-- <div> -->
-            <h4>
+            <h2>
             Q{{ index + 1 }} {{ item.question.title }} (单选题) <br>
             问题描述：{{ item.question.description }} <br>
-            </h4>
+            </h2>
           <!-- </div> -->
           <br>
           <!-- <div> -->
@@ -219,12 +223,14 @@ const toggleUrls = async(index,test1) => {
         </template>
 
         <template v-if="item.question.type === 'code'">
-          <h4>
+          <h3>
             Q{{ index + 1 }} {{ item.question.title }} (代码题) <br>
+            
+          </h3>
+          <h4>
             问题描述：{{ item.question.description }} <br>
             <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div>
           </h4>
-
           <div class="result-container" v-if="item.judge.caseJudgeResults.length > 0">
             <h4>测试点结果</h4>
             <div v-for="(test, index) in item.judge.caseJudgeResults" :key="index" class="test-case">
@@ -268,12 +274,12 @@ const toggleUrls = async(index,test1) => {
                     placeholder="文件内容"
                     style="width: 600px;"
                   ></el-input></h4>
-                <h4 style="color: black;" @click="fetchFileContent2(test.userOutput)">你的输出：
-                  <a style="margin-left: 500px; " :href="test.userOutput" target="_blank"><el-icon><Download /></el-icon></a>
+                <h4 style="color: black;" >你的输出：
+                  <a style="margin-left: 500px; " :href="test.userOutput" target="_blank"></a>
                   <br><el-input
                     type="textarea"
                     :rows="5"
-                    v-model="fileContent2"
+                    v-model="test.userOutput"
                     placeholder="文件内容"
                     style="width: 600px;"
                   ></el-input></h4>
@@ -324,6 +330,53 @@ const toggleUrls = async(index,test1) => {
 .url-list a { text-decoration: none; color: #1a73e8; }
 .url-list a:hover { text-decoration: underline; }
 
+ /* 父容器样式 */
+ .score-card {
+      display: flex;
+      flex-direction: column; /* 垂直排列 */
+      align-items: center; /* 居中对齐 */
+      justify-content: center;
+      width: 200px; /* 卡片宽度 */
+      height: 200px; /* 卡片高度 */
+      background-color: #f9fbfd; /* 卡片背景颜色 */
+      border-radius: 12px; /* 圆角边框 */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 卡片阴影 */
+      font-family: 'Arial', sans-serif; /* 字体样式 */
+      text-align: center;
+      margin: 50px auto; /* 居中页面 */
+    }
+
+    /* 分数样式 */
+    .score {
+      font-size: 4rem; /* 大字号 */
+      color: #ff5722; /* 明亮橙色 */
+      font-weight: bold; /* 加粗字体 */
+      text-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); /* 文本阴影 */
+      position: relative; /* 为伪元素定位做准备 */
+    }
+
+    /* 分数下划线样式 */
+    .score::after {
+      content: ''; /* 创建伪元素 */
+      position: absolute;
+      bottom: -10px; /* 调整下划线位置 */
+      left: 50%;
+      transform: translateX(-50%) rotate(-10deg); /* 居中并倾斜 */
+      width: 40%; /* 下划线长度 */
+      height: 2px; /* 下划线高度 */
+      background-color: #ff5722; /* 下划线颜色 */
+    }
+
+    /* 总分样式 */
+    .total {
+      font-size: 1rem; /* 小字号 */
+      color: #b39c8e; /* 柔和棕色 */
+      background-color: #fef5e6; /* 柔和背景色 */
+      padding: 5px 10px; /* 内边距 */
+      border-radius: 8px; /* 圆角背景 */
+      margin-top: 15px; /* 与分数的间距 */
+    }
+    
 .single_choice{
   display: flex;
   flex-direction: column; 

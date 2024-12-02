@@ -308,7 +308,13 @@ watch(loginMode, () => {
                     </el-col>
                 </el-row>
             </div>
-    </div>
+            <a href="https://github.com/XuanxuanRao/Survey-Planet/tree/main" target="_blank">
+                <img style="width: 20vh;height: 20vh; margin-left: 700px;" src="@/assets/img/github-logo.png" alt="描述文本">
+            </a>
+        </div>
+      
+            
+            
 </template>
 
 <style scoped>
@@ -354,7 +360,7 @@ watch(loginMode, () => {
  .bgc{
      background-color: wheat ;
      background: transparent;
-     backdrop-filter: blur(7px); /* 背景模糊效果，提升用户体验 */
+    
 } 
 .spacingblock{
     margin-right:500px; /* 调整这个值以满足实际需求 */
@@ -371,14 +377,16 @@ watch(loginMode, () => {
 
 .bordered-block {
   border: 1px solid white; /* 简化写法 */
+  margin-top: 10px;
   padding: 1px; /* 可选：增加内边距 */
   width: 600px;
-  
+  border-radius: 30px;
 }
 .ele{
   display: flex;
   justify-content: top;
-  height: 100vh; 
+  height: 50vh; 
+  
   /* margin-right: 1050px; */
 }
 .spacingEle{
@@ -390,7 +398,7 @@ watch(loginMode, () => {
   height: 100vh; 
 } 
 .vuetype-container {
-  height: 30vh; /* 视口高度 */
+  height: 20vh; /* 视口高度 */
   display: flex;
   /* text-align: center; */
 }

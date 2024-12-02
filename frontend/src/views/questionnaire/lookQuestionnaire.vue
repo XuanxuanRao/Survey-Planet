@@ -842,7 +842,7 @@ const initCharts = async(answernaire, index)  => {
   justify-content: center;
   margin: 10px;
   background-color:  lightcyan;
-  border: 2px solid #000; /* 添加黑色边框，宽度为2px */
+  border: 2px solid lightblue; /* 添加黑色边框，宽度为2px */
   border-radius: 4px; /* 可选：设置圆角边框 */
   /* min-height: 290px;  */
 }

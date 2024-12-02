@@ -3,9 +3,16 @@ package org.example.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.example.constant.LinkConstant;
 import org.example.context.BaseContext;
+import org.example.dto.email.EmailSendInvitationDTO;
 import org.example.dto.survey.CreateSurveyDTO;
 import org.example.dto.QuestionDTO;
+import org.example.dto.survey.ShareSurveyDTO;
+import org.example.entity.User;
+import org.example.entity.message.InviteMessage;
+import org.example.entity.message.MessageType;
 import org.example.entity.survey.Survey;
 import org.example.entity.question.Question;
 import org.example.entity.survey.SurveyState;
@@ -13,8 +20,10 @@ import org.example.entity.survey.SurveyType;
 import org.example.exception.IllegalOperationException;
 import org.example.exception.SurveyNotFoundException;
 import org.example.mapper.SurveyMapper;
+import org.example.mapper.UserMapper;
 import org.example.service.QuestionService;
 import org.example.service.ResponseService;
+import org.example.service.SiteMessageService;
 import org.example.service.SurveyService;
 import org.example.utils.SharingCodeUtil;
 import org.example.vo.survey.FilledSurveyVO;
@@ -27,6 +36,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@Slf4j
 public class SurveyServiceImpl implements SurveyService {
 
     @Resource
@@ -37,6 +47,15 @@ public class SurveyServiceImpl implements SurveyService {
 
     @Resource
     private ResponseService responseService;
+
+    @Resource
+    private EmailServiceImpl emailService;
+
+    @Resource
+    private UserMapper userMapper;
+
+    @Resource
+    private SiteMessageService siteMessageService;
 
     @Override
     public Survey getSurvey(Long sid) {
@@ -80,40 +99,35 @@ public class SurveyServiceImpl implements SurveyService {
 
     @Override
     @Transactional
-    public void updateSurvey(Long sid, CreateSurveyDTO createdSurveyDTO) {
+    public void updateSurvey(Long sid, CreateSurveyDTO createSurveyDTO) {
         Survey survey = getSurvey(sid);
         if (survey == null) {
             throw new SurveyNotFoundException("SURVEY_NOY_FOUND");
         } else if (survey.getOpenTime() != null) {
             throw new IllegalOperationException("CAN_NOT_MODIFY_OPENED_SURVEY");
-        } else if (survey.getType() != SurveyType.fromString(createdSurveyDTO.getType())) {
+        } else if (survey.getType() != SurveyType.fromString(createSurveyDTO.getType())) {
             throw new IllegalOperationException("CAN_NOT_MODIFY_SURVEY_TYPE");
         }
 
         List<Question> originalQuestions = questionService.getBySid(sid);
-        List<QuestionDTO> newQuestions = createdSurveyDTO.getQuestions();
+        List<QuestionDTO> newQuestions = createSurveyDTO.getQuestions();
 
         questionService.deleteQuestions(originalQuestions);
         questionService.addQuestions(newQuestions, sid);
 
-        BeanUtils.copyProperties(createdSurveyDTO, survey);
+        BeanUtils.copyProperties(createSurveyDTO, survey);
         surveyMapper.update(survey);
     }
 
     @Override
-    public String shareSurvey(Long sid) {
+    public String shareSurvey(Long sid, ShareSurveyDTO shareSurveyDTO) {
         Survey survey = getSurvey(sid);
         if (survey == null || survey.getState() == SurveyState.DELETE || !Objects.equals(survey.getUid(), BaseContext.getCurrentId()))
         {
             throw new SurveyNotFoundException("SURVEY_NOT_FOUND");
         }
 
-        String code;
-        try {
-            code = SharingCodeUtil.encrypt(sid);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        String surveyLink = LinkConstant.FILL_SURVEY + SharingCodeUtil.encrypt(sid);
 
         if (survey.getState() == SurveyState.CLOSE) {
             // 修改问卷状态
@@ -124,7 +138,37 @@ public class SurveyServiceImpl implements SurveyService {
             surveyMapper.update(survey);
         }
 
-        return "http://59.110.163.198:3000/fill/" + code;
+        User sender = userMapper.getById(BaseContext.getCurrentId());
+        if (shareSurveyDTO.getEmails() != null && !shareSurveyDTO.getEmails().isEmpty()) {
+            shareSurveyDTO.getEmails().forEach(email -> {
+                User receiver = userMapper.getByEmail(email);
+                emailService.sendInvitation(EmailSendInvitationDTO.builder()
+                                .from(sender.getUsername())
+                                .to(receiver == null ? email.split("@")[0] : receiver.getUsername())
+                                .surveyName(survey.getTitle())
+                                .surveyType(survey.getType() == SurveyType.NORMAL ? "questionnaire" : "exam")
+                                .surveyLink(surveyLink)
+                                .invitationMessage(shareSurveyDTO.getInvitationMessage())
+                                .email(email)
+                                .build());
+                if (receiver == null) {
+                    return;
+                }
+                if (shareSurveyDTO.isNeedSiteNotification()) {
+                    InviteMessage inviteMessage = InviteMessage.builder()
+                            .senderId(sender.getUid())
+                            .sid(sid)
+                            .invitationMessage(shareSurveyDTO.getInvitationMessage())
+                            .build();
+                    inviteMessage.setReceiverId(receiver.getUid());
+                    inviteMessage.setIsRead(false);
+                    inviteMessage.setType(MessageType.INVITE);
+                    siteMessageService.send(inviteMessage);
+                }
+            });
+        }
+
+        return surveyLink;
     }
 
     @Override
@@ -170,5 +214,14 @@ public class SurveyServiceImpl implements SurveyService {
         return surveyMapper.delete(surveys.stream().map(Survey::getSid).toList());
     }
 
+    @Override
+    public void setNotificationMode(Long sid, Integer mode) {
+        Survey survey = getSurvey(sid);
+        if (survey == null || !Objects.equals(survey.getUid(), BaseContext.getCurrentId())) {
+            throw new SurveyNotFoundException("SURVEY_NOT_FOUND");
+        }
 
+        survey.setNotificationMode(mode);
+        surveyMapper.update(survey);
+    }
 }

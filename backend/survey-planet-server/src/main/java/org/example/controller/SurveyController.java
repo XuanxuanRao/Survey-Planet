@@ -3,15 +3,19 @@ package org.example.controller;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import org.example.Result.PageResult;
-import org.example.Result.Result;
+import org.example.constant.LinkConstant;
+import org.example.dto.survey.ShareSurveyDTO;
+import org.example.result.PageResult;
+import org.example.result.Result;
 import org.example.annotation.ControllerLog;
+import org.example.dto.QuestionDTO;
 import org.example.dto.ResponsePageQueryDTO;
 import org.example.dto.survey.CreateSurveyDTO;
 import org.example.entity.response.Response;
 import org.example.entity.survey.Survey;
 import org.example.entity.question.Question;
 import org.example.entity.survey.SurveyState;
+import org.example.exception.BadQuestionException;
 import org.example.exception.IllegalRequestException;
 import org.example.exception.SurveyNotFoundException;
 import org.example.service.QuestionService;
@@ -21,9 +25,9 @@ import org.example.utils.SharingCodeUtil;
 import org.example.vo.question.CreatedQuestionVO;
 import org.example.vo.survey.CreatedSurveyVO;
 import org.example.context.BaseContext;
-import org.example.vo.survey.FilledSurveyVO;
 import org.example.vo.survey.SurveyVO;
 import org.springframework.beans.BeanUtils;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,7 +51,7 @@ public class SurveyController {
             @RequestParam String type,  // 查找创建的问卷或是填写过的问卷
             @RequestParam(defaultValue = "create_time") String sort,
             @RequestParam(defaultValue = "1") Integer pageNum,
-            @RequestParam(defaultValue = "1") Integer pageSize)
+            @RequestParam(defaultValue = "5") Integer pageSize)
     {
         if (!"created".equals(type) && !"filled".equals(type)) {
             throw new IllegalRequestException("", "Invalid type " + type);
@@ -89,6 +93,7 @@ public class SurveyController {
                         .questions(transfer(questions))
                         .type(survey.getType().getValue())
                         .state(survey.getState().getValue())
+                        .link(LinkConstant.FILL_SURVEY + SharingCodeUtil.encrypt(sid))
                         .build();
         BeanUtils.copyProperties(survey, createdSurveyVO);
 
@@ -96,7 +101,12 @@ public class SurveyController {
     }
 
     @PostMapping("/add")
+    @Transactional
     public Result<Long> createSurvey(@RequestBody CreateSurveyDTO createdSurveyDTO) {
+        if (!createdSurveyDTO.getQuestions().stream().allMatch(QuestionDTO::checkFormat)) {
+            throw new BadQuestionException("BAD_QUESTION");
+        }
+
         Long sid = surveyService.addSurvey(createdSurveyDTO).getSid();
         questionService.addQuestions(createdSurveyDTO.getQuestions(), sid);
 
@@ -105,8 +115,18 @@ public class SurveyController {
 
     @PutMapping("/{sid}")
     public Result<Void> modifySurvey(@PathVariable Long sid, @RequestBody CreateSurveyDTO createdSurveyDTO) {
+        if (!createdSurveyDTO.getQuestions().stream().allMatch(QuestionDTO::checkFormat)) {
+            throw new BadQuestionException("BAD_QUESTION");
+        }
+
         surveyService.updateSurvey(sid, createdSurveyDTO);
 
+        return Result.success();
+    }
+
+    @PutMapping("/{sid}/notify")
+    public Result<Void> setNotificationMode(@PathVariable Long sid, @RequestParam Integer mode) {
+        surveyService.setNotificationMode(sid, mode);
         return Result.success();
     }
 
@@ -116,8 +136,8 @@ public class SurveyController {
      * @return 填写链接
      */
     @PostMapping("/{sid}/share")
-    public Result<String> shareSurvey(@PathVariable Long sid) {
-        return Result.success(surveyService.shareSurvey(sid));
+    public Result<String> shareSurvey(@PathVariable Long sid, @RequestBody ShareSurveyDTO shareSurveyDTO) {
+        return Result.success(surveyService.shareSurvey(sid, shareSurveyDTO));
     }
 
     /**
@@ -150,13 +170,10 @@ public class SurveyController {
         return Result.success(responseService.getResponseBySid(sid));
     }
 
-    @GetMapping("/response")
+    @PostMapping("/response")
     public Result<PageResult<Response>> getResponses(@RequestBody ResponsePageQueryDTO responsePageQueryDTO) {
         return Result.success(responseService.pageQuery(responsePageQueryDTO));
     }
-
-//    @GetMapping("survey/{sid}/response/page")
-//    public PageResult<List<Response>> getResponses(@PathVariable Long sid, @RequestBody )
 
     /**
      * 导出问卷的填写结果
@@ -167,23 +184,6 @@ public class SurveyController {
     @GetMapping("/{sid}/export")
     public void exportSurvey(@PathVariable Long sid, HttpServletResponse httpServletResponse) {
         responseService.export(sid, httpServletResponse);
-    }
-
-    @GetMapping("/{sid}/link")
-    public Result<String> link(@PathVariable Long sid) {
-        Survey survey = surveyService.getSurvey(sid);
-        if (survey == null || survey.getState() == SurveyState.DELETE) {
-            throw new SurveyNotFoundException("SURVEY_NOT_FOUND");
-        }
-
-        String code;
-        try {
-            code = SharingCodeUtil.encrypt(sid);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        return Result.success("http://localhost:3000/fill/" + code);
     }
 
     private List<CreatedQuestionVO> transfer(List<Question> questions) {

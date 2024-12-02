@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Notification</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ece9e6, #ffffff);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            text-align: left;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #0056b3;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .info {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: #d9534f;
+        }
+
+        .message {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .invitation-box {
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            background: #f1f9ff;
+            font-size: 16px;
+            color: #0056b3;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            border-radius: 8px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-button {
+            display: inline-block;
+            font-size: 16px;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: #ffffff;
+            border-radius: 25px;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .action-button:hover {
+            background: linear-gradient(135deg, #0056b3, #004494);
+            transform: translateY(-3px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .info,
+            .message {
+                font-size: 14px;
+            }
+
+            .invitation-box {
+                font-size: 14px;
+                padding: 12px;
+            }
+
+            .action-button {
+                font-size: 14px;
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>问卷填写邀请</h1>
+    <p class="info">接收时间: <span class="highlight">{{createTime}}</span></p>
+    <p class="info">邀请人: <span class="highlight">{{senderName}}</span></p>
+    <p class="message">
+        你被邀请填写一份{{surveyType}}问卷：<span class="highlight">{{surveyTitle}}</span>。
+    </p>
+    <div class="invitation-box">
+        {{invitationMessage}}
+    </div>
+    <a href="{{surveyFillLink}}" class="action-button">填写问卷</a>
+</div>
+</body>
+</html>

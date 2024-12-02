@@ -1,3 +1,15 @@
+create table file
+(
+    fid         bigint auto_increment
+        primary key,
+    name        varchar(255) not null comment '文件名',
+    path        varchar(511) not null comment '文件url',
+    size        bigint       not null comment '文件大小(B)',
+    uid         bigint       not null,
+    create_time datetime     not null comment '创建时间'
+)
+    comment '文件表';
+
 create table log_entry
 (
     id           bigint auto_increment
@@ -8,13 +20,30 @@ create table log_entry
     http_method  varchar(15)   null,
     ip           varchar(127)  null,
     method_name  varchar(255)  null,
-    result       varchar(4095) null,
+    result       varchar(8191) null,
     start_time   datetime(6)   null,
     take_time    bigint        null,
     uri          varchar(63)   null,
     url          varchar(127)  null,
     user_agent   varchar(255)  null
 );
+
+create table message
+(
+    mid                bigint auto_increment comment '消息ID'
+        primary key,
+    receiver_uid       bigint               null comment '接收者ID',
+    type               int                  not null comment '消息类型',
+    create_time        datetime             not null comment '创建时间',
+    update_time        datetime             not null comment '更新时间',
+    is_read            tinyint(1) default 0 null comment '是否已读',
+    content            text                 null comment '系统消息内容(System)',
+    sid                bigint               null comment '问卷ID(Invite, NewSubmission)',
+    invitation_message text                 null comment '邀请消息内容(Invite)',
+    sender_uid         bigint               null comment '发送者ID(Invite)',
+    rid                bigint               null comment '提交ID(NewSubmission)'
+)
+    comment '站内消息表';
 
 create table user
 (
@@ -26,6 +55,7 @@ create table user
     avatar      varchar(256) default 'https://survey-planet-test.oss-cn-beijing.aliyuncs.com/avatar_xiangliyao.jpg' null comment '头像url',
     create_time datetime                                                                                            not null comment '账号创建时间',
     update_time datetime     default CURRENT_TIMESTAMP                                                              not null,
+    description varchar(1023)                                                                                       null comment '个人介绍',
     constraint email
         unique (email),
     constraint username
@@ -35,19 +65,20 @@ create table user
 
 create table survey
 (
-    sid         bigint auto_increment comment '问卷id'
+    sid               bigint auto_increment comment '问卷id'
         primary key,
-    uid         bigint                                           not null comment '创建用户id',
-    title       varchar(64)                                      not null comment '问卷标题',
-    description text                                             null comment '问卷描述',
-    type        enum ('normal', 'exam')                          not null comment '问卷类型',
-    state       enum ('delete', 'open', 'close') default 'close' null comment '问卷状态',
-    create_time datetime                                         not null comment '问卷创建时间',
-    update_time datetime                                         not null comment '问卷更新时间',
-    open_time   datetime                                         null comment '问卷上次开放时间',
-    fill_num    int unsigned                     default '0'     null comment '填写人数',
-    time_limit  int unsigned                     default '0'     null comment '回答时间限制(min)',
-    show_answer tinyint(1)                       default 1       not null comment '是否在提交后向答卷人展示答案',
+    uid               bigint                                           not null comment '创建用户id',
+    title             varchar(64)                                      not null comment '问卷标题',
+    description       text                                             null comment '问卷描述',
+    type              enum ('normal', 'exam')                          not null comment '问卷类型',
+    state             enum ('delete', 'open', 'close') default 'close' null comment '问卷状态',
+    create_time       datetime                                         not null comment '问卷创建时间',
+    update_time       datetime                                         not null comment '问卷更新时间',
+    open_time         datetime                                         null comment '问卷上次开放时间',
+    fill_num          int unsigned                     default '0'     null comment '填写人数',
+    time_limit        int unsigned                     default '0'     null comment '回答时间限制(min)',
+    show_answer       tinyint(1)                       default 1       not null comment '是否在提交后向答卷人展示答案',
+    notification_mode int                              default 0       not null comment '问卷通知模式（2bit-mask）',
     constraint survey_ibfk_1
         foreign key (uid) references user (uid)
 )
@@ -128,6 +159,7 @@ create table response_record
     update_time datetime             not null comment '回答更新时间',
     grade       int unsigned         null comment '成绩',
     finished    tinyint(1) default 0 not null comment '答卷是否批改完成',
+    valid       tinyint(1) default 1 not null comment '答卷是否有效',
     constraint response_record_ibfk_1
         foreign key (sid) references survey (sid),
     constraint response_record_ibfk_2

@@ -1,15 +1,17 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.Result.Result;
+import jakarta.servlet.http.HttpServletResponse;
+import org.example.result.Result;
+import org.example.annotation.ControllerLog;
 import org.example.dto.ResponseDTO;
-import org.example.entity.response.ResponseItem;
 import org.example.entity.survey.Survey;
 import org.example.entity.question.Question;
 import org.example.entity.survey.SurveyState;
 import org.example.exception.IllegalOperationException;
 import org.example.exception.IllegalRequestException;
 import org.example.exception.SurveyNotFoundException;
+import org.example.service.FileService;
 import org.example.service.QuestionService;
 import org.example.service.ResponseService;
 import org.example.service.SurveyService;
@@ -39,7 +41,11 @@ public class ResponseController {
     @Resource
     private QuestionService questionService;
 
+    @Resource
+    private FileService fileService;
+
     @PostMapping("/submit")
+    @ControllerLog(name = "submit", intoDB = true)
     public Result<Long> submit(@RequestBody ResponseDTO responseDTO) {
         // assure the response is successful
         return Result.success(responseService.submit(responseDTO));
@@ -77,9 +83,16 @@ public class ResponseController {
     }
 
     @PutMapping("/response/{rid}")
-    public Result<Void> update(@PathVariable Long rid, @RequestBody List<ResponseItem> items) {
-        responseService.updateResponse(rid, items);
+    @ControllerLog(name = "updateResponse", intoDB = true)
+    public Result<Void> update(@PathVariable Long rid, @RequestBody ResponseDTO responseDTO) {
+        responseService.updateResponse(rid, responseDTO.getItems(), responseDTO.getValid());
         return Result.success();
+    }
+
+    @PostMapping("/download")
+    public void downloadQuestionResponses(@RequestBody List<Long> submitIds, HttpServletResponse httpServletResponse) {
+        List<String> urls = responseService.getResponseItemsBySubmitIds(submitIds).stream().map(item -> item.getContent().get(0)).toList();
+        fileService.downloadAndZipFiles(urls, "responses.zip", httpServletResponse);
     }
 
 }

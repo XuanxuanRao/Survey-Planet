@@ -1,7 +1,7 @@
 package org.example.service;
 
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.Result.PageResult;
+import org.example.result.PageResult;
 import org.example.dto.ResponseDTO;
 import org.example.dto.ResponsePageQueryDTO;
 import org.example.entity.response.Response;
@@ -51,9 +51,22 @@ public interface ResponseService {
      * 更新用户的提交内容
      * @param rid 提交 ID
      * @param items 更新的题目回答
-     * @param needScoring 是否需要重新计算分数
      */
-    void updateResponse(Long rid, List<ResponseItem> items);
+    void updateResponse(Long rid, List<ResponseItem> items, Boolean valid);
 
     Response getResponseBySubmitId(Long submitId);
+
+    List<ResponseItem> getResponseItemsBySubmitIds(List<Long> submitIds);
+
+    List<Response> getResponseRecordsBySid(Long sid, Boolean valid);
+
+    List<Response> getResponseRecordsBySid(Long sid);
+
+    /**
+     * 查询最近 time 分钟内的提交
+     * @param time (min)
+     * @return 得到的提交信息，不含 {@link ResponseItem}
+     */
+    List<Response> getRecentResponse(Integer time);
+
 }

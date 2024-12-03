@@ -4,6 +4,7 @@ import { getSurveyResponse, userGetQuestionnaire, userModifyAnswer } from "@/api
 import { useRoute } from "vue-router";
 import router from "@/router";
 
+import { useRouter } from 'vue-router'
 const route = useRoute();
 const sid = route.query.id;
 const total = ref(0); // 总记录数
@@ -13,7 +14,7 @@ const questions = ref([]); // 问卷题目
 const isLoading = ref(false); // 数据加载状态
 const responseData = ref(null); // 问卷回答数据
 const isShow = ref(false)
-
+const mode = ref(0);
 const queryParams = ref({
   sid: Number(sid),
   pageNum: 1,
@@ -23,7 +24,13 @@ const queryParams = ref({
   gradeLb: 0, // 分数下限
   gradeUb: null, // 分数上限
 });
-
+const switchMode = (newMode) => {
+  mode.value = newMode;
+  
+  if(newMode == 0) {
+    router.push({ path: '/questionnaire/lookQuestionnaire', query: { id: sid } });
+  }
+};
 // 加载问卷题目
 const userGetQuestions = async () => {
   try {
@@ -117,6 +124,14 @@ const setValidFilter = (valid) => {
 
 
 <template>
+  <div style="display: flex;justify-content: center; gap: 10px;">
+    <el-button class="custom-button" @click="switchMode(0)">
+      统计分析
+    </el-button>
+    <el-button class="custom-button" @click="switchMode(1)">
+      查看问卷
+    </el-button>
+  </div>
   <div>
     <h1>问卷回答筛选</h1>
 
@@ -255,6 +270,34 @@ const setValidFilter = (valid) => {
 
 
 <style scoped>
+.custom-button {
+  position: relative;
+  width: 80px;
+  height: 35px;
+  text-align: center;
+  line-height: 60px;
+  color: #fff;
+  font-size: 18px;
+  text-decoration: none;
+  font-family: sans-serif;
+  border-radius: 30px;
+  background: linear-gradient(90deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4);
+  background-size: 400%;
+  transition: background-position 0.5s;
+  margin-bottom: 10px;
+}
+.custom-button:hover {
+  animation: animate 8s linear infinite;
+}
+
+@keyframes animate {
+  from {
+    background-position: 0%;
+  }
+  to {
+    background-position: 480%;
+  }
+}
 .filter-group {
   margin-bottom: 10px;
 }

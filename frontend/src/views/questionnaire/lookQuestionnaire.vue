@@ -39,6 +39,7 @@ for (let i = 0; i <= 1000; i++) {
 
 // 在组件挂载时获取数据
 onMounted(async () => {
+    console.log("lookAt")
     //获取问卷数据,包括questions(questionnaires),type
     const res = await userGetQuestionnaire(sid);
     title.value=res.data.title

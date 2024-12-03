@@ -28,6 +28,7 @@ const router = createRouter({
         // { path: '/questionnaire/fill', component: () => import('@/views/questionnaire/fillQuestionnaire.vue') },
         { path: '/fill/:code', component: () => import('@/views/questionnaire/fillQuestionnaire.vue')},
         { path: '/responseSurvey', component: () => import('@/views/questionnaire/responseSurvey.vue') },
+        { path: '/releaseSurvey', component: () => import('@/views/questionnaire/releaseSurvey.vue') },
       ]
     }
   ]

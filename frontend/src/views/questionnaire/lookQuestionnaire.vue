@@ -5,6 +5,7 @@ import 'echarts-wordcloud'; // 引入 Word Cloud 插件
 import {userGetAnswernaireResult,userGetQuestionnaire,userGetPageResult} from '@/api/questionnaire'
 import { useRoute } from 'vue-router'
 import { useRouter } from 'vue-router'
+import { PieChart, Promotion,InfoFilled } from '@element-plus/icons-vue'
 const listItems = ref([]);
 const router = useRouter()
 const isDialogVisible = ref({});
@@ -149,20 +150,7 @@ onMounted(async () => {
                 initChart1(transformedWordClouds[qid],index);               
             }
         }
-    }); 
-    // nextTick(() => {
-    //     adjustHeight(); // 初始化时调整高度
-
-    //     // 使用 ResizeObserver 监听高度变化
-    //     const observer = new ResizeObserver(adjustHeight);
-    //     const listItems = document.querySelectorAll('.infinite-list-item');
-    //     listItems.forEach(item => observer.observe(item));
-
-    //     // 清理观察者
-    //     return () => {
-    //       listItems.forEach(item => observer.unobserve(item));
-    //     };
-    //   });      
+    });    
 })
 const adjustHeight = () => {
       const listItems = document.querySelectorAll('.infinite-list-item');
@@ -256,9 +244,15 @@ const switchMode = (newMode) => {
       });
     });
   }
-  if(newMode === 1) {
+  
+  if(newMode == 1){
+    console.log("sid",sid)
+    router.push({ path: '/releaseSurvey', query: { id: sid } });
+  }
+  if(newMode == 2) {
     router.push({ path: '/responseSurvey', query: { id: sid } });
   }
+  
 };
 //模式转换1,对应查看表格
 const switchMode1 = async(newMode1,answernaire, index) => {
@@ -509,12 +503,18 @@ const initCharts = async(answernaire, index)  => {
 <template>
   
   <div style="display: flex;justify-content: center; gap: 10px;">
-    <el-button class="custom-button" @click="switchMode(0)">
-      统计分析
-    </el-button>
-    <el-button class="custom-button" @click="switchMode(1)">
-      查看问卷
-    </el-button>
+    <button class="navbar-item" style="background: none; border: none; padding: 0; cursor: pointer;" @click="switchMode(0)">
+        <el-icon :size="40"><PieChart /></el-icon>
+        <span>统计分析</span>
+    </button>
+    <button class="navbar-item" style="background: none; border: none; padding: 0; cursor: pointer;" @click="switchMode(1)">
+        <el-icon :size="40"><Promotion /></el-icon>
+        <span>发布问卷</span>
+    </button>
+    <button class="navbar-item" style="background: none; border: none; padding: 0; cursor: pointer;" @click="switchMode(2)">
+        <el-icon :size="40"><InfoFilled /></el-icon>
+        <span>查看问卷</span>
+    </button>
   </div>
   <div style="display: flex; justify-content: center; align-content: center; text-align: center; ">
   <ul v-if="mode==0" class="infinite-list" style="overflow: auto"> 
@@ -527,11 +527,11 @@ const initCharts = async(answernaire, index)  => {
           <div v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">
             <el-table v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice' "
               :data="answernaire.newArray1Data"
-              :default-sort="null" border stripe   class="tableHead" >
+              :default-sort="{ prop: '', order: '' }" border stripe   class="tableHead" >
                 <el-table-column prop="option"  label="选项"   />
                 <el-table-column prop="answerCount" sortable  label="小计" />
                 <el-table-column prop="rate" label="比例" />
-              </el-table>
+            </el-table>
           </div>
           <div v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'" style="display: flex;justify-content: center; gap: 10px;">
             <el-button class="custom-button" >
@@ -658,7 +658,7 @@ const initCharts = async(answernaire, index)  => {
           <div>
             <el-table v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice' "
               :data="answernaire.newArray1Data"
-              :default-sort="null" border stripe   class="tableHead" >
+              :default-sort="{ prop: '', order: '' }" border stripe   class="tableHead" >
                 <el-table-column prop="option"  label="选项"   />
                 <el-table-column prop="answerCount" sortable  label="小计" />
                 <el-table-column prop="rate"  label="比例" />
@@ -824,6 +824,44 @@ const initCharts = async(answernaire, index)  => {
 </template>
 
 <style scoped>
+/* 顶部导航栏 */
+.navbar {
+  display: flex; /* 使用 Flexbox 布局 */
+  align-items: center; /* 垂直居中 */
+  justify-content: space-around; /* 等间距分布 */
+  background-color: #f8f8f8; /* 背景色 */
+  border-bottom: 1px solid #ddd; /* 下边框 */
+  padding: 10px 0; /* 内边距 */
+  position: fixed; /* 固定在顶部 */
+  top: 0;
+  left: 0;
+  width: 100%; /* 占满宽度 */
+  z-index: 1000; /* 层级最高 */
+}
+
+/* 每个按钮的样式 */
+.navbar-item {
+    display: flex; /* 图标和文字水平排列 */
+    flex-direction: column; /* 图标在上，文字在下 */
+    align-items: center; /* 居中对齐 */
+    text-decoration: none; /* 去掉下划线 */
+    color: #333; /* 文本颜色 */
+    font-size: 25px; /* 字体大小 */
+    padding: 5px 8px; /* 内边距 */
+    width: 170px; /* 每个按钮的固定宽度 */
+    transition: background-color 0.3s ease, color 0.3s ease; /* 添加过渡效果 */
+}
+
+.navbar-item:hover {
+  color: #007BFF; /* 悬停时文字变蓝 */
+}
+
+.navbar-item:hover, .navbar-item:focus {
+    background-color: rgba(5, 5, 6, 0.2); /* 背景色变淡蓝 */
+    color: #007BFF; /* 文字颜色变蓝 */
+    border-radius: 5px; /* 圆角效果 */
+}
+
 .infinite-list {  
   border-radius: 10px;
   background-color: white;

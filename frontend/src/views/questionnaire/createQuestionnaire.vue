@@ -327,5 +327,54 @@ button:hover {
 .input-with-select .el-input-group__prepend {
   background-color: var(--el-fill-color-blank);
 }
+.tableHead{
+  width: 800px;
+  border: 1px solid black; 
+  margin-bottom: 30px;
+}
+.custom-buttonDark {
+  border-color: #d3d3d3; /* 灰暗边框颜色 */
+  position: relative;
+  width: 80px;
+  height: 35px;
+  text-align: center;
+  line-height: 60px;
+  color: #666; /* 灰暗字体颜色 */
+  font-size: 18px;
+  text-decoration: none;
+  font-family: sans-serif;
+  border-radius: 30px;
+  background-color: #d3d3d3; /* 灰暗颜色 */
+  background-size: 400%;
+  transition: background-position 0.5s;
+  margin-bottom: 10px;
+}
+.custom-button {
+  position: relative;
+  width: 80px;
+  height: 35px;
+  text-align: center;
+  line-height: 60px;
+  color: #fff;
+  font-size: 18px;
+  text-decoration: none;
+  font-family: sans-serif;
+  border-radius: 30px;
+  background: linear-gradient(90deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4);
+  background-size: 400%;
+  transition: background-position 0.5s;
+  margin-bottom: 10px;
+}
+.custom-button:hover {
+  animation: animate 8s linear infinite;
+}
 
+@keyframes animate {
+  from {
+    background-position: 0%;
+  }
+  to {
+    background-position: 480%;
+  }
+}
 </style>

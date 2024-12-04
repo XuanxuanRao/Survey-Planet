@@ -214,8 +214,8 @@ export const userModifyAnswer = (rid, valid) => {
     })
 }
 
-export const userGetUnreadmessage = () => {
-    return request.get(`/api/message/list?isRead=0`, {
+export const userGetUnreadmessage = (isRead) => {
+    return request.get(`/api/message/list?isRead=${isRead}`, {
         headers: {
             'token': useUserStore().token,
         }

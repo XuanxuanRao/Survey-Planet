@@ -14,6 +14,8 @@ const dialogVisible = ref(false);
 // Dialog 中显示的消息内容
 const dialogMessage = ref('');
 
+const isRead = ref(true)
+
 // 显示 Dialog 的函数
 function showDialog(data) {
   dialogMessage.value = '请复制链接即可填写: ' + data;
@@ -22,7 +24,8 @@ function showDialog(data) {
 
 const unreadMessage = ref([])
 const getUnreadmessage = async () => {
-  const res = await userGetUnreadmessage()
+  const res = await userGetUnreadmessage(isRead.value)
+  console.log(res.msg)
   if (res.msg === 'success') {
     unreadMessage.value = res.data
   } else {
@@ -231,6 +234,20 @@ const analyseResult = (id) => {
   router.push({ path: '/questionnaire/lookQuestionnaire', query: dataToSend })
 }
 
+const isReadComputed = ref(!isRead.value)
+
+const handleReadChange = async() => {
+  isReadComputed.value = !isRead.value
+  await getUnreadmessage()
+  showDetails()
+}
+
+const handleReadChange1 = async() => {
+  isRead.value = !isReadComputed.value
+  await getUnreadmessage()
+  showDetails()
+}
+
 </script>
 
 <template>
@@ -259,7 +276,15 @@ const analyseResult = (id) => {
       <template v-if="detailsData">
         <!-- if 数据渲染 -->
         <div v-if="Array.isArray(detailsData)" class="scroll-container">
-          <h3>Unread Messages</h3>
+
+          <el-checkbox v-model="isRead" @change="handleReadChange()">
+            已读消息
+          </el-checkbox>
+
+          <el-checkbox v-model="isReadComputed" @change="handleReadChange1()">
+            未读消息
+          </el-checkbox>
+
           <el-table
             :data="detailsData"
             style="width: 100%"

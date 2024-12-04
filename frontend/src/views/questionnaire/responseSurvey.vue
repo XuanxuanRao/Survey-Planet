@@ -29,7 +29,7 @@ const switchMode = (newMode) => {
   if(newMode == 0) {
     router.push({ path: '/questionnaire/lookQuestionnaire', query: { id: sid } });
   }
-  if(newMode==2){
+  if(newMode==1){
     router.push({ path: '/releaseSurvey', query: { id: sid } });
   }
 };
@@ -118,6 +118,17 @@ const deleteAnswer = async(sid) => {
     }
 }
 
+const recoverAnswer = async(sid) => {
+    const res = await userModifyAnswer(sid, true)
+    if (res.msg === 'success') {
+      console.log('删除答卷成功')
+      handleSearch()
+    } else {
+      console.error('删除答卷失败')
+    }
+}
+
+
 const setValidFilter = (valid) => {
   queryParams.value.valid = valid
   handleSearch()
@@ -128,15 +139,15 @@ const setValidFilter = (valid) => {
 <template>
   <div style="display: flex;justify-content: center; gap: 10px;">
     <button class="navbar-item" style="background: none; border: none; padding: 0; cursor: pointer;" @click="switchMode(0)">
-        <el-icon :size="50"><PieChart /></el-icon>
+        <el-icon :size="40"><PieChart /></el-icon>
         <span>统计分析</span>
     </button>
-    <button class="navbar-item" style="background: none; border: none; padding: 0; cursor: pointer;" @click="switchMode(2)">
-        <el-icon :size="50"><Promotion /></el-icon>
+    <button class="navbar-item" style="background: none; border: none; padding: 0; cursor: pointer;" @click="switchMode(1)">
+        <el-icon :size="40"><Promotion /></el-icon>
         <span>发布问卷</span>
     </button>
-    <button class="navbar-item" style="background: none; border: none; padding: 0; cursor: pointer;" @click="switchMode(1)">
-        <el-icon :size="50"><InfoFilled /></el-icon>
+    <button class="navbar-item" style="background: none; border: none; padding: 0; cursor: pointer;" @click="switchMode(2)">
+        <el-icon :size="40"><InfoFilled /></el-icon>
         <span>查看问卷</span>
     </button>
   </div>
@@ -226,6 +237,7 @@ const setValidFilter = (valid) => {
           <tr v-for="(record, index) in responseData.records" :key="record.rid">
             <td>
               <span @click="deleteAnswer(record.rid)" v-if="queryParams.valid === true">删除</span>
+              <span @click="recoverAnswer(record.rid)" v-if="queryParams.valid === false">恢复</span>
               <span @click="openDetailDialog(record.rid)">查看</span>
             </td>
             <td>{{ (queryParams.pageNum - 1) * queryParams.pageSize + index + 1 }}</td>

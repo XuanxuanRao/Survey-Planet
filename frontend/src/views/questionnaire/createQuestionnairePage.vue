@@ -3,19 +3,36 @@ import { ref, onMounted } from 'vue'
 import { Search,Delete, Edit,  Share, Upload, Download } from '@element-plus/icons-vue'
 import { getCreatedQuestionnaireList, userDeleteQuestionnaire, userShareQuestionnaire, userCloseQuestionnaire, userExportResult, userGetUnreadmessage, userGetMessageDetail, userSetMessageUnread } from '@/api/questionnaire'
 import { useRouter } from 'vue-router'
-import { VideoPause, VideoPlay, Bell} from '@element-plus/icons-vue'
+import { VideoPause, VideoPlay, Bell,InfoFilled} from '@element-plus/icons-vue'
 import { useUserStore } from "@/stores/user"
-const activeName = ref('1')
+const activeName = ref('')
 const createdQuestionnaireList = ref([]);  // 响应式变量，存储用户数据
 const surveyTypeText = ref('');  // 问卷类型的文本
 // 控制 Dialog 显示状态的变量
 const dialogVisible = ref(false);
-
 // Dialog 中显示的消息内容
 const dialogMessage = ref('');
-
 const isRead = ref(true)
+// 定义折叠状态
+const collapsedIndexes = ref([]); // 存储折叠的索引
+// 切换折叠状态
+function toggleCollapse(index) {
+  const idx = collapsedIndexes.value.indexOf(index);
+  if (idx > -1) {
+    collapsedIndexes.value.splice(idx, 1); // 收起
+  } else {
+    collapsedIndexes.value.push(index); // 展开
+  }
+}
 
+// 判断当前索引是否折叠
+function isCollapsed(index) {
+  return collapsedIndexes.value.includes(index);
+}
+const activeNames = ref(['1'])
+const handleChange = (val) => {
+  console.log(val)
+}
 // 显示 Dialog 的函数
 function showDialog(data) {
   dialogMessage.value = '请复制链接即可填写: ' + data;
@@ -370,7 +387,7 @@ const handleReadChange1 = async() => {
 
     <el-input
     v-model="questionnaireTitle"
-    style="width: 50vw; height: 40px;"
+    style="width: 45vw; height: 40px;"
     placeholder="请输入问卷名"
     clearable
     />
@@ -398,23 +415,9 @@ const handleReadChange1 = async() => {
   </div>
 
   <div class="showQues">
-    <!-- <div class="demo-collapse">
-    <el-collapse v-model="activeName" accordion>
-      <el-collapse-item title="Consistency" name="1">
-        <div>
-          Consistent with real life: in line with the process and logic of real
-          life, and comply with languages and habits that the users are used to;
-        </div>
-        <div>
-          Consistent within interface: all elements should be consistent, such
-          as: design style, icons and texts, position of elements, etc.
-        </div>
-      </el-collapse-item>
-    </el-collapse>
-  </div> -->
     <ul class="infinite-list" style="overflow: auto"> 
       <li v-for="(questionnaire, index) in createdQuestionnaireList" :key="index" class="infinite-list-item">
-          <div class="name-description">
+          <div class="name-description" @click="toggleCollapse(index)">
             <div class="left-content">
               <el-tooltip  class="item" effect="light" :content="questionnaire.description" placement="top">
                 <span class="title" @click="view(questionnaire.sid)">
@@ -422,13 +425,10 @@ const handleReadChange1 = async() => {
                                                 {{ questionnaire.type === 'normal' ? '调查问卷' : '考试问卷' }}
                                               </span>
                 </span>
-              </el-tooltip>
-              
+              </el-tooltip>             
             </div>
-            <div class="spacing"></div>
+            <div style="margin-left: 500px;"></div>
             <div class="right-content">
-              
-              &nbsp;
               <span :class="questionnaire.state === 'open' ? 'dot-green' : 'dot-gray'"></span>
               {{ questionnaire.state === 'open' ? '已发布' : '未发布' }}
               &nbsp;
@@ -437,15 +437,14 @@ const handleReadChange1 = async() => {
               {{ questionnaire.createTime }}
             </div>
           </div>
-          
-          <div class="button-name-description">
+          <div class="button-name-description" v-if="isCollapsed(index)" >
             <div class="button-left-content">
               <el-button :icon="Search" @click="analyseResult(questionnaire.sid)">查看</el-button>
               <el-button :icon="Download" @click="exportResult(questionnaire.sid)">下载</el-button>
               <el-button :icon="Delete" @click="deleteQuestionnaire(questionnaire.sid)">删除</el-button>
               <el-button :icon="Edit" @click="modify(questionnaire.sid)">修改</el-button>
             </div>
-            <div class="spacing2"></div>
+            <div style="margin-left: 700px;"></div>
             <div class="button-right-content">
               <el-button v-if="questionnaire.state === 'close'" :icon="VideoPause" @click="shareOrCloseQuestionnaire(questionnaire.sid, questionnaire.state)">点击发布</el-button>
               <el-button v-else :icon="VideoPlay" @click="shareOrCloseQuestionnaire(questionnaire.sid, questionnaire.state)">点击停止</el-button>
@@ -466,6 +465,18 @@ const handleReadChange1 = async() => {
 </template>
 
 <style>
+.custom-collapse-item {
+  background: url('@/assets/img/2.jpg') no-repeat center center ; /* 背景图路径 */
+  background-size: cover; /* 背景图覆盖 */
+  background-position: center; /* 背景图居中 */
+  border-radius: 8px; /* 圆角 */
+  padding: 10px; /* 内边距 */
+  margin: 10px 0; /* 外边距 */
+  color: lightblue; /* 根据背景图片调整字体颜色 */
+}
+.demo-collapse {
+  background-color: transparent; /* 保证背景透明 */
+}
 .message-badge {
   cursor: pointer;
   margin-left: 10px;
@@ -477,10 +488,11 @@ const handleReadChange1 = async() => {
   color: #a5aeb8;
 }
 .box {
-  margin-left: 0px; /* 给侧边栏留出空间 */
+  margin-left: 50px; /* 给侧边栏留出空间 */
   margin-right: 10px; /* 给侧边栏留出空间 */
   margin-top: 20px;
   height: 90vh;
+  width: 180vh;
   background-color: #f0f0f0; 
   border: 1px solid #ccc; 
   border-radius: 5px; 
@@ -496,6 +508,7 @@ const handleReadChange1 = async() => {
   border-radius: 10px;
   background-color: white;
   height: 65vh;
+  /* width: 80vh; */
   padding: 20px;
   margin: 0;
   list-style: none;
@@ -519,6 +532,7 @@ const handleReadChange1 = async() => {
   align-items: center;
   margin-bottom: 10px;
   color:black;
+  
 }
 
 .left-content {
@@ -539,8 +553,19 @@ const handleReadChange1 = async() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  
+}
+/* 当内容展开时，max-height 和 padding 会恢复 */
+.collapse-enter-active,
+.collapse-leave-active {
+  transition: max-height 0.3s ease-in-out, padding-top 0.3s ease-in-out, padding-bottom 0.3s ease-in-out;
 }
 
+.collapse-enter, .collapse-leave-to {
+  max-height: 500px;  /* 设置一个足够大的值，让它展开时不会被限制 */
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
 .button-left-content {
   
   text-align: left;

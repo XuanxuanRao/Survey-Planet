@@ -16,7 +16,7 @@ onMounted(async () => {
 
     <div class="box">
         <div class="header">
-            <h1>填写问卷</h1>
+            <h1 style="color: black;">填写问卷</h1>
         </div>
           <div class="showQues">
             <ul class="infinite-list" style="overflow: auto">
@@ -48,16 +48,29 @@ onMounted(async () => {
   border-radius: 5px; 
   padding: 15px; /* 内边距 */
   box-shadow: 0 5px 10px rgba(34, 30, 30, 0.877);
-}
+} 
 
 .showQues {
   margin-top: 20px;
 }
+.left-content {
+  flex: 1;
+  width: 250px; /* 设置固定宽度 */
+  text-align: left;
+  white-space: nowrap; /* 防止内容换行 */
+}
 
+.right-content {
+  flex: 1;
+  width: 400px; /* 设置固定宽度 */
+  text-align: right;
+  white-space: nowrap; /* 防止内容换行 */
+}
 .infinite-list {
   border-radius: 10px;
   background-color: white;
   height: 65vh;
+  /* width: 80vh; */
   padding: 20px;
   margin: 0;
   list-style: none;
@@ -68,9 +81,11 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   height: 100px;
-  background: wheat; /* 背景颜色 */
+  background: lightblue; /* 背景颜色 */
   margin: 10px;
-  /* color: white; 字体颜色 */
+  /* background: url('@/assets/img/2.jpg') no-repeat center center;
+  background-size: cover;
+  z-index: 20; */
 }
 
 .name-description {
@@ -79,6 +94,33 @@ onMounted(async () => {
   align-items: center;
   margin-bottom: 10px;
   color:black;
+  
+}
+.custom-button {
+  position: relative;
+  width: 100px;
+  height: 45px;
+  text-align: center;
+  line-height: 60px;
+  color: #fff;
+  font-size: 18px;
+  text-decoration: none;
+  font-family: sans-serif;
+  border-radius: 30px;
+  background: linear-gradient(90deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4);
+  background-size: 400%;
+  transition: background-position 0.5s;
+}
+.custom-button:hover {
+  animation: animate 8s linear infinite;
 }
 
+@keyframes animate {
+  from {
+    background-position: 0%;
+  }
+  to {
+    background-position: 480%;
+  }
+}
 </style>

@@ -5,6 +5,7 @@ import { getCreatedQuestionnaireList, userDeleteQuestionnaire, userShareQuestion
 import { useRouter } from 'vue-router'
 import { VideoPause, VideoPlay, Bell,InfoFilled} from '@element-plus/icons-vue'
 import { useUserStore } from "@/stores/user"
+import quest_square from "@/components/quest_square.vue";
 const activeName = ref('')
 const createdQuestionnaireList = ref([]);  // 响应式变量，存储用户数据
 const surveyTypeText = ref('');  // 问卷类型的文本
@@ -24,7 +25,18 @@ function toggleCollapse(index) {
     collapsedIndexes.value.push(index); // 展开
   }
 }
+function expand(index) {
+  if (!collapsedIndexes.value.includes(index)) {
+    collapsedIndexes.value.push(index);
+  }
+}
 
+function collapse(index) {
+  const idx = collapsedIndexes.value.indexOf(index);
+  if (idx > -1) {
+    collapsedIndexes.value.splice(idx, 1);
+  }
+}
 // 判断当前索引是否折叠
 function isCollapsed(index) {
   return collapsedIndexes.value.includes(index);
@@ -313,7 +325,7 @@ const handleReadChange1 = async() => {
             <el-table-column label="状态" width="150">
               <template #default="scope">
                 <el-button
-                  type="text"
+                  type="primary"
                   size="small"
                   @click="loadMessageDetails(scope.row.mid)"
                 >
@@ -413,11 +425,14 @@ const handleReadChange1 = async() => {
       <el-icon class="message-icon"><Bell /></el-icon>
     </el-badge>
   </div>
-
-  <div class="showQues">
+  <div id="square">
+      <quest_square/>
+  </div>
+  <!-- <div class="showQues">
     <ul class="infinite-list" style="overflow: auto"> 
       <li v-for="(questionnaire, index) in createdQuestionnaireList" :key="index" class="infinite-list-item">
-          <div class="name-description" @click="toggleCollapse(index)">
+          <div class="name-description" @mouseenter="expand(index)" 
+           @mouseleave="collapse(index)">
             <div class="left-content">
               <el-tooltip  class="item" effect="light" :content="questionnaire.description" placement="top">
                 <span class="title" @click="view(questionnaire.sid)">
@@ -452,7 +467,7 @@ const handleReadChange1 = async() => {
           </div>
       </li>
     </ul>
-  </div>
+  </div> -->
       <!-- Dialog 弹框 -->
     <el-dialog v-model="dialogVisible" title="提示信息" width="30%" @close="dialogVisible = false">
       <span>{{ dialogMessage }}</span> <br>
@@ -477,6 +492,7 @@ const handleReadChange1 = async() => {
 .demo-collapse {
   background-color: transparent; /* 保证背景透明 */
 }
+
 .message-badge {
   cursor: pointer;
   margin-left: 10px;

@@ -11,7 +11,14 @@ export const getCreatedQuestionnaireList = () => {
         }
     })
 }
-
+export const getCreatedQuestionnaireList1 = (pageNum) => {
+    console.log(useUserStore().token)
+    return request.get(`/api/survey/list?type=created&pageNum=${pageNum}`, {
+        headers: {
+            'token': useUserStore().token
+        }
+    })
+}
 export const getFilledQuestionnaireList = () => {
     return request.get('/api/questionnaire/fill/list')
 }

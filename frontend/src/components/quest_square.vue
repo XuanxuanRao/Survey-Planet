@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import axios from "axios";
 import { getCreatedQuestionnaireList1, userDeleteQuestionnaire, userShareQuestionnaire, userCloseQuestionnaire, userExportResult, userGetUnreadmessage, userGetMessageDetail, userSetMessageUnread } from '@/api/questionnaire'
 import { useRouter } from 'vue-router';
-import { ArrowDown,Search,Delete, Edit,  Share, Upload, Download,VideoPause, VideoPlay, Bell,InfoFilled } from '@element-plus/icons-vue'
+import { ArrowDown,Search,Document,Position,Delete, Edit,  Share, Upload, Download,VideoPause, VideoPlay, Bell,InfoFilled } from '@element-plus/icons-vue'
 
 
 
@@ -137,7 +137,7 @@ function setActive(index) {
   <div class="question-square">
     <div class="square-box">
       <div class="box-head">
-            问卷广场 —— 探索问卷星球
+            我的问卷列表
       </div>
       <el-main>
           <div class="survey-list-container">
@@ -152,7 +152,10 @@ function setActive(index) {
                     @mouseover="setActive(index)"
                     @mouseleave="setActive(null)"
                 >
-                  <h2 class="survey-name" @click="view(survey.sid)">{{ survey.title }}&nbsp;&nbsp;
+                  <h2 class="survey-name" @click="view(survey.sid)">{{ survey.title }}
+                    <!-- <span v-if="survey.type=='exam'"><el-icon><Document /></el-icon></span>
+                    <span v-if="survey.type=='normal'"><el-icon :size="20"><Position /></el-icon></span> -->
+                    &nbsp;&nbsp;
                     <span :class="survey.state === 'open' ? 'dot-green' : 'dot-gray'"></span>
                     <span style="font-size: 18px;">{{ survey.state === 'open' ? '已发布' : '未发布' }}</span></h2>
                   <h3 >问卷数：{{survey.fillNum}}</h3>
@@ -162,11 +165,9 @@ function setActive(index) {
                   <button class="fill-button1" @click="shareOrCloseQuestionnaire(survey.sid, survey.state)">发布</button>
                   <button class="fill-button2" @click="modify(survey.sid)">修改</button>
                   <el-dropdown class="drop">
-                    <span >
+                    <span  style="font-size: 3vh;">
                       ...
-                      <el-icon >
-                        <arrow-down />
-                      </el-icon>
+                      
                     </span>
                     <template #dropdown>
                       <el-dropdown-menu @mouseover="setActive(index)"
@@ -179,7 +180,7 @@ function setActive(index) {
                 </div>              
               </div>
                   <div class="example-pagination-block">                 
-                    <el-pagination
+                    <el-pagination style="margin-left: 120vh;"
                       v-model:current-page="currentPage"
                       :page-size="10"
                       layout="total,  prev, pager, next, jumper"
@@ -247,6 +248,7 @@ el-scrollbar{
 }
 .example-pagination-block + .example-pagination-block {
   margin-top: 0px;
+  
 }
 .example-pagination-block .example-demonstration {
   margin-bottom: 0px;
@@ -324,8 +326,8 @@ el-scrollbar{
   border: none;
   cursor: pointer;
   position: absolute; //位置将相对于最近的定位祖先元素（即设置了 position 属性的父元素）进行定位。
-  top:0px;   //将 h3 元素的底部距离其定位祖先的底部 50 像素。
-  right: 0px;   //将 h3 元素的左侧距离其定位祖先的左侧 30 像素。
+  top:10px;   //将 h3 元素的底部距离其定位祖先的底部 50 像素。
+  right: 10px;   //将 h3 元素的左侧距离其定位祖先的左侧 30 像素。
   margin: 0;   //将 h3 元素的外边距设置为 0，确保没有额外的空间。
   opacity: 0;
 }

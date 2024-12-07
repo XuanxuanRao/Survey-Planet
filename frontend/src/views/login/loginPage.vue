@@ -308,9 +308,9 @@ watch(loginMode, () => {
                     </el-col>
                 </el-row>
             </div>
-            <a href="https://github.com/XuanxuanRao/Survey-Planet/tree/main" target="_blank">
+            <!-- <a href="https://github.com/XuanxuanRao/Survey-Planet/tree/main" target="_blank">
                 <img style="width: 20vh;height: 20vh; margin-left: 700px;" src="@/assets/img/github-logo.png" alt="描述文本">
-            </a>
+            </a> -->
         </div>
       
             
@@ -429,12 +429,5 @@ watch(loginMode, () => {
   animation: animate 8s linear infinite;
 }
 
-@keyframes animate {
-  from {
-    background-position: 0%;
-  }
-  to {
-    background-position: 480%;
-  }
-}
+
 </style>

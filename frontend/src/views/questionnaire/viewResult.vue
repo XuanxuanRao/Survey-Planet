@@ -297,21 +297,21 @@ const toggleUrls = async(index,test1) => {
               <el-table :data="item.a" border style="width: 100%">
                 <!-- <el-table-column prop="status" label="状态" width="180" /> -->
                 <el-table-column  label="状态" width="180">
-                    <span :class="{ 'green-text': item.a.status == '通过', 'red-text': item.a.status != '通过' }">
+                    <span :class="{ 'green-text': item.a[0].status == '通过', 'red-text': item.a[0].status != '通过' }">
                       <i v-if="item.a[0].status == '通过'" ><el-icon><Check /></el-icon></i> <!-- 打勾图标 -->
                       <i v-else ><el-icon><Close /></el-icon></i> <!-- 错误图标 -->
                       {{ item.a[0].status }}
                     </span>
                 </el-table-column>
                 <el-table-column  label="分数" width="80">
-                    <span :class="{ 'green-text': item.a.status == '通过', 'red-text': item.a.status != '通过' }">
+                    <span :class="{ 'green-text': item.a[0].status == '通过', 'red-text': item.a[0].status != '通过' }">
                       {{ item.a[0].score }}
                     </span>
                 </el-table-column>
                 <!-- <el-table-column prop="score" label="分数" width="180" /> -->
                 <el-table-column prop="language" label="语言" width="80"/>
                 <el-table-column prop="createTime" label="提交时间" width="180" />
-                <el-table-column   prop="errorMessage" label="错误信息" width="280"/>               
+                <el-table-column v-if="item.a[0].errorMessage!=null"  prop="errorMessage" label="错误信息" width="280"/>               
               </el-table>
             
             <h4 v-if="item.a[0].status!='编译错误'&&item.a[0].status!='系统错误'&&item.a[0].status!='提交失败'">各个测试点结果</h4>

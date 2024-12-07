@@ -399,7 +399,7 @@ const handleReadChange1 = async() => {
 
     <el-input
     v-model="questionnaireTitle"
-    style="width: 45vw; height: 40px;"
+    style="width: 45vw; height: 40/700vh;"
     placeholder="请输入问卷名"
     clearable
     />
@@ -484,9 +484,9 @@ const handleReadChange1 = async() => {
   background: url('@/assets/img/2.jpg') no-repeat center center ; /* 背景图路径 */
   background-size: cover; /* 背景图覆盖 */
   background-position: center; /* 背景图居中 */
-  border-radius: 8px; /* 圆角 */
-  padding: 10px; /* 内边距 */
-  margin: 10px 0; /* 外边距 */
+  border-radius: 8/700vh; /* 圆角 */
+  padding: 10/700vh; /* 内边距 */
+  margin: 10/700vh 0; /* 外边距 */
   color: lightblue; /* 根据背景图片调整字体颜色 */
 }
 .demo-collapse {
@@ -504,8 +504,8 @@ const handleReadChange1 = async() => {
   color: #a5aeb8;
 }
 .box {
-  margin-left: 50px; /* 给侧边栏留出空间 */
-  margin-right: 10px; /* 给侧边栏留出空间 */
+  margin-left: 50/700vh; /* 给侧边栏留出空间 */
+  margin-right: 10/700vh; /* 给侧边栏留出空间 */
   margin-top: 20px;
   height: 90vh;
   width: 180vh;
@@ -534,7 +534,7 @@ const handleReadChange1 = async() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100px;
+  height: 100/700vh;
   background: lightblue; /* 背景颜色 */
   margin: 10px;
   /* background: url('@/assets/img/2.jpg') no-repeat center center;
@@ -553,14 +553,14 @@ const handleReadChange1 = async() => {
 
 .left-content {
   flex: 1;
-  width: 250px; /* 设置固定宽度 */
+  width: 250/700vh; /* 设置固定宽度 */
   text-align: left;
   white-space: nowrap; /* 防止内容换行 */
 }
 
 .right-content {
   flex: 1;
-  width: 400px; /* 设置固定宽度 */
+  width: 400/700vh; /* 设置固定宽度 */
   text-align: right;
   white-space: nowrap; /* 防止内容换行 */
 }
@@ -578,7 +578,7 @@ const handleReadChange1 = async() => {
 }
 
 .collapse-enter, .collapse-leave-to {
-  max-height: 500px;  /* 设置一个足够大的值，让它展开时不会被限制 */
+  max-height: 500/700vh;  /* 设置一个足够大的值，让它展开时不会被限制 */
   padding-top: 10px;
   padding-bottom: 10px;
 }
@@ -658,10 +658,10 @@ const handleReadChange1 = async() => {
 
 .custom-button {
   position: relative;
-  width: 100px;
-  height: 45px;
+  width: 100/700vh;
+  height: 45/700vh;
   text-align: center;
-  line-height: 60px;
+  line-height: 60/700vh;
   color: #fff;
   font-size: 18px;
   text-decoration: none;

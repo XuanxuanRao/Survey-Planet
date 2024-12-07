@@ -3,6 +3,7 @@ import { userGetQuestionnaireResult } from '@/api/questionnaire'
 import { onMounted, ref, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import{Download,Check,Close} from '@element-plus/icons-vue'
+// import { it } from 'element-plus/es/locale';
 const response = ref();
 let intervalId = null;
 const isShowDetail = ref(true)
@@ -196,7 +197,7 @@ const toggleUrls = async(index,test1) => {
 
 <template>
   <div v-if="response">
-    <h1>结果信息</h1>
+    <h1 style="margin-left: 45.5%;">结果信息</h1>
     <div class="score-card">
       <div class="score">{{ response.grade }}</div>
       <div class="total">总分{{ total }}
@@ -206,43 +207,56 @@ const toggleUrls = async(index,test1) => {
     
     <div  v-if="isShowDetail">
       <div class="lookUnder" v-for="(item, index) in response.items" :key="index">
-        <template class="single_choice" v-if="item.question.type === 'single_choice'">
+        <template class="item" v-if="item.question.type === 'single_choice'">
           <!-- <div> -->
-            <h2>
-            Q{{ index + 1 }} {{ item.question.title }} (单选题) <br>
-            问题描述：{{ item.question.description }} <br>
-            </h2>
+            <h3>
+            Q{{ index + 1 }} {{ item.question.title }} (单选题)
+            &nbsp;&nbsp;&nbsp;分值{{ item.question.score }}分<br>
+            </h3>
+            <h4>问题描述：{{ item.question.description }} <br></h4>
           <!-- </div> -->
-          <br>
+           
           <!-- <div> -->
-              <el-radio-group>
+              <el-radio-group block>
                 <el-radio
                 v-for="(option, optIndex) in item.question.options"
                 :key="optIndex"
                 :value="option"
                 :class="{ 'correct-answer': item.content.includes(option),
-                          'wrong-answer': !item.answer.includes(option) && item.content.includes(option) }"
-              >
+                          'wrong-answer': !item.answer.includes(option) && item.content.includes(option) ,
+                          'block-radio': true }"
+                style="display: block;"
+                >
                 {{ option }}
-              </el-radio>
+                
+                </el-radio>
               </el-radio-group>
           <!-- </div> -->
-          
+
+            <div v-if="item.grade==item.question.score">
+              <span style="color: green;">回答正确</span>
+              <span style="margin-left: 50%; color: green;">+{{ item.grade }}分</span>
+            </div>
+            <div v-if="item.grade!=item.question.score">
+              <span style="color: red;">回答错误</span>
+              <span style="margin-left: 50%; color: red;">+{{ item.grade }}分</span>
+            </div>
           <br>
-          <div v-if="item.grade !== null">
-            本题得分：{{ item.grade }} 
-          </div>
-          <br>
+
           <div v-if="item.answer">
-            正确答案：{{ item.answer.join(", ") }}
+            <span class="correct-answer-text">正确答案：</span>
+            <br>
+            <br>
+            {{ item.answer.join(", ") }}
           </div>
         </template>
 
-        <template v-if="item.question.type === 'multiple_choice'">
-          <h4>
-            Q{{ index + 1 }} {{ item.question.title }} (多选题) <br>
-            问题描述：{{ item.question.description }} <br>
-          </h4>
+        <template class="item" v-if="item.question.type === 'multiple_choice'">
+          <h3>
+            Q{{ index + 1 }} {{ item.question.title }} (多选题)&nbsp;&nbsp;&nbsp;分值{{ item.question.score }}分<br> 
+            
+          </h3>
+          <h4>问题描述：{{ item.question.description }} <br></h4>
           <el-checkbox-group>
             <el-checkbox 
             v-for="(option, optIndex) in item.question.options" 
@@ -254,42 +268,55 @@ const toggleUrls = async(index,test1) => {
             {{ option }}
            </el-checkbox>
           </el-checkbox-group>
-          <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div>
-          <div v-if="item.answer">
-            正确答案：{{ item.answer.join(", ") }}
+          <br>
+          <div v-if="item.grade==item.question.score">
+              <span style="color: green;">回答正确</span>
+              <span style="margin-left: 50%; color: green;">+{{ item.grade }}分</span>
+            </div>
+            <div v-if="item.grade!=item.question.score">
+              <span style="color: red;">回答错误</span>
+              <span style="margin-left: 50%; color: red;">+{{ item.grade }}分</span>
+          </div>
+          <br>
+          <!-- <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div> -->
+          <div class="correct-answer-text" v-if="item.answer">
+            正确答案：
+            <br>
+            <br>{{ item.answer.join(", ") }}
           </div>
         </template>
 
-        <template v-if="item.question.type === 'fill_blank'">
-          <h4>
-            Q{{ index + 1 }} {{ item.question.title }} (填空题) <br>
-            问题描述：{{ item.question.description }} <br>
+        <template class="item" v-if="item.question.type === 'fill_blank'">
+          <h3>
+            Q{{ index + 1 }} {{ item.question.title }} (填空题)&nbsp;&nbsp;&nbsp;得分{{ item.grade }}分<br> <br>
+            
+          </h3>
+          <h4>问题描述：{{ item.question.description }} <br>
             <div v-if="item.content">
               你的答案：{{ item.content.join(", ") }}
             </div>
-            <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div>
+            <!-- <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div> -->
             <div v-if="item.answer">
               正确答案：{{ item.answer.join(", ") }}
             </div>
           </h4>
         </template>
 
-        <template v-if="item.question.type === 'file'">
+        <template class="item" v-if="item.question.type === 'file'">
           <h4>
             Q{{ index + 1 }} {{ item.question.title }} (文件题) <br>
             问题描述：{{ item.question.description }} <br>
-            <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div>
+            <!-- <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div> -->
           </h4>
         </template>
 
-        <template v-if="item.question.type === 'code'">
+        <template class="item" v-if="item.question.type === 'code'">
           <h3>
-            Q{{ index + 1 }} {{ item.question.title }} (代码题) <br>
+            Q{{ index + 1 }} {{ item.question.title }} (代码题) &nbsp;&nbsp;&nbsp;得分{{ item.grade }}分<br><br>
             
           </h3>
           <h4>
-            问题描述：{{ item.question.description }} <br>
-            
+            问题描述：{{ item.question.description }} <br>            
           </h4>
           <div class="result-container" v-if="item.judge.caseJudgeResults.length > 0">
             <!-- 代码题总的评测结果 -->
@@ -466,19 +493,25 @@ const toggleUrls = async(index,test1) => {
       border-radius: 8px; /* 圆角背景 */
       margin-top: 15px; /* 与分数的间距 */
     }
-    
-.single_choice{
+.correct-answer-text {
+  color: green; /* 设置字体颜色为绿色 */
+}
+.item{
   display: flex;
   flex-direction: column; 
   align-items: flex-start; 
   justify-content: space-between; 
-
+  border: 10px solid lightblue;
 }
-/* .lookUnder{
-   align-items: center;
-   justify-content: center; 
-   display: flex;
-} */
+.lookUnder{
+  border: 1px solid lightblue;
+  border-radius: 10px; /* 增加圆角 */
+  margin-left: 20%;
+  margin-right: 20%;
+  margin-bottom: 3%;
+  margin-top: 3%;
+  padding: 20px; /* 添加内边距 */
+}
 
 .download-icon {
   margin-left: 10px; /* 左边距 */
@@ -513,6 +546,10 @@ const toggleUrls = async(index,test1) => {
 .wrong-answer ::v-deep .el-checkbox__inner {
   border-color: red; 
   background-color: red;
+}
+.block-radio {
+  display: block; /* 设置为块级元素 */
+  margin-bottom: 10px; /* 可选：增加下边距 */
 }
 .custom-button {
   position: relative;

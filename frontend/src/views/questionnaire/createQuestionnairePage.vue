@@ -607,10 +607,10 @@ const handleReadChange1 = async() => {
   margin-top: 10px;
 }
 .spacing {
-  margin-right:600px; /* 调整这个值以满足实际需求 */
+  margin-right:600/700vh; /* 调整这个值以满足实际需求 */
 }
 .spacing2 {
-  margin-right:780px; /* 调整这个值以满足实际需求 */
+  margin-right:780/700vh; /* 调整这个值以满足实际需求 */
 }
 .button-group {
   display: flex;

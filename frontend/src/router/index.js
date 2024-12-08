@@ -35,6 +35,12 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
+
+  console.log(to)
+  if (to.path.includes('/fill/')) {
+    next()
+  }
+
   const res = await getUserInfo()
   console.log(res)
 

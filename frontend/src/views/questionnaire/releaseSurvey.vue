@@ -4,7 +4,7 @@ import { PieChart, Promotion,InfoFilled } from '@element-plus/icons-vue'
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import router from "@/router";
-import { userGetQuestionnaire, userShareQuestionnaire, userShareQuestionnaireWithEmail } from "@/api/questionnaire";
+import { userGetQuestionnaire, userShareQuestionnaire, userShareQuestionnaireWithEmail, userCloseQuestionnaire } from "@/api/questionnaire";
 
 
 const route = useRoute();
@@ -87,6 +87,16 @@ const shareQuestionnaire = async () => {
   showDialog.value = false
 }
 
+const closeQuestionnaire = async () => {
+  const res = await userCloseQuestionnaire(sid)
+  if(res.msg === 'success') {
+    ElMessage.success('问卷关闭成功')
+    state.value = 'close'
+  } else {
+    ElMessage.error('关闭失败')
+  }
+}
+
 </script>
 <template>
   <div style="display: flex;justify-content: center; gap: 10px;">
@@ -130,6 +140,7 @@ const shareQuestionnaire = async () => {
     <a :href="shareLink" target="_blank">{{ shareLink }}</a>
 
     <el-button @click="showDialog = true" type="primary">分享问卷</el-button>
+    <el-button @click="closeQuestionnaire" type="danger">关闭问卷</el-button>
     
     <!-- 弹窗 -->
     <el-dialog v-model="showDialog" title="分享问卷">

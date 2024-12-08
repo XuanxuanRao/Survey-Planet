@@ -61,25 +61,24 @@ const deleteQuestionnaire = async (id) => {
 }
 
 const shareOrCloseQuestionnaire = async (id, state) => {
-  router.push({ path: '/releaseSurvey', query: { id: id } });
-  if(state === 'open') {
-    const res = await userCloseQuestionnaire(id);
-    console.log("shareOrCloseQuestionnaire",res)
-    if (res.msg === 'success') {
-      ElMessage.success('关闭成功');
-    } else {
-      ElMessage.error('关闭失败')
-    }
-  } else if (state === 'close') {
-    // const res = await userShareQuestionnaire(id);
-    // console.log(res);
-    // if (res.msg === 'success') {
-    //     showDialog(res.data)
-    // } else {
-    //   ElMessage.error('分享失败');
-    // }
-    router.push({ path: '/releaseSurvey', query: { id: id } })
-  }
+  router.push({ path: '/releaseSurvey', query: { id: id } })
+  // if(state === 'open') {
+  //   const res = await userCloseQuestionnaire(id);
+  //   console.log("shareOrCloseQuestionnaire",res)
+  //   if (res.msg === 'success') {
+  //     ElMessage.success('关闭成功');
+  //   } else {
+  //     ElMessage.error('关闭失败')
+  //   }
+  // } else if (state === 'close') {
+  //   const res = await userShareQuestionnaire(id);
+  //   console.log(res);
+  //   if (res.msg === 'success') {
+  //       showDialog(res.data)
+  //   } else {
+  //     ElMessage.error('分享失败');
+  //   }
+  // }
   // getQuePaper(currentPage.value)
 }
 // 控制 Dialog 显示状态的变量
@@ -134,18 +133,21 @@ function setActive(index) {
   activeIndex.value = index;
 }
 
-// 定义方法 followOues
-const followOues = async (id) => {
+const followOues = async (id, notificationMode) => {
   try {
+    // 根据传入的 notificationMode 预设勾选状态
+    const emailChecked = (notificationMode & 1) !== 0;  // 如果最低位为 1，表示选择了邮件通知
+    const inAppChecked = (notificationMode & 2) !== 0;   // 如果次低位为 1，表示选择了站内信通知
+
     // 弹窗展示
     await ElMessageBox.confirm(
       `
         <p>请选择通知方式：</p>
         <label>
-          <input type="checkbox" id="emailNotify" /> 邮件通知
+          <input type="checkbox" id="emailNotify" ${emailChecked ? 'checked' : ''}/> 邮件通知
         </label>
         <label style="margin-left: 10px;">
-          <input type="checkbox" id="inAppNotify" /> 站内信通知
+          <input type="checkbox" id="inAppNotify" ${inAppChecked ? 'checked' : ''}/> 站内信通知
         </label>
       `,
       '通知方式',
@@ -170,21 +172,22 @@ const followOues = async (id) => {
 
     try {
       // 示例 API 调用
-      const response = await userFollowQuestionnaire(id, notifyMode)
+      const response = await userFollowQuestionnaire(id, notifyMode);
       console.log(response);
 
       if (response.msg === 'success') {
         ElMessage.success('设置通知成功')
+        getQuePaper(currentPage.value)
       } else {
-        ElMessage.error('设置通知失败')
+        ElMessage.error('设置通知失败');
       }
     } catch (error) {
-      ElMessage.error('请求出错')
-      console.error(error)
+      ElMessage.error('请求出错');
+      console.error(error);
     }
   } catch {
     // 用户取消操作
-    ElMessage.info('已取消操作')
+    ElMessage.info('已取消操作');
   }
 };
 
@@ -230,7 +233,7 @@ const followOues = async (id) => {
                       <el-dropdown-menu @mouseover="setActive(index)"
                       @mouseleave="setActive(null)">
                         <el-dropdown-item class="drop1" ><el-button :icon="Download"  @click="exportResult(survey.sid)">下载</el-button></el-dropdown-item>
-                        <el-dropdown-item class="drop1" ><el-button :icon="Star" @click="followOues(survey.sid)">关注</el-button></el-dropdown-item>
+                        <el-dropdown-item class="drop1" ><el-button :icon="Star" @click="followOues(survey.sid, survey.notificationMode)">关注</el-button></el-dropdown-item>
                         <el-dropdown-item class="drop1"><el-button :icon="Delete" @click="deleteQuestionnaire(survey.sid)">删除</el-button></el-dropdown-item>
                       </el-dropdown-menu>
                     </template>

@@ -196,7 +196,7 @@ const toggleUrls = async(index,test1) => {
 </script>
 
 <template>
-  <div v-if="response">
+  <div v-if="response.grade">
     <h1 style="margin-left: 45.5%;">结果信息</h1>
     <div class="score-card">
       <div class="score">{{ response.grade }}</div>

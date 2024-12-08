@@ -21,7 +21,7 @@ const queryParams = ref({
   pageSize: 10,
   queryMap: {},
   valid: true, // 默认查询有效答卷
-  gradeLb: 0, // 分数下限
+  gradeLb: null, // 分数下限
   gradeUb: null, // 分数上限
 });
 const switchMode = (newMode) => {

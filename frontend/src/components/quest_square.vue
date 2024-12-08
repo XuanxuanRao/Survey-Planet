@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from "axios";
-import { getCreatedQuestionnaireList1, userDeleteQuestionnaire, userShareQuestionnaire, userCloseQuestionnaire, userExportResult, userGetUnreadmessage, userGetMessageDetail, userSetMessageUnread } from '@/api/questionnaire'
+import { getCreatedQuestionnaireList1, userDeleteQuestionnaire, userShareQuestionnaire, userCloseQuestionnaire, userExportResult, userGetUnreadmessage, userGetMessageDetail, userSetMessageUnread, userFollowQuestionnaire } from '@/api/questionnaire'
 import { useRouter } from 'vue-router';
 import { ArrowDown,Search,Document,Position,Star,Delete, Edit,  Share, Upload, Download,VideoPause, VideoPlay, Bell,InfoFilled } from '@element-plus/icons-vue'
 
@@ -61,24 +61,26 @@ const deleteQuestionnaire = async (id) => {
 }
 
 const shareOrCloseQuestionnaire = async (id, state) => {
+  router.push({ path: '/releaseSurvey', query: { id: id } });
   if(state === 'open') {
     const res = await userCloseQuestionnaire(id);
     console.log("shareOrCloseQuestionnaire",res)
     if (res.msg === 'success') {
       ElMessage.success('关闭成功');
     } else {
-      ElMessage.error('关闭失败');
+      ElMessage.error('关闭失败')
     }
   } else if (state === 'close') {
-    const res = await userShareQuestionnaire(id);
-    console.log(res);
-    if (res.msg === 'success') {
-        showDialog(res.data)
-    } else {
-      ElMessage.error('分享失败');
-    }
+    // const res = await userShareQuestionnaire(id);
+    // console.log(res);
+    // if (res.msg === 'success') {
+    //     showDialog(res.data)
+    // } else {
+    //   ElMessage.error('分享失败');
+    // }
+    router.push({ path: '/releaseSurvey', query: { id: id } })
   }
-  getQuePaper(currentPage.value)
+  // getQuePaper(currentPage.value)
 }
 // 控制 Dialog 显示状态的变量
 const dialogVisible = ref(false);
@@ -131,6 +133,61 @@ const handleCurrentChange = async(pageNum) =>{
 function setActive(index) {
   activeIndex.value = index;
 }
+
+// 定义方法 followOues
+const followOues = async (id) => {
+  try {
+    // 弹窗展示
+    await ElMessageBox.confirm(
+      `
+        <p>请选择通知方式：</p>
+        <label>
+          <input type="checkbox" id="emailNotify" /> 邮件通知
+        </label>
+        <label style="margin-left: 10px;">
+          <input type="checkbox" id="inAppNotify" /> 站内信通知
+        </label>
+      `,
+      '通知方式',
+      {
+        dangerouslyUseHTMLString: true,
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      }
+    );
+
+    // 读取选中的选项
+    const emailNotify = document.getElementById('emailNotify').checked ? 1 : 0;
+    const inAppNotify = document.getElementById('inAppNotify').checked ? 2 : 0;
+
+    const notifyMode = emailNotify | inAppNotify; // 生成2-bit的mask
+
+    // 检查是否选择了通知方式
+    if (notifyMode === 0) {
+      ElMessage.error('请至少选择一种通知方式')
+      return;
+    }
+
+    try {
+      // 示例 API 调用
+      const response = await userFollowQuestionnaire(id, notifyMode)
+      console.log(response);
+
+      if (response.msg === 'success') {
+        ElMessage.success('设置通知成功')
+      } else {
+        ElMessage.error('设置通知失败')
+      }
+    } catch (error) {
+      ElMessage.error('请求出错')
+      console.error(error)
+    }
+  } catch {
+    // 用户取消操作
+    ElMessage.info('已取消操作')
+  }
+};
+
 </script>
 
 <template>
@@ -173,7 +230,7 @@ function setActive(index) {
                       <el-dropdown-menu @mouseover="setActive(index)"
                       @mouseleave="setActive(null)">
                         <el-dropdown-item class="drop1" ><el-button :icon="Download"  @click="exportResult(survey.sid)">下载</el-button></el-dropdown-item>
-                        <el-dropdown-item class="drop1" ><el-button :icon="Star"  >关注</el-button></el-dropdown-item>
+                        <el-dropdown-item class="drop1" ><el-button :icon="Star" @click="followOues(survey.sid)">关注</el-button></el-dropdown-item>
                         <el-dropdown-item class="drop1"><el-button :icon="Delete" @click="deleteQuestionnaire(survey.sid)">删除</el-button></el-dropdown-item>
                       </el-dropdown-menu>
                     </template>

@@ -99,6 +99,16 @@ export const userShareQuestionnaire = (sid) => {
     })
 }
 
+export const userShareQuestionnaireWithEmail = (sid, payload) => {
+    const jsonData = JSON.stringify(payload)
+    console.log(jsonData)
+    return request.post(`/api/survey/${sid}/share`, jsonData, {
+        headers: {
+            'token': useUserStore().token,
+        }
+    })
+}
+
 export const userCloseQuestionnaire = (sid) => {
     return request.put(`/api/survey/${sid}/close`, null, {
         headers: {
@@ -239,6 +249,22 @@ export const userGetMessageDetail = (mid) => {
 
 export const userSetMessageUnread = (mid, isRead) => {
     return request.put(`/api/message/${mid}?isRead=${isRead}`, {}, {
+        headers: {
+            'token': useUserStore().token,
+        }
+    })
+}
+
+export const userFollowQuestionnaire = (sid, bit) => {
+    return request.put(`/api/survey/${sid}/notify?mode=${bit}`, {}, {
+        headers: {
+            'token': useUserStore().token,
+        }
+    })
+}
+
+export const userDeleteMessage = (mid) => {
+    return request.delete(`/api/message/${mid}`, {
         headers: {
             'token': useUserStore().token,
         }

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { Search,Delete, Edit,  Share, Upload, Download } from '@element-plus/icons-vue'
-import { getCreatedQuestionnaireList, userDeleteQuestionnaire, userShareQuestionnaire, userCloseQuestionnaire, userExportResult, userGetUnreadmessage, userGetMessageDetail, userSetMessageUnread } from '@/api/questionnaire'
+import { getCreatedQuestionnaireList, userDeleteQuestionnaire, userShareQuestionnaire, userCloseQuestionnaire, userExportResult, userGetUnreadmessage, userGetMessageDetail, userSetMessageUnread, userDeleteMessage } from '@/api/questionnaire'
 import { useRouter } from 'vue-router'
 import { VideoPause, VideoPlay, Bell,InfoFilled} from '@element-plus/icons-vue'
 import { useUserStore } from "@/stores/user"
@@ -13,7 +13,7 @@ const surveyTypeText = ref('');  // 问卷类型的文本
 const dialogVisible = ref(false);
 // Dialog 中显示的消息内容
 const dialogMessage = ref('');
-const isRead = ref(true)
+const isRead = ref(false)
 // 定义折叠状态
 const collapsedIndexes = ref([]); // 存储折叠的索引
 // 切换折叠状态
@@ -277,6 +277,17 @@ const handleReadChange1 = async() => {
   showDetails()
 }
 
+const deleteMessage = async(mid) => {
+  const res = await userDeleteMessage(mid)
+  if (res.msg === 'success') {
+    ElMessage.success('删除成功')
+    await getUnreadmessage()
+    showDetails()
+  } else {
+    ElMessage.error('删除失败')
+  }
+}
+
 </script>
 
 <template>
@@ -306,12 +317,12 @@ const handleReadChange1 = async() => {
         <!-- if 数据渲染 -->
         <div v-if="Array.isArray(detailsData)" class="scroll-container">
 
-          <el-checkbox v-model="isRead" @change="handleReadChange()">
-            已读消息
-          </el-checkbox>
-
           <el-checkbox v-model="isReadComputed" @change="handleReadChange1()">
             未读消息
+          </el-checkbox>
+          
+          <el-checkbox v-model="isRead" @change="handleReadChange()">
+            已读消息
           </el-checkbox>
 
           <el-table
@@ -322,14 +333,22 @@ const handleReadChange1 = async() => {
           >
             <el-table-column prop="type" label="主题" width="200"></el-table-column>
             <el-table-column prop="createTime" label="时间" width="200"/>
-            <el-table-column label="状态" width="150">
+            <el-table-column label="操作" width="200">
               <template #default="scope">
                 <el-button
                   type="primary"
                   size="small"
                   @click="loadMessageDetails(scope.row.mid)"
                 >
-                  Details
+                  details
+                </el-button>
+
+                <el-button
+                  type="danger"
+                  size="small"
+                  @click="deleteMessage(scope.row.mid)"
+                >
+                  delete
                 </el-button>
               </template>
             </el-table-column>

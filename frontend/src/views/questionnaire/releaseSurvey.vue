@@ -4,7 +4,9 @@ import { PieChart, Promotion,InfoFilled } from '@element-plus/icons-vue'
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import router from "@/router";
-import { useRouter } from 'vue-router'
+import { userGetQuestionnaire, userShareQuestionnaire, userShareQuestionnaireWithEmail } from "@/api/questionnaire";
+
+
 const route = useRoute();
 const sid = route.query.id;
 const switchMode = (newMode) => {
@@ -15,11 +17,76 @@ const switchMode = (newMode) => {
     router.push({ path: '/responseSurvey', query: { id: sid } });
   }
 };
-// 初始化加载数据
-onMounted(async () => {
 
-  console.log(sid);
-});
+const state = ref(null)
+const shareLink = ref('');
+
+onMounted(async () => {
+  const res = await userGetQuestionnaire(sid)
+  if(res.msg === "success") {
+    state.value = res.data.state
+    console.log(state.value)
+    if(state.value === 'open') {
+      const res = await userShareQuestionnaire(sid)
+      if(res.msg === 'success') {
+        shareLink.value = res.data
+      }
+    }
+  }
+})
+
+// 发布问卷逻辑
+const publishQuestionnaire = async () => {
+  if (state.value === 'close') {
+    // 调用接口获取填写链接
+    const res = await userShareQuestionnaire(sid);
+    if (res.msg === 'success') {
+      shareLink.value = res.data
+      ElMessage.success('问卷发布成功')
+      window.location.reload();
+    } else {
+      ElMessage.error('发布失败');
+    }
+  } else {
+    ElMessage.info('当前状态为关闭，无法发布问卷');
+  }
+}
+
+
+const showDialog = ref(false);
+const emails = ref('');
+const inviteMessage = ref('');
+const needSiteNotification = ref(false);
+
+// 分享问卷
+const shareQuestionnaire = async () => {
+  // const loading = ElLoading.service({
+  //   target: document.body, // 加载的目标区域
+  //   text: '正在分享问卷，请稍候...', // 自定义加载文本
+  //   spinner: 'el-icon-loading'
+  // });
+  const emailArray = emails.value.split(',').map(email => email.trim());
+  const validEmails = emailArray.filter(email => email !== '');
+  const payload = {
+    emails: validEmails,
+    needSiteNotification: needSiteNotification.value,
+    invitationMessage: inviteMessage.value,
+  }
+  try {
+    const res = await userShareQuestionnaireWithEmail(sid, payload);
+    if (res.msg === 'success') {
+      ElMessage.success('问卷分享成功');
+    } else {
+      ElMessage.error('分享失败，请重试');
+    }
+  } catch (error) {
+    ElMessage.error('分享失败，请重试');
+  } finally {
+    //loading.close();
+  }
+  showDialog.value = false
+}
+
 </script>
 <template>
   <div style="display: flex;justify-content: center; gap: 10px;">
@@ -36,6 +103,58 @@ onMounted(async () => {
         <span>查看问卷</span>
     </button>
   </div>
+
+  <!-- 发布问卷按钮，显示状态为close时不可用 -->
+  <button 
+    v-if="state === 'close'"
+    style="
+      background-color: #409EFF; 
+      border: none; 
+      padding: 10px 20px; 
+      cursor: pointer; 
+      color: white; 
+      font-size: 14px; 
+      border-radius: 5px; 
+      transition: all 0.3s ease;
+    "
+    @click="publishQuestionnaire"
+    @mouseover="hover = true"
+    @mouseleave="hover = false"
+  >
+    <span :style="hover ? { color: '#fff', textDecoration: 'underline' } : { color: 'white' }">发布问卷</span>
+  </button>
+
+
+  <div v-if="state === 'open'">
+    <p>问卷链接：</p>
+    <a :href="shareLink" target="_blank">{{ shareLink }}</a>
+
+    <el-button @click="showDialog = true" type="primary">分享问卷</el-button>
+    
+    <!-- 弹窗 -->
+    <el-dialog v-model="showDialog" title="分享问卷">
+      <el-form>
+        <el-form-item label="邮箱列表">
+          <el-input v-model="emails" placeholder="请输入邮箱地址，以逗号分隔" />
+        </el-form-item>
+        
+        <el-form-item label="邀请信息">
+          <el-input v-model="inviteMessage" placeholder="请输入邀请信息" />
+        </el-form-item>
+
+        <el-form-item>
+          <el-checkbox v-model="needSiteNotification">同步提示</el-checkbox>
+        </el-form-item>
+        
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="showDialog = false">取消</el-button>
+          <el-button type="primary" @click="shareQuestionnaire">分享</el-button>
+        </div>
+      </el-form>
+    </el-dialog>
+  </div>
+
+
 </template>
 
 <style scoped>

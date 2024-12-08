@@ -34,15 +34,15 @@ const router = createRouter({
   ]
 })
 
-// router.beforeEach(async (to, from, next) => {
-//   const res = await getUserInfo()
-//   console.log(res)
+router.beforeEach(async (to, from, next) => {
+  const res = await getUserInfo()
+  console.log(res)
 
-//   if (res.code === 0 && to.path !== '/login') {
-//     next({ path: '/login' })
-//   } else {
-//     next()
-//   }
-// })
+  if (res.code === 0 && to.path !== '/login') {
+    next({ path: '/login' })
+  } else {
+    next()
+  }
+})
 
 export default router

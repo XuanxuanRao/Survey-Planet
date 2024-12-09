@@ -522,7 +522,7 @@ const initCharts = async(answernaire, index)  => {
       <!--normal  -->
       <li v-if="surveyType=='normal'" v-for="(answernaire, index) in mergedData" :key="index" class="infinite-list-item" ref="listItems">
           <!-- 单选题，多选题 -->    
-          <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">第{{index+1}}题: &nbsp;{{ answernaire.description }}&nbsp;
+          <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">第{{index+1}}题: &nbsp;{{ answernaire.title }}&nbsp;
           {{ answernaire.type==='single_choice'? '[单选题]':'[多选题]' }}</p>
           <div v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">
             <el-table v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice' "
@@ -563,7 +563,7 @@ const initCharts = async(answernaire, index)  => {
           </div>
           <!-- 填空题 -->
           <p v-if="answernaire.type === 'fill_blank'">
-            第{{index+1}}题: &nbsp;     {{ answernaire.description }}&nbsp;[填空题]
+            第{{index+1}}题: &nbsp;     {{ answernaire.title }}&nbsp;[填空题]
           </p>
 
           <div v-if="answernaire.type === 'fill_blank'" class="demo-pagination-block">            
@@ -611,7 +611,7 @@ const initCharts = async(answernaire, index)  => {
           <!-- <p v-if="answernaire.type === 'fill_blank'">本题有效填写人数：{{answernaire.total}}</p> -->
           <!-- 文件题 -->
           <p v-if="answernaire.type === 'file'">
-            第{{index+1}}题: &nbsp;     {{ answernaire.description }}&nbsp;[文件题]
+            第{{index+1}}题: &nbsp;     {{ answernaire.title }}&nbsp;[文件题]
           </p>
           <div v-if="answernaire.type === 'file'" class="demo-pagination-block">            
             <el-button class="custom-button" @click="isDialogVisible[answernaire.qid]=true">显示表格</el-button>
@@ -653,7 +653,7 @@ const initCharts = async(answernaire, index)  => {
       <!-- exam -->
       <li v-if="surveyType=='exam'" v-for="(answernaire, index) in mergedData" :key="index" class="infinite-list-item" ref="listItems">
           <!-- 单选题，多选题 -->    
-          <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">第{{index+1}}题: &nbsp;     {{ answernaire.description }}&nbsp;
+          <p v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice'">第{{index+1}}题: &nbsp;     {{ answernaire.title }}&nbsp;
           {{ answernaire.type==='single_choice'? '[单选题]':'[多选题]' }}</p>
           <div>
             <el-table v-if="answernaire.type === 'single_choice'||answernaire.type === 'multiple_choice' "
@@ -691,7 +691,7 @@ const initCharts = async(answernaire, index)  => {
           </div>
           <!-- 填空题 -->
           <p v-if="answernaire.type === 'fill_blank'">
-            第{{index+1}}题: &nbsp;     {{ answernaire.description }}&nbsp;[填空题]
+            第{{index+1}}题: &nbsp;     {{ answernaire.title }}&nbsp;[填空题]
           </p>
           <div v-if="answernaire.type === 'fill_blank'" style="display: flex;justify-content: center; gap: 10px;">
             <el-button class="custom-button" @click="isDialogVisible[answernaire.qid]=true">显示表格</el-button>
@@ -753,7 +753,7 @@ const initCharts = async(answernaire, index)  => {
           </div>
           <!-- 代码题 -->
           <p v-if="answernaire.type === 'code'">
-            第{{index+1}}题: &nbsp;     {{ answernaire.description }}&nbsp;[代码题]
+            第{{index+1}}题: &nbsp;     {{ answernaire.title }}&nbsp;[代码题]
           </p>         
           <div v-if="answernaire.type === 'code'" style="display: flex;justify-content: center; gap: 10px;">
             <el-button class="custom-button" @click="isDialogVisible[answernaire.qid]=true">详细信息</el-button>

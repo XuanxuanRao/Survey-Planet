@@ -271,12 +271,12 @@ onMounted(async () => {
       <!-- 保存按钮 -->
       <button @click="saveSurvey" ><el-icon><Checked /></el-icon>保存问卷</button>
 
-      <!-- 显示存储的问卷信息 -->
+      <!-- 显示存储的问卷信息
       <div class="survey-data">
         <h3>问卷数据</h3>
         <pre>{{ surveyData }}</pre>
       </div>
-    
+     -->
   </div>
 </template>
 

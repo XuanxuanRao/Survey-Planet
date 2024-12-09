@@ -196,7 +196,7 @@ const toggleUrls = async(index,test1) => {
 </script>
 
 <template>
-  <div v-if="response.grade">
+  <div v-if="response">
     <h1 style="margin-left: 45.5%;">结果信息</h1>
     <div class="score-card">
       <div class="score">{{ response.grade }}</div>
@@ -288,7 +288,7 @@ const toggleUrls = async(index,test1) => {
 
         <template class="item" v-if="item.question.type === 'fill_blank'">
           <h3>
-            Q{{ index + 1 }} {{ item.question.title }} (填空题)&nbsp;&nbsp;&nbsp;得分{{ item.grade }}分<br> <br>
+            Q{{ index + 1 }} {{ item.question.title }} (填空题)&nbsp;&nbsp;&nbsp;分值{{ item.grade }}分<br> <br>
             
           </h3>
           <h4>问题描述：{{ item.question.description }} <br>
@@ -312,7 +312,7 @@ const toggleUrls = async(index,test1) => {
 
         <template class="item" v-if="item.question.type === 'code'">
           <h3>
-            Q{{ index + 1 }} {{ item.question.title }} (代码题) &nbsp;&nbsp;&nbsp;得分{{ item.grade }}分<br><br>
+            Q{{ index + 1 }} {{ item.question.title }} (代码题) &nbsp;&nbsp;&nbsp;分值{{ item.grade }}分<br><br>
             
           </h3>
           <h4>

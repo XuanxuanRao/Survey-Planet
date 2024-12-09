@@ -340,7 +340,7 @@ const deleteMessage = async(mid) => {
                   size="small"
                   @click="loadMessageDetails(scope.row.mid)"
                 >
-                  details
+                  查看
                 </el-button>
 
                 <el-button
@@ -348,7 +348,7 @@ const deleteMessage = async(mid) => {
                   size="small"
                   @click="deleteMessage(scope.row.mid)"
                 >
-                  delete
+                  删除
                 </el-button>
               </template>
             </el-table-column>

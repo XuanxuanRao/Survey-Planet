@@ -1,4 +1,5 @@
 import axios from "axios"
+import router from "@/router"
 //设置基本 URL：
 //const baseURL = "http://localhost:8088"
 const baseURL = "http://59.110.163.198:8088"
@@ -22,10 +23,19 @@ instance.interceptors.request.use(
 )
 
 
-// 响应拦截器,在接收到响应后，可以对响应数据进行处理。
-instance.interceptors.response.use(function (response){
-        return response.data
-    },function (error) {
+// 响应拦截器
+instance.interceptors.response.use(
+    (response) => {
+        const res = response.data
+        if (res.code === 0 && res.msg === 'NOT_LOGIN') {
+            // 未登录，跳转到登录页面
+            router.push('/login')
+            return Promise.reject('未登录，跳转到登录页面')
+        } else {
+            return res
+        }
+    },
+    (error) => {
         return Promise.reject(error)
     }
 )

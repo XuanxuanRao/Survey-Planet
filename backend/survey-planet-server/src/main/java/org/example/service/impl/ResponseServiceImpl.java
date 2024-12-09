@@ -38,7 +38,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -73,6 +75,8 @@ public class ResponseServiceImpl implements ResponseService {
             throw new SurveyNotFoundException("SURVEY_NOT_FOUND");
         } else if (survey.getState() == SurveyState.CLOSE) {
             throw new IllegalOperationException("SURVEY_CLOSED");
+        } else if (!questionService.getBySid(survey.getSid()).stream().allMatch(q -> !q.getRequired() || responseDTO.getItems().stream().anyMatch(item -> item.getQid().equals(q.getQid())))) {
+            throw new BadResponseException("MISSING_REQUIRED_QUESTION");
         }
 
         Response response = new Response();
@@ -87,9 +91,6 @@ public class ResponseServiceImpl implements ResponseService {
 
         response.getItems().forEach(item -> item.setRid(response.getRid()));
         responseMapper.insertItems(response.getItems());
-
-        // 更新填写问卷的人数
-        surveyMapper.addFillNum(response.getSid());
 
         if ((survey.getNotificationMode() & NotificationModeConstant.SITE_MESSAGE) != 0) {
             NewSubmissionMessage message = NewSubmissionMessage.builder()
@@ -179,7 +180,7 @@ public class ResponseServiceImpl implements ResponseService {
         ));
         return new PageResult<>(
                 rids.getTotal(),
-                rids.getTotal() == 0 ? new ArrayList<>() : responseMapper.getByRids(rids.getList())
+                rids.getList().isEmpty() ? new ArrayList<>() : responseMapper.getByRids(rids.getList())
         );
     }
 
@@ -317,6 +318,20 @@ public class ResponseServiceImpl implements ResponseService {
     @Override
     public List<Response> getRecentResponse(Integer time) {
         return responseMapper.findByCreateTimeRange(LocalDateTime.now().minusMinutes(time), LocalDateTime.now());
+    }
+
+    @Override
+    public LinkedHashMap<LocalDate, Long> getResponseCountByDate(Long sid, LocalDateTime startDate, LocalDateTime endDate) {
+        Map<Date, Object> countMap = responseMapper.countDailyResponse(sid, startDate, endDate);
+        LinkedHashMap<LocalDate, Long> result = new LinkedHashMap<>();
+        for (LocalDate date = startDate.toLocalDate(); !date.isAfter(endDate.toLocalDate()); date = date.plusDays(1)) {
+            Long count = Optional.ofNullable(countMap.get(Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())))
+                    .map(entry -> (Map<?, ?>) entry)
+                    .map(entry -> (Long) entry.get("count"))
+                    .orElse(0L);
+            result.put(date, count);
+        }
+        return result;
     }
 
     private int findQuestionIndex(List<Question> questions, Long qid) {

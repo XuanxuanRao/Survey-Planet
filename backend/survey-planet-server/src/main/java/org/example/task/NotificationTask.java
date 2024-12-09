@@ -75,19 +75,13 @@ public class NotificationTask {
                 continue;
             }
 
-            NewSubmissionVO newSubmissionVO;
-            try {
-                newSubmissionVO = NewSubmissionVO.builder()
-                        .surveyName(entry.getKey().getTitle())
-                        .surveyLink(LinkConstant.FILL_SURVEY + SharingCodeUtil.encrypt(entry.getKey().getSid()))
-                        .queryLink(LinkConstant.ANALYSIS_SURVEY + entry.getKey().getSid())
-                        .newSubmissionNum(entry.getValue().getLeft())
-                        .latestSubmissionTime(entry.getValue().getRight())
-                        .build();
-            } catch (Exception e) {
-                log.error("encrypt survey id failed, sid: {}", entry.getKey().getSid());
-                continue;
-            }
+            NewSubmissionVO newSubmissionVO = NewSubmissionVO.builder()
+                    .surveyName(entry.getKey().getTitle())
+                    .surveyLink(LinkConstant.FILL_SURVEY + SharingCodeUtil.encrypt(entry.getKey().getSid()))
+                    .queryLink(LinkConstant.ANALYSIS_SURVEY + entry.getKey().getSid())
+                    .newSubmissionNum(entry.getValue().getLeft())
+                    .latestSubmissionTime(entry.getValue().getRight())
+                    .build();
 
             if (emailNotifyNewSubmissionDTOs.containsKey(user.getUid())) {
                 var emailNotifyNewSubmissionDTO = emailNotifyNewSubmissionDTOs.get(user.getUid());
@@ -110,8 +104,11 @@ public class NotificationTask {
         log.info("notify for new submission success : {}", emailNotifyNewSubmissionDTOs.values());
     }
 
-    @Scheduled(cron = "0 0 0/48 * * ?")
-    public void notifyForSurveyExpiration() {
+    /**
+     *
+     */
+    @Scheduled(cron = "0 0 0/24 * * ?")
+    public void clearMessage() {
         Integer count = siteMessageService.deleteReadMessageOlderThan(7, null);
         if (count > 0) {
             log.info("delete {} read messages older than 7 days", count);

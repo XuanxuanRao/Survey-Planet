@@ -3,7 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute, onBeforeRouteLeave } from 'vue-router'
 import { userFillQuestionnaire, userSubmitQuestionnaire, userUploadFile } from '@/api/questionnaire'
 import router from '@/router';
-
+import { UploadFilled } from '@element-plus/icons-vue'
 const route = useRoute()
 const code = route.params.code
 
@@ -34,22 +34,37 @@ onMounted(async () => {
   }
 })
 
-const handleFileChange = (index, event) => {
-  const file = event.target.files[0]
-  console.log('选择的文件:', file)
-  if (file) {
-    answers.value[index].content = [file]
-  } else {
-    answers.value[index].content = []
-  }
+const handleFileChange = (index, fileListOrEvent) => {
+  console.log("fileListOrEvent",fileListOrEvent)
+    if (fileListOrEvent ) {
+      // 处理来自 el-upload 的 fileList
+      const file = fileListOrEvent.raw; // 获取第一个文件
+      delete file.uid; // 去除 uid 属性
+      console.log("file",file)
+      if (file) {
+        answers.value[index].content = [file]
+      } else {
+        answers.value[index].content = []
+      }
+    }
 }
-
+const handleFileChange1 = (index, fileListOrEvent) => {
+  console.log("fileListOrEvent",fileListOrEvent)
+    if (fileListOrEvent ) {
+      const file = fileListOrEvent.target.files[0]; // 获取第一个文件
+      console.log("file",file)
+      if (file) {
+        answers.value[index].content = [file]
+      } else {
+        answers.value[index].content = []
+      }
+    }
+}
 // 检查必填项
 const validateSurvey = () => {
   for (let i = 0; i < questions.value.length; i++) {
     const question = questions.value[i]
     const answer = answers.value[i].content
-
     // 如果问题是必填项，并且没有回答，则返回 false
     if (question.required && (!answer || answer.length === 0)) {
       ElMessage.warning(`问题 ${i + 1} 是必填项，请完成后再提交`)
@@ -73,6 +88,8 @@ const submitSurvey = async () => {
         })
       } else {
         const file = answers.value[i].content[0]
+        console.log("answers.value[i].content[0]",answers.value[i].content[0])
+        console.log("answers.value[i].content[0]",answers.value[i].content[1])
         if (file) {
           const uploadRes = await userUploadFile(file)
           console.log('上传文件结果:', uploadRes.data)
@@ -108,7 +125,7 @@ const submitSurvey = async () => {
   }
 }
 const isCommit = ref(false)  // 是否保存问卷
-
+//深度监听
 watch(answers, () => {
   isCommit.value = false
   console.log('回答发生改变', questions.value)
@@ -183,8 +200,26 @@ onBeforeRouteLeave((to, from, next) => {
             {{ question.title }} <br>
             问题描述：{{ question.description }}
           </h4>
-          <input type="file" @change="(event) => handleFileChange(index, event)" />
-          <div class="el-upload__tip">文件最大为 {{ question.maxFileSize }} MB</div>
+          <el-upload
+            class="upload-demo"
+            action="http://59.110.163.198:8088/api/common/upload"
+            :auto-upload="false"
+            drag
+            @change="(event) => handleFileChange(index, event)"
+            multiple
+          >
+            <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+            <div class="el-upload__text">
+              Drop file here or <em>click to upload</em>
+            </div>
+            <template #tip>
+              <div class="el-upload__tip">
+                文件最大为 {{ question.maxFileSize }} MB
+              </div>
+            </template>
+          </el-upload>
+          <!-- <input type="file" @change="(event) => handleFileChange1(index, event)" /> -->
+          <!-- <div class="el-upload__tip">文件最大为 {{ question.maxFileSize }} MB</div> -->
         </template>
 
         <template v-if="question.type === 'code'">
@@ -194,7 +229,20 @@ onBeforeRouteLeave((to, from, next) => {
             {{ question.title }} <br>
             问题描述：{{ question.description }}
           </h4>
-          <input type="file" @change="(event) => handleFileChange(index, event)" /> <br>
+          <el-upload
+            class="upload-demo"
+            action="http://59.110.163.198:8088/api/common/upload"
+            :auto-upload="false"
+            drag
+            @change="(event) => handleFileChange(index, event)"
+            multiple
+          >
+            <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+            <div class="el-upload__text">
+              Drop file here or <em>click to upload</em>
+            </div>
+          </el-upload>
+          <!-- <input type="file" @change="(event) => handleFileChange(index, event)" /> <br> -->
             <!-- 多选编程语言 -->
           <el-select v-model="answers[index].content[1]" placeholder="请选择编程语言" style="width: 300px; margin-bottom: 10px;">
             <el-option
@@ -210,7 +258,6 @@ onBeforeRouteLeave((to, from, next) => {
 
       </div>
     </div>
-
     <el-button type="primary" @click="submitSurvey">提交问卷</el-button>
   </div>
 </template>

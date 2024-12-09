@@ -139,10 +139,11 @@ onMounted(async () => {
 <template>
   <div>
     <!-- 由上级传递 -->
-    <h2>问卷名称</h2>
+    
     
     <!-- 显示添加的问题 -->
     <div class="question-list">
+      <h2>问卷名称</h2>
       <div v-for="(question, index) in questions" :key="index" class="question-item">        
         <!-- 根据问题类型渲染不同的题目 -->
         <template v-if="question.type === 'single_choice' || question.type === 'multiple_choice'">
@@ -161,7 +162,7 @@ onMounted(async () => {
           </h4>
           <el-input @focus="isEditing = true" 
               @blur="isEditing = false" 
-               v-model="question.description" style="width: 600px;"  placeholder="请填入问题描述" :prefix-icon="EditPen"/>
+               v-model="question.description" style="width: 70%;"  placeholder="请填入问题描述" :prefix-icon="EditPen"/>
           <ul>
             <li v-for="(option, optIndex) in question.options" :key="optIndex">
               <el-input @focus="isEditing = true" 
@@ -185,7 +186,7 @@ onMounted(async () => {
           <!-- 删除问题按钮 -->
           <button @click="removeQuestion(index)" v-if="!isEditing" style="margin: 10px;"><el-icon><CloseBold /></el-icon>删除问题</button>
           <!-- 是否必填按钮 -->
-          <button @click="question.required = true" v-if="!isEditing" style="margin: 10px;"><el-icon><QuestionFilled /></el-icon>是否必填</button>
+          <button @click="question.required = !question.required" v-if="!isEditing" style="margin: 10px;"><el-icon><QuestionFilled /></el-icon>是否必填</button>
           <button @click="isEditing=flase" v-if="isEditing" style="margin: 10px;">完成编辑</button>
         </div>        
         </template>
@@ -208,7 +209,7 @@ onMounted(async () => {
                   <!-- 删除问题按钮 -->
                   <button @click="removeQuestion(index)" v-if="!isEditingTianKong" style="margin: 10px;"><el-icon><CloseBold /></el-icon>删除问题</button>
                   <!-- 是否必填按钮 -->
-                  <button @click="question.required = true" v-if="!isEditingTianKong" style="margin: 10px;"><el-icon><QuestionFilled /></el-icon>是否必填</button>
+                  <button @click="question.required = !question.required" v-if="!isEditingTianKong" style="margin: 10px;"><el-icon><QuestionFilled /></el-icon>是否必填</button>
                   <button @click="isEditing=flase" v-if="isEditingTianKong" style="margin: 10px;">完成编辑</button>
                 </div>   
         </template>
@@ -240,7 +241,7 @@ onMounted(async () => {
             <!-- 删除问题按钮 -->
             <button @click="removeQuestion(index)" v-if="!isEditingWenjian" style="margin: 10px;"><el-icon><CloseBold /></el-icon>删除问题</button>
             <!-- 是否必填按钮 -->
-            <button @click="question.required = true" v-if="!isEditingWenjian" style="margin: 10px;"><el-icon><QuestionFilled /></el-icon>是否必填</button>
+            <button @click="question.required = !question.required" v-if="!isEditingWenjian" style="margin: 10px;"><el-icon><QuestionFilled /></el-icon>是否必填</button>
             <button @click="isEditing=flase" v-if="isEditingWenjian" style="margin: 10px;">完成编辑</button>
           </div>   
         </template>
@@ -255,8 +256,9 @@ onMounted(async () => {
           <button @click="isEditing=flase" v-if="isEditing" style="margin: 10px;">完成编辑</button>
         </div> -->
       </div>
+      <h3 style="">点击添加问题</h3>
     </div>
-    <h3 style="">点击添加问题</h3>
+    
       <!-- 问题类型按钮 -->
       <div class="question-types">
         <button @click="addQuestion('single_choice')" ><el-icon><HelpFilled /></el-icon>单选题</button>
@@ -269,7 +271,10 @@ onMounted(async () => {
       </div>
 
       <!-- 保存按钮 -->
-      <button @click="saveSurvey" ><el-icon><Checked /></el-icon>保存问卷</button>
+      <div style="display: flex;flex-direction: column; align-items: center; ">
+        <button  @click="saveSurvey" ><el-icon><Checked /></el-icon>保存问卷</button>
+      </div>
+      
 
       <!-- 显示存储的问卷信息
       <div class="survey-data">
@@ -282,6 +287,8 @@ onMounted(async () => {
 
 <style scoped>
 .question-types {
+  padding-left: 15%;
+  padding-right: 15%;
   display: flex;
   justify-content: space-around;
   margin-bottom: 20px;
@@ -309,8 +316,14 @@ button:hover {
 
 .question-item {
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 将子元素左对齐 */
   background-color: white;
-  width: 1200px;
+  width: 50%;
+  border: 1px solid lightblue;
+  padding-left: 5%;
+  
 }
 
 .question-header {

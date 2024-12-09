@@ -8,6 +8,7 @@ const filledQuestionnaireList = ref([]);  // 响应式变量，存储用户数�
 onMounted(async () => {
     const res = await userGetFilledQuestionnaireList();
     filledQuestionnaireList.value = res.data;
+    console.log("filledQuestionnaireList.value",filledQuestionnaireList.value)
 })
 
 </script>
@@ -20,7 +21,7 @@ onMounted(async () => {
         </div>
           <div class="showQues">
             <ul class="infinite-list" style="overflow: auto">
-            <li v-for="(questionnaire, index) in filledQuestionnaireList" :key="index" class="infinite-list-item">
+            <li v-for="(questionnaire, index) in filledQuestionnaireList.records" :key="index" class="infinite-list-item">
                 <div class="name-description">
                     <div class="left-content">
                     <span class="title">{{ questionnaire.title }}</span>

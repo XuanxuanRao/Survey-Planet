@@ -1,5 +1,5 @@
 <script setup>
-import { userGetQuestionnaireResult } from '@/api/questionnaire'
+import { userGetQuestionnaireResult,userGetQuestionnaire } from '@/api/questionnaire'
 import { onMounted, ref, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import{Download,Check,Close} from '@element-plus/icons-vue'
@@ -15,6 +15,7 @@ const rid = route.query.rid
 const fileContent = ref(''); // 用于存储文件内容
 const fileContent1 = ref(''); // 用于存储文件内容
 const fileContent2 = ref(''); // 用于存储文件内容
+const type=ref()
 const fetchFileContent = async (url) => {
       try {
         const response = await fetch(url);
@@ -59,6 +60,12 @@ const fetchFileContent2 = async (url) => {
 const fetchData = async () => {
   try {
     const res = await userGetQuestionnaireResult(rid)
+    console.log("res",res)
+    const sid=res.data.sid;
+    const res1= await userGetQuestionnaire(sid);
+    console.log("res1",res1)
+    type.value=res1.data.type
+    console.log("type.value",type.value=='normal')
     if (res.msg !== "SUBMIT_IS_BEEN_PROCESSED") {
       clearInterval(intervalId); // 停止请求
       response.value = res.data;
@@ -75,17 +82,6 @@ const fetchData = async () => {
               console.log("item.a",item.a);
               // 特殊处理 item.status
               switch (item.judge.status) {
-    //             case -3: return "输出格式错误";
-    // case -2: return "编译错误";
-    // case -1: return "答案错误";
-    // case 0: return "通过";
-    // case 1: return "CPU时间超出限制";
-    // case 2: return "真实时间超出限制";
-    // case 3: return "空间超出限制";
-    // case 4: return "运行错误";
-    // case 5: return "系统错误";
-    // case 10: return "提交失败";
-    // default: return "未知状态";
                   case 10: 
                       item.a[0].status ="提交失败";
                       break;
@@ -198,7 +194,7 @@ const toggleUrls = async(index,test1) => {
 <template>
   <div v-if="response">
     <h1 style="margin-left: 45.5%;">结果信息</h1>
-    <div class="score-card">
+    <div class="score-card" v-if="type=='exam'">
       <div class="score">{{ response.grade }}</div>
       <div class="total">总分{{ total }}
     </div>
@@ -207,7 +203,30 @@ const toggleUrls = async(index,test1) => {
     
     <div  v-if="isShowDetail">
       <div class="lookUnder" v-for="(item, index) in response.items" :key="index">
-        <template class="item" v-if="item.question.type === 'single_choice'">
+        <template class="item" v-if="item.question.type === 'single_choice' && type=='normal' ">
+          <!-- <div> -->
+            <h3>
+            Q{{ index + 1 }} {{ item.question.title }} (单选题)
+            </h3>
+            <h4>问题描述：{{ item.question.description }} <br></h4>
+          <!-- </div> -->
+           
+          <!-- <div> -->
+              <el-radio-group block>
+                <el-radio
+                v-for="(option, optIndex) in item.question.options"
+                :key="optIndex"
+                :value="option"
+                :class="{ 'correct-answer': item.content.includes(option),                          
+                          'block-radio': true }"
+                >
+                {{ option }}
+                
+                </el-radio>
+              </el-radio-group>
+        </template>
+        
+        <template class="item" v-if="item.question.type === 'single_choice' && type=='exam' ">
           <!-- <div> -->
             <h3>
             Q{{ index + 1 }} {{ item.question.title }} (单选题)
@@ -222,7 +241,7 @@ const toggleUrls = async(index,test1) => {
                 v-for="(option, optIndex) in item.question.options"
                 :key="optIndex"
                 :value="option"
-                :class="{ 'correct-answer': item.content.includes(option),
+                :class="{ 'correct-answer': item.content.includes(option)&& item.answer.includes(option),
                           'wrong-answer': !item.answer.includes(option) && item.content.includes(option) ,
                           'block-radio': true }"
                 style="display: block;"
@@ -251,10 +270,31 @@ const toggleUrls = async(index,test1) => {
           </div>
         </template>
 
-        <template class="item" v-if="item.question.type === 'multiple_choice'">
+        <template class="item" v-if="item.question.type === 'multiple_choice' &&type=='normal'">
           <h3>
-            Q{{ index + 1 }} {{ item.question.title }} (多选题)&nbsp;&nbsp;&nbsp;分值{{ item.question.score }}分<br> 
+            Q{{ index + 1 }} {{ item.question.title }} (多选题)&nbsp;&nbsp;&nbsp;<br> 
             
+          </h3>
+          <h4>问题描述：{{ item.question.description }} <br></h4>
+          <el-radio-group block>
+                <el-radio
+                v-for="(option, optIndex) in item.question.options"
+                :key="optIndex"
+                :value="option"
+                :class="{ 'correct-answer': item.content.includes(option),                          
+                          'block-radio': true }"
+                style="display: block;"
+                >
+                {{ option }}
+                
+                </el-radio>
+              </el-radio-group>
+          
+        </template>
+
+        <template class="item" v-if="item.question.type === 'multiple_choice' &&type=='exam'">
+          <h3>
+            Q{{ index + 1 }} {{ item.question.title }} (多选题)&nbsp;&nbsp;&nbsp;分值{{ item.question.score }}分<br>            
           </h3>
           <h4>问题描述：{{ item.question.description }} <br></h4>
           <el-checkbox-group>
@@ -272,8 +312,8 @@ const toggleUrls = async(index,test1) => {
           <div v-if="item.grade==item.question.score">
               <span style="color: green;">回答正确</span>
               <span style="margin-left: 50%; color: green;">+{{ item.grade }}分</span>
-            </div>
-            <div v-if="item.grade!=item.question.score">
+          </div>
+          <div v-if="item.grade!=item.question.score">
               <span style="color: red;">回答错误</span>
               <span style="margin-left: 50%; color: red;">+{{ item.grade }}分</span>
           </div>
@@ -286,18 +326,42 @@ const toggleUrls = async(index,test1) => {
           </div>
         </template>
 
-        <template class="item" v-if="item.question.type === 'fill_blank'">
+        <template class="item" v-if="item.question.type === 'fill_blank' && type=='normal'">
           <h3>
-            Q{{ index + 1 }} {{ item.question.title }} (填空题)&nbsp;&nbsp;&nbsp;分值{{ item.grade }}分<br> <br>
+            Q{{ index + 1 }} {{ item.question.title }} (填空题)&nbsp;&nbsp;&nbsp;<br>
             
           </h3>
           <h4>问题描述：{{ item.question.description }} <br>
             <div v-if="item.content">
               你的答案：{{ item.content.join(", ") }}
             </div>
+          </h4>
+        </template>
+
+        <template class="item" v-if="item.question.type === 'fill_blank' && type=='exam'">
+          <h3>
+            Q{{ index + 1 }} {{ item.question.title }} (填空题)&nbsp;&nbsp;&nbsp;分值{{ item.question.score }}分<br>
+            
+          </h3>
+          <h4>
+            <div>问题描述：{{ item.question.description }}</div>
+            <br>
+            <div v-if="item.content">
+              你的答案：{{ item.content.join(", ") }}
+            </div>
+            <br>
             <!-- <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div> -->
             <div v-if="item.answer">
               正确答案：{{ item.answer.join(", ") }}
+            </div>
+            <br>
+            <div v-if="item.grade==item.question.score">
+                <span style="color: green;">回答正确</span>
+                <span style="margin-left: 50%; color: green;">+{{ item.grade }}分</span>
+            </div>
+            <div v-if="item.grade!=item.question.score">
+                <span style="color: red;">回答错误</span>
+                <span style="margin-left: 50%; color: red;">+{{ item.grade }}分</span>
             </div>
           </h4>
         </template>
@@ -308,11 +372,12 @@ const toggleUrls = async(index,test1) => {
             问题描述：{{ item.question.description }} <br>
             <!-- <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div> -->
           </h4>
+          <a href="item.content[0]">下载文件<el-icon><Download /></el-icon></a>
         </template>
 
         <template class="item" v-if="item.question.type === 'code'">
           <h3>
-            Q{{ index + 1 }} {{ item.question.title }} (代码题) &nbsp;&nbsp;&nbsp;分值{{ item.grade }}分<br><br>
+            Q{{ index + 1 }} {{ item.question.title }} (代码题) &nbsp;&nbsp;&nbsp;分值{{ item.question.score }}分<br><br>
             
           </h3>
           <h4>

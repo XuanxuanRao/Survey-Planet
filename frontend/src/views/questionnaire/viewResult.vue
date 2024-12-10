@@ -16,21 +16,24 @@ const fileContent = ref(''); // 用于存储文件内容
 const fileContent1 = ref(''); // 用于存储文件内容
 const fileContent2 = ref(''); // 用于存储文件内容
 const type=ref()
-const fetchFileContent = async (url) => {
+const fetchFileContent = async (url,test) => {
       try {
         const response = await fetch(url);
-        console.log("response",response);
+        console.log("response1",response);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
+
         fileContent.value = await response.text(); // 获取文件内容并存储
-        console.log("fileContent.value",fileContent.value)
+        console.log("test",test)
+        test.inputContent=fileContent.value;
+        console.log("test",test)
       } catch (error) {
         console.error('Error fetching file:', error);
       }
 };
 
-const fetchFileContent1 = async (url) => {
+const fetchFileContent1 = async (url,test) => {
       try {
         const response = await fetch(url);
         console.log("response",response);
@@ -38,6 +41,7 @@ const fetchFileContent1 = async (url) => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         fileContent1.value = await response.text(); // 获取文件内容并存储
+        test.outputContent=fileContent1.value;
         console.log("fileContent1.value",fileContent1.value)
       } catch (error) {
         console.error('Error fetching file:', error);
@@ -183,8 +187,8 @@ const visibleUrls = ref({})
 
 const toggleUrls = async(index,test1) => {
   visibleUrls.value[index] = !visibleUrls.value[index];
-  fetchFileContent(test1.inputDataUrl);
-  fetchFileContent1(test1.outputDataUrl);
+  fetchFileContent(test1.inputDataUrl,test1);
+  fetchFileContent1(test1.outputDataUrl,test1);
   // fetchFileContent2(test1.userOutput);
 
 }
@@ -428,13 +432,13 @@ const toggleUrls = async(index,test1) => {
                 <!-- <span>点击下载:</span> -->
                 <!-- {{test.inputDataUrl}} -->
                 
-                <h4 style="color: black;" @click="fetchFileContent(test.inputDataUrl)">标准输入：
+                <h4 style="color: black;" @click="fetchFileContent(test.inputDataUrl,test)">标准输入：
                   <!-- <i class="fas fa-download"></i> -->
                   <a style="margin-left: 500px;" :href="test.inputDataUrl" target="_blank"><el-icon><Download /></el-icon></a>
                   <br><el-input
                     type="textarea"
                     :rows="5"
-                    v-model="fileContent"
+                    v-model="test.inputContent"
                     placeholder="文件内容"
                     style="width: 600px;"
                   ></el-input></h4>
@@ -444,7 +448,7 @@ const toggleUrls = async(index,test1) => {
                   <br><el-input
                     type="textarea"
                     :rows="5"
-                    v-model="fileContent1"
+                    v-model="test.outputContent"
                     placeholder="文件内容"
                     style="width: 600px;"
                   ></el-input></h4>
@@ -488,7 +492,7 @@ const toggleUrls = async(index,test1) => {
 .test-case-header { display: flex; align-items: center; justify-content: space-between; }
 .test-case-details { display: flex; align-items: center; gap: 15px; }
 .test-case-index { font-weight: bold; }
-.status { font-weight: bold; }
+.status { font-weight: bold;width: 10%;display: flex;justify-content: space-between; /* 左右对齐 */ }
 .status.passed { color: green; }
 .status.failed { color: red; }
 

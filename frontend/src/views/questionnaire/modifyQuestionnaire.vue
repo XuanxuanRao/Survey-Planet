@@ -240,6 +240,20 @@ const uploadHeaders = computed(() => {
   }
 })
 
+// 设置答案
+const setAnswer = (question, option) => {
+  if (question.type === 'single_choice') {
+    question.answer = [option]  // 单选题只允许一个答案
+  } else if (question.type === 'multiple_choice') {
+    const answerIndex = question.answer.indexOf(option)
+    if (answerIndex === -1) {
+      question.answer.push(option)  // 添加答案
+    } else {
+      question.answer.splice(answerIndex, 1)  // 取消答案
+    }
+  }
+}
+
 </script>
 
 <template>
@@ -248,13 +262,6 @@ const uploadHeaders = computed(() => {
     
     <div class="question-list">
       <div v-for="(question, index) in questions" :key="index" class="question-item">
-        <div class="question-header">
-          <button @click="moveUp(index)" v-if="index !== 0"><el-icon><ArrowUp /></el-icon>上移</button>
-          <button @click="moveDown(index)" v-if="index !== questions.length - 1"><el-icon><ArrowDownBold /></el-icon>下移</button>
-          <button @click="removeQuestion(index)"><el-icon><CloseBold /></el-icon>删除问题</button>
-          <button @click="question.required = !question.required"><el-icon><QuestionFilled /></el-icon>{{ question.required ? '必填' : '非必填' }}</button>
-        </div>
-        
         <template v-if="question.type === 'single_choice' || question.type === 'multiple_choice'">
           <h4>Q{{ index + 1 }} {{ question.type === 'single_choice' ? '单选题' : '多选题' }}</h4>
           <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
@@ -331,38 +338,52 @@ const uploadHeaders = computed(() => {
                 <el-option label="C" value="C"></el-option>
             </el-select>
 
-             <!-- 上传 .in 文件 -->         
-            <el-upload
-              :before-upload="beforeUploadIn"
-              action="http://59.110.163.198:8088/api/common/upload"
-              :headers="uploadHeaders"
-              :on-success="handleUploadSuccessIn(question)"
-              :on-error="handleUploadError"
-              :show-file-list="true"
-              :on-remove="(file) => handleFileRemove(file, question, 'input')"
-            >
-            <el-button>上传 .in 文件</el-button>
-            </el-upload>
-  
-            <!-- 上传 .out 文件 -->
-            <el-upload
-              :before-upload="beforeUploadOut"
-              action="http://59.110.163.198:8088/api/common/upload"
-              :headers="uploadHeaders"
-              :on-success="handleUploadSuccessOut(question)"
-              :on-error="handleUploadError"
-              :show-file-list="true"
-              :on-remove="(file) => handleFileRemove(file, question, 'output')"
-            >
-            <el-button>上传 .out 文件</el-button>
-            </el-upload>
+             <!-- 上传 .in 文件 -->    
+             <div style="display: flex;">
+              <el-upload
+                :before-upload="beforeUploadIn"
+                action="http://59.110.163.198:8088/api/common/upload"
+                :headers="uploadHeaders"
+                :on-success="handleUploadSuccessIn(question)"
+                :on-error="handleUploadError"
+                :show-file-list="true"
+                :on-remove="(file) => handleFileRemove(file, question, 'input')"
+              >
+              <el-button>上传 .in 文件</el-button>
+              </el-upload>
+    
+              <!-- 上传 .out 文件 -->
+              <el-upload
+                :before-upload="beforeUploadOut"
+                action="http://59.110.163.198:8088/api/common/upload"
+                :headers="uploadHeaders"
+                :on-success="handleUploadSuccessOut(question)"
+                :on-error="handleUploadError"
+                :show-file-list="true"
+                :on-remove="(file) => handleFileRemove(file, question, 'output')"
+              >
+              <el-button>上传 .out 文件</el-button>
+              </el-upload>
+             </div>     
+            
         </template>
+        <div class="question-header">
+          <!-- 上移、下移按钮 -->
+          <button @click="moveUp(index)" v-if="index !== 0 && (!isEditing)" style="margin: 10px;"><el-icon><ArrowUp /></el-icon>上移</button>
+          <button @click="moveDown(index)" v-if="index !== questions.length - 1 && !isEditing" style="margin: 10px;" ><el-icon><ArrowDownBold /></el-icon>下移</button>
+          <!-- 删除问题按钮 -->
+          <button @click="removeQuestion(index)" v-if="!isEditing" style="margin: 10px;"><el-icon><CloseBold /></el-icon>删除问题</button>
+          <!-- 是否必填按钮 -->
+          <button @click="question.required = !question.required" v-if="!isEditing" style="margin: 10px;"><el-icon><QuestionFilled /></el-icon>是否必填</button>
+          <button @click="isEditing=flase" v-if="isEditing" style="margin: 10px;">完成编辑</button>
+        </div>   
       </div>
+      <h3>点击添加问题</h3>
     </div>
 
 
     <div v-if="isOpen === false">
-      <h3>点击添加问题</h3>
+      
       <div class="question-types">
         <button @click="addQuestion('single_choice')"><el-icon><HelpFilled /></el-icon>单选题</button>
         <button @click="addQuestion('multiple_choice')"><el-icon><CircleCheckFilled /></el-icon>多选题</button>
@@ -370,19 +391,19 @@ const uploadHeaders = computed(() => {
         <button v-if="type === 'normol'" @click="addQuestion('file')"><el-icon><Edit /></el-icon>文件上传题</button>
         <button v-if="type === 'exam'" @click="addQuestion('code')"><el-icon><Edit /></el-icon>代码题</button>
       </div>
-
-      <button @click="saveSurvey"><el-icon><Checked /></el-icon>保存问卷</button>
+      <div style="display: flex;flex-direction: column; align-items: center; ">
+        <button @click="saveSurvey"><el-icon><Checked /></el-icon>保存问卷</button>
+      </div>
     </div>
 
-    <div class="survey-data">
-      <h3>问卷数据</h3>
-      <pre>{{ surveyData }}</pre>
-    </div>
+    
   </div>
 </template>
 
 <style scoped>
 .question-types {
+  padding-left: 20%;
+  padding-right: 20%;
   display: flex;
   justify-content: space-around;
   margin-bottom: 20px;
@@ -401,11 +422,21 @@ button:hover {
 
 .question-list {
   margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .question-item {
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 将子元素左对齐 */
   background-color: white;
+  width: 50%;
+  border: 1px solid lightblue;
+  padding-left: 5%;
+  
 }
 
 .question-header {

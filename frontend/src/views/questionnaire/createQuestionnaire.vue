@@ -129,6 +129,7 @@ onMounted(async () => {
                                         '', 
                                         surveyData.value)
     qusetionnaireId.value = res.data
+    console.log("res",res)
     localStorage.setItem('qusetionnaireId', qusetionnaireId.value)
   }
 })
@@ -143,7 +144,7 @@ onMounted(async () => {
     
     <!-- 显示添加的问题 -->
     <div class="question-list">
-      <h2>问卷名称</h2>
+      <h1>{{ questionnaireTitle }}</h1>
       <div v-for="(question, index) in questions" :key="index" class="question-item">        
         <!-- 根据问题类型渲染不同的题目 -->
         <template v-if="question.type === 'single_choice' || question.type === 'multiple_choice'">
@@ -223,17 +224,19 @@ onMounted(async () => {
           <div>
             
           </div>
-          <div>上传文件大小(MB):&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<el-input-number 
-            @focus="isEditingWenjian = true" 
-                @blur="isEditingWenjian = false"
-              v-model="question.maxFileSize" 
-              placeholder="上传文件大小"
-              :min="1" 
-              :max="100"  
-            /></div>
+          
             
           <el-input @focus="isEditingWenjian = true" style="width: 500px;"
                 @blur="isEditingWenjian = false" v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
+                <br>
+          <div>上传文件大小(MB):&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<el-input-number 
+          @focus="isEditingWenjian = true" 
+              @blur="isEditingWenjian = false"
+            v-model="question.maxFileSize" 
+            placeholder="上传文件大小"
+            :min="1" 
+            :max="100"  
+          /></div>
           <div class="question-header">
             <!-- 上移、下移按钮 -->
             <button @click="moveUp(index)" v-if="index !== 0 && (!isEditingWenjian)" style="margin: 10px;"><el-icon><ArrowUp /></el-icon>上移</button>
@@ -287,8 +290,8 @@ onMounted(async () => {
 
 <style scoped>
 .question-types {
-  padding-left: 15%;
-  padding-right: 15%;
+  padding-left: 20%;
+  padding-right: 20%;
   display: flex;
   justify-content: space-around;
   margin-bottom: 20px;

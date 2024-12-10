@@ -270,9 +270,10 @@ const uploadHeaders = computed(() => {
 
 <template>
   <div>
-    <h2>{{questionnaireTitle}}</h2>
+    
     
     <div class="question-list">
+      <h1>{{questionnaireTitle}}</h1>
       <div v-for="(question, index) in questions" :key="index" class="question-item">
         <template v-if="question.type === 'single_choice' || question.type === 'multiple_choice'">
           <h4>
@@ -350,7 +351,7 @@ const uploadHeaders = computed(() => {
             <!-- 删除问题按钮 -->
             <button @click="removeQuestion(index)" v-if="!isEditingTianKong" style="margin: 10px;"><el-icon><CloseBold /></el-icon>删除问题</button>
             <!-- 是否必填按钮 -->
-            <button @click="question.required = true" v-if="!isEditingTianKong" style="margin: 10px;"><el-icon><QuestionFilled /></el-icon>是否必填</button>
+            <button @click="question.required = !question.required" v-if="!isEditingTianKong" style="margin: 10px;"><el-icon><QuestionFilled /></el-icon>是否必填</button>
             <button @click="isEditing=flase" v-if="isEditingTianKong" style="margin: 10px;">完成编辑</button>
           </div>   
         </template>
@@ -391,7 +392,7 @@ const uploadHeaders = computed(() => {
             /></div>
             
 
-            <div>选择支持的编程语言:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<el-select  @focus="isEditingWenjian = true" 
+            <div style="width: 100%;">选择支持的编程语言:<el-select  @focus="isEditingWenjian = true" 
               @blur="isEditingWenjian = false"
               v-model="question.languages" 
               placeholder="选择编程语言" 
@@ -404,36 +405,38 @@ const uploadHeaders = computed(() => {
                 <el-option label="C" value="C"></el-option>
             </el-select></div>
             
-
-             <!-- 上传 .in 文件 -->         
-            <el-upload @focus="isEditingWenjian = true" 
-              @blur="isEditingWenjian = false"
-              :before-upload="beforeUploadIn"
-              action="http://59.110.163.198:8088/api/common/upload"
-              :headers="uploadHeaders"
-              :on-success="handleUploadSuccessIn(question)"
-              :on-error="handleUploadError"
-              :show-file-list="true"
-              :on-remove="(file) => handleFileRemove(file, question, 'input')"
-            >
-            <el-button @focus="isEditingWenjian = true" 
-                  @blur="isEditingWenjian = false"> 上传 .in 文件</el-button>
-            </el-upload>
-  
-            <!-- 上传 .out 文件 -->
-            <el-upload @focus="isEditingWenjian = true" 
-              @blur="isEditingWenjian = false"
-              :before-upload="beforeUploadOut"
-              action="http://59.110.163.198:8088/api/common/upload"
-              :headers="uploadHeaders"
-              :on-success="handleUploadSuccessOut(question)"
-              :on-error="handleUploadError"
-              :show-file-list="true"
-              :on-remove="(file) => handleFileRemove(file, question, 'output')"
-            >
-            <el-button @focus="isEditingWenjian = true" 
-                  @blur="isEditingWenjian = false">上传 .out 文件</el-button>
-            </el-upload>
+            <div style="display: flex;">
+                <!-- 上传 .in 文件 -->         
+              <el-upload @focus="isEditingWenjian = true" 
+                @blur="isEditingWenjian = false"
+                :before-upload="beforeUploadIn"
+                action="http://59.110.163.198:8088/api/common/upload"
+                :headers="uploadHeaders"
+                :on-success="handleUploadSuccessIn(question)"
+                :on-error="handleUploadError"
+                :show-file-list="true"
+                :on-remove="(file) => handleFileRemove(file, question, 'input')"
+              >
+              <el-button @focus="isEditingWenjian = true" 
+                    @blur="isEditingWenjian = false"> 上传 .in 文件</el-button>
+              </el-upload>
+    
+              <!-- 上传 .out 文件 -->
+              <el-upload @focus="isEditingWenjian = true" 
+                @blur="isEditingWenjian = false"
+                :before-upload="beforeUploadOut"
+                action="http://59.110.163.198:8088/api/common/upload"
+                :headers="uploadHeaders"
+                :on-success="handleUploadSuccessOut(question)"
+                :on-error="handleUploadError"
+                :show-file-list="true"
+                :on-remove="(file) => handleFileRemove(file, question, 'output')"
+              >
+              <el-button @focus="isEditingWenjian = true" 
+                    @blur="isEditingWenjian = false">上传 .out 文件</el-button>
+              </el-upload>
+            </div>
+             
             <div class="question-header">
               <el-input-number @focus="isEditingWenjian = true" 
                   @blur="isEditingWenjian = false" v-model="question.score" placeholder="分数" :min="1"/>
@@ -443,33 +446,38 @@ const uploadHeaders = computed(() => {
               <!-- 删除问题按钮 -->
               <button @click="removeQuestion(index)" v-if="!isEditingWenjian" style="margin: 10px;"><el-icon><CloseBold /></el-icon>删除问题</button>
               <!-- 是否必填按钮 -->
-              <button @click="question.required = true" v-if="!isEditingWenjian" style="margin: 10px;"><el-icon><QuestionFilled /></el-icon>是否必填</button>
+              <button @click="question.required = !question.required" v-if="!isEditingWenjian" style="margin: 10px;"><el-icon><QuestionFilled /></el-icon>是否必填</button>
               <button @click="isEditing=flase" v-if="isEditingWenjian" style="margin: 10px;">完成编辑</button>
             </div>
         </template>
         
       </div>
+      <h3>点击添加问题</h3>
     </div>
 
-    <h3>点击添加问题</h3>
+    
     <div class="question-types">
-      <button @click="addQuestion('single_choice')"  ><el-icon><HelpFilled /></el-icon>单选题</button>
+      <button @click="addQuestion('single_choice')" ><el-icon><HelpFilled /></el-icon>单选题</button>
+      
       <button @click="addQuestion('multiple_choice')"><el-icon><CircleCheckFilled /></el-icon>多选题</button>
+      
       <button @click="addQuestion('fill_blank')"><el-icon><Edit /></el-icon>填空题</button>
-      <button @click="addQuestion('code')"><el-icon><Edit /></el-icon>代码题</button>
+      
+      <button @click="addQuestion('file')"><el-icon><Edit /></el-icon>文件上传题</button>
     </div>
-
-    <button @click="saveExam" ><el-icon><Checked /></el-icon>保存问卷</button>
-
-    <div class="exam-data">
-      <h3>考试数据</h3>
-      <pre>{{ examData }}</pre>
+    <div style="display: flex;flex-direction: column; align-items: center; ">
+      <button @click="saveExam" ><el-icon><Checked /></el-icon>保存问卷</button>
     </div>
+   
+
+    
   </div>
 </template>
 
 <style scoped>
 .question-types {
+  padding-left: 20%;
+  padding-right: 20%;
   display: flex;
   justify-content: space-around;
   margin-bottom: 20px;
@@ -496,8 +504,14 @@ button:hover {
 
 .question-item {
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 将子元素左对齐 */
   background-color: white;
-  width: 1200px;
+  width: 50%;
+  border: 1px solid lightblue;
+  padding-left: 5%;
+  
 }
 
 .question-header {

@@ -33,12 +33,16 @@ const switchMode = (newMode) => {
     router.push({ path: '/releaseSurvey', query: { id: sid } });
   }
 };
+
+const type = ref(null);
 // 加载问卷题目
 const userGetQuestions = async () => {
   try {
     const res = await userGetQuestionnaire(sid);
     if (res.msg === "success") {
       questions.value = res.data.questions;
+      type.value = res.data.type;
+
     } else {
       console.error("获取问卷失败");
     }
@@ -223,12 +227,12 @@ const setValidFilter = (valid) => {
       <table>
         <thead>
           <tr>
-            <th>操作</th>
+            <th style="display: flex; align-items: center; justify-content: center;">操作</th>
             <th>序号</th>
             <th>用户ID</th>
             <th>提交时间</th>
-            <th>更新时间</th>
-            <th>答卷总分</th>
+
+            <th v-if="type !== 'normal'">答卷总分</th>
 
             <th v-for="(question, index) in questions" :key="question.qid">{{ question.title }}</th>
           </tr>
@@ -236,15 +240,20 @@ const setValidFilter = (valid) => {
         <tbody>
           <tr v-for="(record, index) in responseData.records" :key="record.rid">
             <td>
-              <span @click="deleteAnswer(record.rid)" v-if="queryParams.valid === true">删除</span>
-              <span @click="recoverAnswer(record.rid)" v-if="queryParams.valid === false">恢复</span>
-              <span @click="openDetailDialog(record.rid)">查看</span>
+            <el-button @click="deleteAnswer(record.rid)" v-if="queryParams.valid === true">
+              删除
+            </el-button>
+            <el-button @click="recoverAnswer(record.rid)" v-if="queryParams.valid === false">
+              恢复
+            </el-button>
+            <el-button @click="openDetailDialog(record.rid)">
+              查看
+            </el-button>
             </td>
             <td>{{ (queryParams.pageNum - 1) * queryParams.pageSize + index + 1 }}</td>
             <td>{{ record.uid }}</td>
             <td>{{ record.createTime }}</td>
-            <td>{{ record.updateTime }}</td>
-            <td>{{ record.grade ?? "N/A" }}</td>
+            <td v-if="type !== 'normal'">{{ record.grade ?? "N/A" }}</td>
 
             <td v-for="(item, idx) in record.items" :key="item.qid">
               <!-- <div v-for="(answer, index) in item.content" :key="index">

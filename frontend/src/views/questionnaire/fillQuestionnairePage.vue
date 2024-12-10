@@ -2,6 +2,7 @@
 
 import { ref, onMounted } from 'vue'
 import { userGetFilledQuestionnaireList } from '@/api/questionnaire'
+import router from "@/router";
 
 const filledQuestionnaireList = ref([]);  // 响应式变量，存储用户数据
 
@@ -10,6 +11,11 @@ onMounted(async () => {
     filledQuestionnaireList.value = res.data;
     console.log("filledQuestionnaireList.value",filledQuestionnaireList.value)
 })
+
+const checkQuestionnaire = (rid) => {
+    console.log("id",rid)
+    router.push({ path: '/viewResult' , query: { rid: rid } });
+}
 
 </script>
 
@@ -30,6 +36,7 @@ onMounted(async () => {
                         问卷描述：{{ questionnaire.description }}
                         {{ questionnaire.state }}
                         {{ questionnaire.type }}
+                        <el-button type="primary" @click="checkQuestionnaire(questionnaire.rid)">查看填写结果</el-button>
                     </div>
                 </div>
             </li>

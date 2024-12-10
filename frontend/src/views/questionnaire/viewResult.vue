@@ -372,7 +372,7 @@ const toggleUrls = async(index,test1) => {
             问题描述：{{ item.question.description }} <br>
             <!-- <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div> -->
           </h4>
-          <a href="item.content[0]">下载文件<el-icon><Download /></el-icon></a>
+          <a :href="item.content[0]">下载文件<el-icon><Download /></el-icon></a>
         </template>
 
         <template class="item" v-if="item.question.type === 'code'">

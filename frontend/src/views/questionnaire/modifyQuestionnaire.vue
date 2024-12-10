@@ -264,7 +264,7 @@ const setAnswer = (question, option) => {
       <h2>{{ title }}</h2>
       <div v-for="(question, index) in questions" :key="index" class="question-item">
         <template v-if="question.type === 'single_choice' || question.type === 'multiple_choice'">
-          <h4>Q{{ index + 1 }} {{ question.type === 'single_choice' ? '单选题' : '多选题' }}</h4>
+          <h4>{{ question.required == true ? "*" : "" }}Q{{ index + 1 }} {{ question.type === 'single_choice' ? '单选题' : '多选题' }}</h4>
           <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
           <el-input v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
           <el-input-number v-if="type === 'exam'" v-model="question.score" placeholder="分数" />
@@ -283,7 +283,7 @@ const setAnswer = (question, option) => {
         </template>
 
         <template v-if="question.type === 'fill_blank'">
-          <h4>Q{{ index + 1 }}填空题</h4>
+          <h4>{{ question.required == true ? "*" : "" }}Q{{ index + 1 }}填空题</h4>
           <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
           <el-input v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
           <el-input-number v-if="type === 'exam'" v-model="question.score" placeholder="分数" />
@@ -291,13 +291,13 @@ const setAnswer = (question, option) => {
         </template>
 
         <template v-if="question.type === 'file'">
-          <h4>Q{{ index + 1 }}文件上传题</h4>
+          <h4>{{ question.required == true ? "*" : "" }}Q{{ index + 1 }}文件上传题</h4>
           <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
           <el-input v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
         </template>
 
         <template v-if="question.type === 'code'">
-            <h4>Q{{ index + 1 }} 代码题</h4>
+            <h4>{{ question.required == true ? "*" : "" }}Q{{ index + 1 }} 代码题</h4>
             <div>
                 <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
             </div>

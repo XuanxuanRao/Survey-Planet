@@ -212,7 +212,16 @@ const followOues = async (id, notificationMode) => {
                     @mouseover="setActive(index)"
                     @mouseleave="setActive(null)"
                 >
-                  <h2 class="survey-name" @click="view(survey.sid)">{{ survey.title }}
+                  <h2 class="survey-name" @click="view(survey.sid)">
+                    <el-tooltip
+                      class="box-item"
+                      effect="light"
+                      :content= survey.type 
+                      placement="top-start"
+                    >
+                      {{ survey.title }}
+                    </el-tooltip>
+                    
                     <!-- <span v-if="survey.type=='exam'"><el-icon><Document /></el-icon></span>
                     <span v-if="survey.type=='normal'"><el-icon :size="20"><Position /></el-icon></span> -->
                     &nbsp;&nbsp;

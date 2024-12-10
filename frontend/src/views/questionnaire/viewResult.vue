@@ -18,16 +18,15 @@ const fileContent2 = ref(''); // 用于存储文件内容
 const type=ref()
 const fetchFileContent = async (url,test) => {
       try {
-        const response = await fetch(url);
-        console.log("response1",response);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        if(!test.hasOwnProperty('inputContent')){
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          fileContent.value = await response.text(); // 获取文件内容并存储
+          test.inputContent=fileContent.value;
         }
-
-        fileContent.value = await response.text(); // 获取文件内容并存储
-        console.log("test",test)
-        test.inputContent=fileContent.value;
-        console.log("test",test)
+        
       } catch (error) {
         console.error('Error fetching file:', error);
       }
@@ -35,14 +34,15 @@ const fetchFileContent = async (url,test) => {
 
 const fetchFileContent1 = async (url,test) => {
       try {
-        const response = await fetch(url);
-        console.log("response",response);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        fileContent1.value = await response.text(); // 获取文件内容并存储
-        test.outputContent=fileContent1.value;
-        console.log("fileContent1.value",fileContent1.value)
+        if(!test.hasOwnProperty('outputContent')){
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          fileContent1.value = await response.text(); // 获取文件内容并存储
+          test.outputContent=fileContent1.value;
+          }
+        
       } catch (error) {
         console.error('Error fetching file:', error);
       }

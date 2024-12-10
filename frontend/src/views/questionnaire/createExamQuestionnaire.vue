@@ -463,7 +463,7 @@ const uploadHeaders = computed(() => {
       
       <button @click="addQuestion('fill_blank')"><el-icon><Edit /></el-icon>填空题</button>
       
-      <button @click="addQuestion('file')"><el-icon><Edit /></el-icon>文件上传题</button>
+      <button @click="addQuestion('code')"><el-icon><Edit /></el-icon>代码题</button>
     </div>
     <div style="display: flex;flex-direction: column; align-items: center; ">
       <button @click="saveExam" ><el-icon><Checked /></el-icon>保存问卷</button>

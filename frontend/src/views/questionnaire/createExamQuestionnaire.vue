@@ -143,7 +143,9 @@ const saveExam = async() => {
 
   examData.value = [...questions.value] // 将当前问卷的问题和选项保存到 examData
   isSave.value = true
+  console.log("examId.value",examId.value)
   const res = await userModifyQuestionnaireList(examId.value, questionnaireType, questionnaireTitle, '', examData.value)
+  console.log("res",res)
   if(res.msg === 'success') {
     ElMessage.success('问卷已保存')
   } else {
@@ -181,9 +183,10 @@ onMounted(async () => {
   //   localStorage.setItem('examId', examId.value)
   // }
   examId.value = localStorage.getItem('examId')
-  console.log(examId.value)
+  console.log("examId.value",examId.value)
   if(examId.value === null) {
     const res = await userSendQuestionnaireList(questionnaireType, questionnaireTitle, '', examData.value)
+    console.log("res",res)
     examId.value = res.data
     localStorage.setItem('examId', examId.value)
   }

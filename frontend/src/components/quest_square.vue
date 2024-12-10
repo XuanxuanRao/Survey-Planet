@@ -241,7 +241,7 @@ const followOues = async (id, notificationMode) => {
                 </div>              
               </div>
                   <div class="example-pagination-block">                 
-                    <el-pagination style="margin-left: 120vh;"
+                    <el-pagination style="margin-left: 800px;"
                       v-model:current-page="currentPage"
                       :page-size="10"
                       layout="total,  prev, pager, next, jumper"
@@ -325,14 +325,6 @@ el-scrollbar{
 }
 
 .survey-item {
-  //display: flex;
-  //justify-content: space-between; /* 两端对齐 */
-  ////align-items: center;
-  //padding: 10px;
-  //border: 1px solid var(--border-color);
-  //margin: 5px;
-  //border-radius: 20px;
-  //align-items: center;
   position: relative;
   background-size: cover;
   background-position: center;

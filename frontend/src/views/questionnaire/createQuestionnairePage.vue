@@ -418,7 +418,7 @@ const deleteMessage = async(mid) => {
 
     <el-input
     v-model="questionnaireTitle"
-    style="width: 45vw; height: 40/700vh;"
+    style="width: 45vw; height: 5.5vh;"
     placeholder="请输入问卷名"
     clearable
     />
@@ -447,46 +447,7 @@ const deleteMessage = async(mid) => {
   <div id="square">
       <quest_square/>
   </div>
-  <!-- <div class="showQues">
-    <ul class="infinite-list" style="overflow: auto"> 
-      <li v-for="(questionnaire, index) in createdQuestionnaireList" :key="index" class="infinite-list-item">
-          <div class="name-description" @mouseenter="expand(index)" 
-           @mouseleave="collapse(index)">
-            <div class="left-content">
-              <el-tooltip  class="item" effect="light" :content="questionnaire.description" placement="top">
-                <span class="title" @click="view(questionnaire.sid)">
-                  {{ questionnaire.title }} - <span :class="questionnaire.type === 'normal' ? 'questionnaire-type-normal' : 'questionnaire-type-exam'">
-                                                {{ questionnaire.type === 'normal' ? '调查问卷' : '考试问卷' }}
-                                              </span>
-                </span>
-              </el-tooltip>             
-            </div>
-            <div style="margin-left: 500px;"></div>
-            <div class="right-content">
-              <span :class="questionnaire.state === 'open' ? 'dot-green' : 'dot-gray'"></span>
-              {{ questionnaire.state === 'open' ? '已发布' : '未发布' }}
-              &nbsp;
-              答卷:{{ questionnaire.fillNum }}
-              &nbsp;
-              {{ questionnaire.createTime }}
-            </div>
-          </div>
-          <div class="button-name-description" v-if="isCollapsed(index)" >
-            <div class="button-left-content">
-              <el-button :icon="Search" @click="analyseResult(questionnaire.sid)">查看</el-button>
-              <el-button :icon="Download" @click="exportResult(questionnaire.sid)">下载</el-button>
-              <el-button :icon="Delete" @click="deleteQuestionnaire(questionnaire.sid)">删除</el-button>
-              <el-button :icon="Edit" @click="modify(questionnaire.sid)">修改</el-button>
-            </div>
-            <div style="margin-left: 700px;"></div>
-            <div class="button-right-content">
-              <el-button v-if="questionnaire.state === 'close'" :icon="VideoPause" @click="shareOrCloseQuestionnaire(questionnaire.sid, questionnaire.state)">点击发布</el-button>
-              <el-button v-else :icon="VideoPlay" @click="shareOrCloseQuestionnaire(questionnaire.sid, questionnaire.state)">点击停止</el-button>
-            </div>
-          </div>
-      </li>
-    </ul>
-  </div> -->
+
       <!-- Dialog 弹框 -->
     <el-dialog v-model="dialogVisible" title="提示信息" width="30%" @close="dialogVisible = false">
       <span>{{ dialogMessage }}</span> <br>
@@ -503,9 +464,9 @@ const deleteMessage = async(mid) => {
   background: url('@/assets/img/2.jpg') no-repeat center center ; /* 背景图路径 */
   background-size: cover; /* 背景图覆盖 */
   background-position: center; /* 背景图居中 */
-  border-radius: 8/700vh; /* 圆角 */
-  padding: 10/700vh; /* 内边距 */
-  margin: 10/700vh 0; /* 外边距 */
+  border-radius: 8px; /* 圆角 */
+  padding: 10px; /* 内边距 */
+  margin: 10px 0; /* 外边距 */
   color: lightblue; /* 根据背景图片调整字体颜色 */
 }
 .demo-collapse {
@@ -523,11 +484,10 @@ const deleteMessage = async(mid) => {
   color: #a5aeb8;
 }
 .box {
-  margin-left: 50/700vh; /* 给侧边栏留出空间 */
-  margin-right: 10/700vh; /* 给侧边栏留出空间 */
+  margin-left: 2%; /* 给侧边栏留出空间 */
   margin-top: 20px;
   height: 90vh;
-  width: 180vh;
+  width: 80vw;
   background-color: #f0f0f0; 
   border: 1px solid #ccc; 
   border-radius: 5px; 
@@ -539,27 +499,7 @@ const deleteMessage = async(mid) => {
   margin-top: 20px;
 }
 
-.infinite-list {
-  border-radius: 10px;
-  background-color: white;
-  height: 65vh;
-  /* width: 80vh; */
-  padding: 20px;
-  margin: 0;
-  list-style: none;
-}
-.infinite-list .infinite-list-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100/700vh;
-  background: lightblue; /* 背景颜色 */
-  margin: 10px;
-  /* background: url('@/assets/img/2.jpg') no-repeat center center;
-  background-size: cover;
-  z-index: 20; */
-}
+
 
 .name-description {
   display: flex;
@@ -568,20 +508,6 @@ const deleteMessage = async(mid) => {
   margin-bottom: 10px;
   color:black;
   
-}
-
-.left-content {
-  flex: 1;
-  width: 250/700vh; /* 设置固定宽度 */
-  text-align: left;
-  white-space: nowrap; /* 防止内容换行 */
-}
-
-.right-content {
-  flex: 1;
-  width: 400/700vh; /* 设置固定宽度 */
-  text-align: right;
-  white-space: nowrap; /* 防止内容换行 */
 }
 
 .button-name-description {
@@ -621,16 +547,6 @@ const deleteMessage = async(mid) => {
   color: #007bff; /* 悬停时变为蓝色 */
 }
 
-
-.infinite-list .infinite-list-item + .list-item {
-  margin-top: 10px;
-}
-.spacing {
-  margin-right:600/700vh; /* 调整这个值以满足实际需求 */
-}
-.spacing2 {
-  margin-right:780/700vh; /* 调整这个值以满足实际需求 */
-}
 .button-group {
   display: flex;
   flex-direction: row;
@@ -677,8 +593,8 @@ const deleteMessage = async(mid) => {
 
 .custom-button {
   position: relative;
-  width: 100/700vh;
-  height: 45/700vh;
+  width: 100px;
+  height: 45px;
   text-align: center;
   line-height: 60/700vh;
   color: #fff;

@@ -258,9 +258,10 @@ const setAnswer = (question, option) => {
 
 <template>
   <div>
-    <h2>{{ title }}</h2>
+    
     
     <div class="question-list">
+      <h2>{{ title }}</h2>
       <div v-for="(question, index) in questions" :key="index" class="question-item">
         <template v-if="question.type === 'single_choice' || question.type === 'multiple_choice'">
           <h4>Q{{ index + 1 }} {{ question.type === 'single_choice' ? '单选题' : '多选题' }}</h4>

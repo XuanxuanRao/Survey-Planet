@@ -85,6 +85,7 @@ const saveSurvey = async() => {
   }
 
   surveyData.value = [...questions.value] // 将当前问卷的问题和选项保存到 surveyData
+  console.log("qusetionnaireId.value",qusetionnaireId.value)
   console.log(questionnaireTitle)
   console.log(questionnaireType)
   console.log('问卷数据已保存:', surveyData.value)
@@ -122,8 +123,9 @@ onBeforeRouteLeave((to, from, next) => {
 
 onMounted(async () => {
   qusetionnaireId.value = localStorage.getItem('qusetionnaireId')
-  console.log(qusetionnaireId.value)
+  console.log("qusetionnaireId.value",qusetionnaireId.value)
   if(qusetionnaireId.value === null) {
+    console.log("res")
     const res = await userSendQuestionnaireList(questionnaireType, 
                                         questionnaireTitle,
                                         '', 
@@ -180,7 +182,7 @@ onMounted(async () => {
               </el-input>
             </li>
           </ul> 
-          <div class="question-header">
+        <div class="question-header">
           <!-- 上移、下移按钮 -->
           <button @click="moveUp(index)" v-if="index !== 0 && (!isEditing)" style="margin: 10px;"><el-icon><ArrowUp /></el-icon>上移</button>
           <button @click="moveDown(index)" v-if="index !== questions.length - 1 && !isEditing" style="margin: 10px;" ><el-icon><ArrowDownBold /></el-icon>下移</button>

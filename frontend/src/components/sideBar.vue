@@ -64,105 +64,156 @@ export default {
 
 <template>
   <div
-    class="menu-wrapper"
-    :class="{ expanded: isExpanded }"
-    @mouseenter="expandSideBar"
-    @mouseleave="collapseSideBar"
+      class="menu-wrapper"
+      :class="{ expanded: isExpanded }"
+      @mouseenter="expandSideBar"
+      @mouseleave="collapseSideBar"
   >
-    <div class="menu-content">
-      <ul>
-        <li class="menu-item" @click="createQuestionnaire">
-          <el-icon class="menu-icon"><Tickets /></el-icon>
-          <span v-if="isExpanded" class="item-name">问卷中心</span>
-        </li>
-        <li class="menu-item" @click="fillQuestionnaire">
-          <el-icon class="menu-icon" ><EditPen /></el-icon>
-          <span v-if="isExpanded" class="item-name">填写历史</span>
-        </li>
-        <li class="menu-item" @click="userCenter">
-          <el-icon class="menu-icon"><User /></el-icon>
-          <span v-if="isExpanded" class="item-name">用户中心</span>
-        </li>
-        <li class="menu-item" @click="logout">
-          <el-icon class="menu-icon"><SwitchButton /></el-icon>
-          <span v-if="isExpanded" class="item-name">退出登录</span>
-        </li>
-      </ul>
+    <div class="content">   
+      <div class="menu-content">
+        <div class="menu-list">
+          <div class="menu-list-item" @click="createQuestionnaire">
+            <div class="block"></div>
+            <span class="iconfont" ><el-icon class="menu-icon"><Tickets /></el-icon></span>
+            <div class="item-name">问卷中心</div>
+          </div>
+          <div class="menu-list-item" @click="fillQuestionnaire">
+            <div class="block"></div>
+            <span class="iconfont" ><el-icon class="menu-icon" ><EditPen /></el-icon></span>
+            <div class="item-name">填写历史</div>
+          </div>
+          <div class="menu-list-item" @click="userCenter">
+            <div class="block"></div>
+            <span class="iconfont" ><el-icon class="menu-icon"><User /></el-icon></span>
+            <div class="item-name">用户中心</div>
+          </div>
+          <div class="menu-list-item" @click="logout">
+           
+            <span class="iconfont" ><el-icon class="menu-icon"><SwitchButton /></el-icon></span>
+            <div class="item-name">退出登录</div>  
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
 .menu-wrapper {
-  width: 70px; /* 折叠状态的宽度 */
-  height: 300px; /* 侧边栏高度 */
-  background-color: #f0f0f0; /* 淡灰色背景 */
-  border-radius: 30px;
-  transition: width 0.5s ease;
+  margin-left: 25px;
+  width: 70px;
+  height: 50%;
+  border-radius: 20px;
+  background-color: white;
+  padding: 10px;
+  box-sizing: border-box;
+  transition: width 0.6s;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  margin-top: 20px;
-  border: 1px solid lightblue;;
+}
+.menu-wrapper.expanded {
+  width: 140px;
 }
 
-.item-name {
-    
+.content .person-info {
+  margin-top: 20px;
+  white-space: nowrap;
+  img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+    vertical-align: middle;
+  }
+}
+.menu-wrapper.expanded .content .person-info .person-name {
+  opacity: 1;
+}
+
+.menu-content {
+  margin-top: 10px;
+}
+
+.menu-content .menu-list .menu-list-item {
+  font-family: Marmelad_Regular, SansSerif;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  height: 50px;
+  position: relative;
+  border-radius: 10px;
+  padding-left: 15px;
+  white-space: nowrap;
+  .block {
+    width: 600px;
+    height: 2500px;
+    background-color: red;
+    position: absolute;
+    right: 100px;
+    top: 100px;
+    transition: 0.5s;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    opacity: 0;
+  }
+
+  .item-name {
+    line-height: 50px;
     display: inline-block;
     margin-left: 10px;
     font-size: 15px;
+    color: rgb(131, 128, 155);
     font-weight: 100;
     transition: opacity 0.6s;
     opacity: 0;
   }
 
-.menu-wrapper.expanded {
-  width: 150px; /* 展开状态的宽度 */
-}
+  
 
-.menu-content {
-  padding: 10px;
+  .btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-block;
+    opacity: 0;
+    margin-left: 50px;
+    margin-top: 3px;
+    .check-ipt {
+      display: none;
+    }
+    .check-lable {
+      display: inline-block;
+      width: 40px;
+      height: 20px;
+      border-radius: 20px;
+      background-color: var(--theme-hover-color);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .check-lable::before {
+      display: inline-block;
+      content: "";
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: white;
+      position: absolute;
+      left: 3px;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: all 0.3s;
+    }
+    .check-ipt:checked + .check-lable::before {
+      left: 20px;
+      background: rgb(32, 30, 43);
+    }
+  }
 }
-
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  justify-content: center; /* 使内容在横向居中 */
-  padding: 25px 0;
-  color: black; /* 菜单项文字颜色 */
-  cursor: pointer;
-  transition: background-color 0.8s ease;
-}
-
-.menu-item.active {
-  color: black;
-  font-weight: bold;
-}
-
-.menu-item:hover {
-  background-color: #d9e2e390; /* 悬停背景颜色 */
-}
-
-.menu-icon {
-  margin-right: 10px; /* 图标与文本之间的间距 */
-  display: flex;
-  align-items: center; /* 图标垂直居中 */
-  justify-content: center; /* 图标水平居中 */
-}
-
-.menu-item span {
-  transition: opacity 0.3s ease; /* 添加渐变效果 */
-  opacity: 1; /* 默认可见 */
-}
-
-.menu-wrapper:not(.expanded) .menu-item span {
-  opacity: 0; /* 收缩时隐藏文本 */
-  width: 0; /* 确保文本占用空间为0 */
+.menu-wrapper.expanded .menu-content .menu-list .menu-list-item .item-name,
+.menu-wrapper.expanded .menu-content .menu-list .menu-list-item .btn {
+  opacity: 1;
 }
 </style>

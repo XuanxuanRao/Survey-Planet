@@ -16,7 +16,7 @@ import SideBar from '@/components/sideBar.vue';
     <!-- <h1>Survey Planet</h1> -->
   </div>
   <div class="container">
-    <SideBar />
+    <SideBar style="margin-top: 20px;"/>
     <div class="content">
       <router-view />
     </div>
@@ -31,6 +31,7 @@ import SideBar from '@/components/sideBar.vue';
 
 .content {
   margin-left: 20px; /* 给侧边栏留出空间 */
+  
   padding: 0px;
   flex-grow: 1; /* 让内容区域填满剩余空间 */
   transition: margin-left 0.5s ease; /* 过渡效果 */

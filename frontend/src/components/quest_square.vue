@@ -108,6 +108,9 @@ async function getQuePaper(page) {
     surveys.value.length = 0; // 清空 surveys.value 数组
     // 每次只展示10条
     const res = await getCreatedQuestionnaireList1(page);
+    res.data.records.forEach(item => {
+      item.createTime = item.createTime.replace('T', ' ');
+    })
     const quePapersFromResponse = res.data;
     total.value = quePapersFromResponse.total;
     console.log("quePapersFromResponse",quePapersFromResponse)

@@ -102,12 +102,9 @@ const dialogVisible2 = ref(false)
 
 // 点击“显示详情”按钮触发的函数
 async function showDetails() {
-  console.log('Show details');
-  console.log(socketData.value)
   dialogVisible1.value = false;
   if(socketData.value.mid) {
     const res = await userGetMessageDetail(socketData.value.mid)
-    console.log("as")
     if(res.msg === 'success') {
       res.data.createTime = res.data.createTime.replace('T', ' ');
       detailsData.value = res.data
@@ -121,22 +118,20 @@ async function showDetails() {
       item.createTime = item.createTime.replace('T', ' ');
     })
     detailsData.value = unreadMessage.value
-    // console.log("detailsData.value",detailsData.value)
     // detailsData.value.isRead = true;
-    // console.log("detailsData.value",detailsData.value)
     dialogVisible2.value = true
   }
 }
 
 async function loadMessageDetails(mid) {
-  console.log('Loading details for mid:', mid);
   const res = await userGetMessageDetail(mid);
   surveyTypeText.value = res.data.surveyType === 'normal' ? '调查' : '考试';
   res.data.createTime = res.data.createTime.replace('T', ' ');
-  console.log(res.data);
+  if (res.data.type == 'NEW_SUBMISSION') {
+    res.data.submitTime = res.data.submitTime.replace('T', ' ');
+  }
   if (res.msg === 'success') {
     detailsData.value = res.data
-    console.log("asd",detailsData.value)
   } else {
     ElMessage.error('Failed to load message details')
   }
@@ -160,10 +155,13 @@ async function handleReadStatusChange() {
 }
 
 // 在组件挂载时获取数据
-onMounted(async () => {
-    const res = await getCreatedQuestionnaireList();
-    createdQuestionnaireList.value = res.data;
-})
+// onMounted(async () => {
+//     const res = await getCreatedQuestionnaireList();
+//     res.data.forEach(item => {
+//       item.createTime = item.createTime.replace('T', ' ');
+//     })
+//     createdQuestionnaireList.value = res.data;
+// })
 
 const questionnaireTitle = ref('')  // 输入框的值
 const questionnaireType = ref('')  // 下拉框的值
@@ -185,8 +183,6 @@ const createQuestionnaire = () => {
       ElMessage.warning('问卷名和问卷类型不能为空');
     return
   }
-  console.log(questionnaireTitle.value)
-  console.log(questionnaireType.value)
   const dataToSend = { title: questionnaireTitle.value, type: questionnaireType.value };
   if(questionnaireType.value === 'exam') {
     router.push({ path: '/questionnaire/createExamQuestion', query: dataToSend })
@@ -196,72 +192,72 @@ const createQuestionnaire = () => {
 }
 
 const view = (id) => {
-  console.log(id)
   const dataToSend = {id: id};
   router.push({ path: '/questionnaire/viewQuestionnaire', query: dataToSend })
 }
 
 const modify = (id) => {
-  console.log(id)
   const dataToSend = {id: id};
   router.push({ path: '/questionnaire/modifyQuestionnaire', query: dataToSend })
 }
 
-const deleteQuestionnaire = async (id) => {
-  ElMessageBox.confirm(
-        '确认删除?', 
-        '提示', 
-        {
-          confirmButtonText: '删除',
-          cancelButtonText: '取消',
-          type: 'warning',
-        }
-      ).then(async() => {
-        const info = await userDeleteQuestionnaire(id);
-        console.log(info)
-        if (info.msg === 'success') {
-          ElMessage.success('删除成功')
-          const res = await getCreatedQuestionnaireList()
-          createdQuestionnaireList.value = res.data
-        } else {
-          ElMessage.error('删除失败');
-        }
-      }).catch(() => {
-        ElMessage.info('已取消删除');
-      })
-}
+// const deleteQuestionnaire = async (id) => {
+//   ElMessageBox.confirm(
+//         '确认删除?', 
+//         '提示', 
+//         {
+//           confirmButtonText: '删除',
+//           cancelButtonText: '取消',
+//           type: 'warning',
+//         }
+//       ).then(async() => {
+//         const info = await userDeleteQuestionnaire(id);
+//         console.log(info)
+//         if (info.msg === 'success') {
+//           ElMessage.success('删除成功')
+//           const res = await getCreatedQuestionnaireList()
+//           res.data.forEach(item => {
+//             item.createTime = item.createTime.replace('T', ' ');
+//           })
+//           createdQuestionnaireList.value = res.data
+//         } else {
+//           ElMessage.error('删除失败');
+//         }
+//       }).catch(() => {
+//         ElMessage.info('已取消删除');
+//       })
+// }
 
-const shareOrCloseQuestionnaire = async (id, state) => {
-  if(state === 'open') {
-    const res = await userCloseQuestionnaire(id);
-    console.log(res)
-    if (res.msg === 'success') {
-      ElMessage.success('关闭成功');
-    } else {
-      ElMessage.error('关闭失败');
-    }
-  } else if (state === 'close') {
-    const res = await userShareQuestionnaire(id);
-    console.log(res);
-    if (res.msg === 'success') {
-        showDialog(res.data)
-    } else {
-      ElMessage.error('分享失败');
-    }
-  }
-  const res = await getCreatedQuestionnaireList();
-  createdQuestionnaireList.value = res.data;
-}
+// const shareOrCloseQuestionnaire = async (id, state) => {
+//   if(state === 'open') {
+//     const res = await userCloseQuestionnaire(id);
+//     if (res.msg === 'success') {
+//       ElMessage.success('关闭成功');
+//     } else {
+//       ElMessage.error('关闭失败');
+//     }
+//   } else if (state === 'close') {
+//     const res = await userShareQuestionnaire(id);
+//     if (res.msg === 'success') {
+//         showDialog(res.data)
+//     } else {
+//       ElMessage.error('分享失败');
+//     }
+//   }
+//   const res = await getCreatedQuestionnaireList();
+//   res.data.forEach(item => {
+//     item.createTime = item.createTime.replace('T', ' ');
+//   })
+//   createdQuestionnaireList.value = res.data;
+// }
 
-const exportResult = async(id) => {
-  console.log(id)
-  userExportResult(id);
-}
-const analyseResult = (id) => {
-  console.log(id)
-  const dataToSend = {id: id};
-  router.push({ path: '/questionnaire/lookQuestionnaire', query: dataToSend })
-}
+// const exportResult = async(id) => {
+//   userExportResult(id);
+// }
+// const analyseResult = (id) => {
+//   const dataToSend = {id: id};
+//   router.push({ path: '/questionnaire/lookQuestionnaire', query: dataToSend })
+// }
 
 const isReadComputed = ref(!isRead.value)
 

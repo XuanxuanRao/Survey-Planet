@@ -64,12 +64,7 @@ const fetchFileContent2 = async (url) => {
 const fetchData = async () => {
   try {
     const res = await userGetQuestionnaireResult(rid)
-    console.log("res",res)
-    const sid=res.data.sid;
-    const res1= await userGetQuestionnaire(sid);
-    console.log("res1",res1)
-    type.value=res1.data.type
-    console.log("type.value",type.value=='normal')
+    type.value=res.data.type
     if (res.msg !== "SUBMIT_IS_BEEN_PROCESSED") {
       clearInterval(intervalId); // 停止请求
       response.value = res.data;
@@ -78,7 +73,6 @@ const fetchData = async () => {
           return accumulator + (item.question.score || 0); // 确保 score 存在，避免 NaN
       }, 0);
       
-      console.log("response.value",response.value);
       // 将judge转化为数组a
       res.data.items.forEach(item => {
           if (item.judge !== null) {

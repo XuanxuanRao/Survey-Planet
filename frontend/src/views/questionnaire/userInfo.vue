@@ -14,7 +14,6 @@ const isHovered = ref(false); // 用于跟踪鼠标悬停状态
 onMounted(async () => {
   try {
     const res = await getUserInfo()
-    console.log("res",res)
     if (res.msg === 'success') {
       userInfo.value = res.data
       newDescription.value=userInfo.value.description
@@ -32,11 +31,7 @@ onMounted(async () => {
 // 监听 newDescription 的变化并更新 userInfo.description
 const updateDescription = async() => {
   userInfo.value.description = newDescription.value;
-  const res1 = await updateUserInfo(newPassword.value, newAvatar.value,newDescription.value)
-  console.log("newDescription.value",newDescription.value)
-  const res2 = await getUserInfo()
-  console.log("res1",res1)
-  console.log("res2",res2)
+  await updateUserInfo(newPassword.value, newAvatar.value,newDescription.value)
 };
 
 //模拟点击一个文件输入元素，以便用户可以选择文件。
@@ -49,7 +44,6 @@ const triggerFileInput = () => {
 
 const handleFileChange = async (index, event) => {
   const file = event.target.files[0]
-  console.log('选择的文件:', file)
   if (file) {
     const res = await userUploadFile(file)
     newAvatar.value = res.data
@@ -67,12 +61,10 @@ const handleUpdateUserInfo = async () => {
     return
   }
   try {
-    console.log(newAvatar.value)
     const res = await updateUserInfo(newPassword.value, newAvatar.value,newDescription.value)
     if (res.msg === 'success') {
       ElMessage.success('更新用户信息成功')
       const res = await getUserInfo()
-      // console.log("res",res)
       if (res.msg === 'success') {
         userInfo.value = res.data
       } else {
@@ -82,7 +74,6 @@ const handleUpdateUserInfo = async () => {
       ElMessage.error('更新用户信息失败')
     }
   } catch (error) {
-    console.error('更新用户信息失败:', error)
     ElMessage.error('更新用户信息失败')
   }
 }

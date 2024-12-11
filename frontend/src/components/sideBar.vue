@@ -1,8 +1,9 @@
 <script>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { User, Document, PieChart, EditPen, Tickets, ChatDotRound,SwitchButton } from '@element-plus/icons-vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
+import { getUserInfo, updateUserInfo } from '@/api/user'
 export default {
   components: {
     User,
@@ -17,6 +18,8 @@ export default {
     // 响应式变量
     const isExpanded = ref(false);
     const userStore = useUserStore();
+    const avatar = ref();
+    const username = ref();
     // 展开侧边栏
     const expandSideBar = () => {
       isExpanded.value = true;
@@ -46,7 +49,25 @@ export default {
       router.push({ path: '/login' })
       
     }
-    
+    const fetchUserInfo = async () => {
+      try {
+        const res = await getUserInfo()
+        if (res.msg === 'success') {
+          avatar.value = res.data.avatar
+          username.value = res.data.username
+          username
+        } else {
+          ElMessage.error('获取用户信息失败')
+        }
+      } catch (error) {
+        console.error("获取用户信息出错：", error)
+        ElMessage.error('获取用户信息时发生错误')
+      }
+    }
+
+    onMounted(() => {
+      fetchUserInfo()
+    })
 
     return {
       isExpanded,
@@ -56,7 +77,10 @@ export default {
       showSquare,
       fillQuestionnaire,
       logout,
-      userCenter
+      userCenter,
+      fetchUserInfo,
+      avatar,
+      username
     };
   }
 };
@@ -70,6 +94,16 @@ export default {
       @mouseleave="collapseSideBar"
   >
     <div class="content">   
+      <div class="person-info">
+        <img :src="avatar"  alt="" />
+        <div id="avatarUploader">
+          <avatar-uploader1 @changed="fetchAvatar"/>
+        </div>
+        <div class="person-name">
+          <div class="name">{{username}}</div>
+          <!-- <span class="detail">这是你来问卷星球的第{{registerDays}}天</span> -->
+        </div>
+      </div>
       <div class="menu-content">
         <div class="menu-list">
           <div class="menu-list-item" @click="createQuestionnaire">
@@ -127,12 +161,35 @@ export default {
     box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
     vertical-align: middle;
   }
+  #avatarUploader{
+    position: absolute;
+    z-index: 20;
+    left:20px;
+    top:33px;
+    opacity: 0;
+  }
+  .person-name {
+    margin-left: 15px;
+    vertical-align: middle;
+    transition: opacity 0.6s;
+    opacity: 0;
+    color: var(--theme-info-text-color);
+    display: inline-block;
+    .name {
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .detail {
+      font-size: 12px;
+    }
+  }
 }
 .menu-wrapper.expanded .content .person-info .person-name {
   opacity: 1;
 }
 
 .menu-content {
+  border-top: 1px solid rgb(131, 128, 155);
   margin-top: 10px;
 }
 

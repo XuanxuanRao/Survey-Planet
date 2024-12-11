@@ -251,6 +251,16 @@ create index sid
 create index uid
     on response_record (uid);
 
+create definer = survey_planet_service@`%` trigger survey_update
+    after insert
+    on response_record
+    for each row
+begin
+    update survey
+    set update_time = now(), fill_num = fill_num + 1
+    where survey.sid = new.sid;
+end;
+
 create table single_choice_question
 (
     qid     bigint not null comment '问题id'

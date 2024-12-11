@@ -88,7 +88,7 @@ export default {
             <div class="item-name">用户中心</div>
           </div>
           <div class="menu-list-item" @click="logout">
-           
+            <div class="block"></div>
             <span class="iconfont" ><el-icon class="menu-icon"><SwitchButton /></el-icon></span>
             <div class="item-name">退出登录</div>  
           </div>
@@ -104,7 +104,7 @@ export default {
   width: 70px;
   height: 50%;
   border-radius: 20px;
-  background-color: white;
+  background-color: rgb(240, 240, 240,0.6);
   padding: 10px;
   box-sizing: border-box;
   transition: width 0.6s;
@@ -147,12 +147,12 @@ export default {
   padding-left: 15px;
   white-space: nowrap;
   .block {
-    width: 600px;
-    height: 2500px;
-    background-color: red;
+    width: 6px;
+    height: 25px;
+    background-color: #4c8eb4;
     position: absolute;
-    right: 100px;
-    top: 100px;
+    right: 5px;
+    top: 13px;
     transition: 0.5s;
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px;
@@ -170,47 +170,20 @@ export default {
     opacity: 0;
   }
 
-  
-
-  .btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    display: inline-block;
-    opacity: 0;
-    margin-left: 50px;
-    margin-top: 3px;
-    .check-ipt {
-      display: none;
+  &:hover {
+    background-color: rgb(248, 247, 255,0.6);
+    .item-name {
+      color: #4c8eb4;
     }
-    .check-lable {
-      display: inline-block;
-      width: 40px;
-      height: 20px;
-      border-radius: 20px;
-      background-color: var(--theme-hover-color);
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
+    .iconfont {
+      color: #4c8eb4;
     }
-    .check-lable::before {
-      display: inline-block;
-      content: "";
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      background: white;
-      position: absolute;
-      left: 3px;
-      top: 50%;
-      transform: translateY(-50%);
-      transition: all 0.3s;
-    }
-    .check-ipt:checked + .check-lable::before {
-      left: 20px;
-      background: rgb(32, 30, 43);
+    .block {
+      opacity: 1;
     }
   }
+
+
 }
 .menu-wrapper.expanded .menu-content .menu-list .menu-list-item .item-name,
 .menu-wrapper.expanded .menu-content .menu-list .menu-list-item .btn {

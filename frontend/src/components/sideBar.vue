@@ -1,8 +1,8 @@
 <script>
 import { ref } from 'vue';
-import { User, Document, PieChart, EditPen, Tickets, ChatDotRound } from '@element-plus/icons-vue';
+import { User, Document, PieChart, EditPen, Tickets, ChatDotRound,SwitchButton } from '@element-plus/icons-vue';
 import { useRouter } from 'vue-router';
-
+import { useUserStore } from '@/stores/user';
 export default {
   components: {
     User,
@@ -10,12 +10,13 @@ export default {
     PieChart,
     EditPen,
     Tickets,
-    ChatDotRound
+    ChatDotRound,
+    SwitchButton
   },
   setup() {
     // 响应式变量
     const isExpanded = ref(false);
-
+    const userStore = useUserStore();
     // 展开侧边栏
     const expandSideBar = () => {
       isExpanded.value = true;
@@ -40,6 +41,12 @@ export default {
     const userCenter = () => {
       router.push({ path: '/userCenter' })
     }
+    const logout = () => {
+      userStore.removeToken(); // 调用 removeToken 方法
+      router.push({ path: '/login' })
+      
+    }
+    
 
     return {
       isExpanded,
@@ -48,6 +55,7 @@ export default {
       createQuestionnaire,
       showSquare,
       fillQuestionnaire,
+      logout,
       userCenter
     };
   }
@@ -65,19 +73,19 @@ export default {
       <ul>
         <li class="menu-item" @click="createQuestionnaire">
           <el-icon class="menu-icon"><Tickets /></el-icon>
-          <span v-if="isExpanded">主页</span>
+          <span v-if="isExpanded" class="item-name">问卷中心</span>
         </li>
         <li class="menu-item" @click="fillQuestionnaire">
-          <el-icon class="menu-icon"><EditPen /></el-icon>
-          <span v-if="isExpanded">历史</span>
+          <el-icon class="menu-icon" ><EditPen /></el-icon>
+          <span v-if="isExpanded" class="item-name">填写历史</span>
         </li>
-        <!-- <li class="menu-item" @click="showSquare">
-          <el-icon class="menu-icon"><ChatDotRound /></el-icon>
-          <span v-if="isExpanded">广场</span>
-        </li> -->
         <li class="menu-item" @click="userCenter">
           <el-icon class="menu-icon"><User /></el-icon>
-          <span v-if="isExpanded">用户</span>
+          <span v-if="isExpanded" class="item-name">用户中心</span>
+        </li>
+        <li class="menu-item" @click="logout">
+          <el-icon class="menu-icon"><SwitchButton /></el-icon>
+          <span v-if="isExpanded" class="item-name">退出登录</span>
         </li>
       </ul>
     </div>
@@ -86,19 +94,30 @@ export default {
 
 <style scoped>
 .menu-wrapper {
-  width: 80px; /* 折叠状态的宽度 */
-  height: 225px; /* 侧边栏高度 */
-  background-color: white; /* 背景颜色 */
-  border-radius: 0 10px 10px 0; /* 圆角 */
+  width: 70px; /* 折叠状态的宽度 */
+  height: 300px; /* 侧边栏高度 */
+  background-color: #f0f0f0; /* 淡灰色背景 */
+  border-radius: 30px;
   transition: width 0.5s ease;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   margin-top: 20px;
+  border: 1px solid lightblue;;
 }
 
+.item-name {
+    
+    display: inline-block;
+    margin-left: 10px;
+    font-size: 15px;
+    font-weight: 100;
+    transition: opacity 0.6s;
+    opacity: 0;
+  }
+
 .menu-wrapper.expanded {
-  width: 100px; /* 展开状态的宽度 */
+  width: 150px; /* 展开状态的宽度 */
 }
 
 .menu-content {
@@ -118,7 +137,7 @@ ul {
   padding: 25px 0;
   color: black; /* 菜单项文字颜色 */
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.8s ease;
 }
 
 .menu-item.active {

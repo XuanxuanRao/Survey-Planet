@@ -281,7 +281,7 @@ const followOues = async (id, notificationMode) => {
   border-radius: 20px;
   //height: 400px;
   //width: auto;
-  background: var(--pane-color);
+  background: hwb(0 94% 6%);
   padding: 20px;
 
 }

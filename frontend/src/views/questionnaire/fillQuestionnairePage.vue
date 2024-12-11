@@ -23,7 +23,7 @@ const checkQuestionnaire = (rid) => {
 
     <div class="box">
         <div class="header">
-            <h1 style="color: black;">填写问卷</h1>
+            <h1 style="color: black;">历史记录</h1>
         </div>
           <div class="showQues">
             <ul class="infinite-list" style="overflow: auto">

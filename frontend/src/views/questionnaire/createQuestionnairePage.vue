@@ -396,7 +396,7 @@ const deleteMessage = async(mid) => {
   
   <div class="box">
     <div class="header">
-    <div class="head-text">创建问卷</div>
+    <div class="head-text">问卷中心</div>
 
     <el-select
     v-model="questionnaireType"
@@ -486,7 +486,7 @@ const deleteMessage = async(mid) => {
   width: 80vw;
   background-color: #f0f0f0; 
   border: 1px solid #ccc; 
-  border-radius: 5px; 
+  border-radius: 30px; 
   padding: 15px; /* 内边距 */
   box-shadow: 0 5px 10px rgba(34, 30, 30, 0.877);
 }

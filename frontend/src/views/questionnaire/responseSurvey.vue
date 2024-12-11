@@ -160,62 +160,77 @@ const setValidFilter = (valid) => {
 
     <!-- 筛选有效与无效问卷按钮 -->
     <div class="valid-filter">
-      <button @click="setValidFilter(true)">有效问卷</button>
-      <button @click="setValidFilter(false)">无效问卷</button>
+      <el-button @click="setValidFilter(true)">有效问卷</el-button>
+      <el-button @click="setValidFilter(false)">无效问卷</el-button>
     </div>
 
-    <!-- 筛选条件 -->
-    <span @click="isShow = !isShow">筛选条件</span>
-    <div v-if="isShow === true">
-      <div v-for="(filter, index) in filters" :key="index" class="filter-group">
-        <select v-model="filter.questionId" @change="handleQuestionChange(filter)">
-          <option value="">请选择题目</option>
-          <option v-for="question in questions" :key="question.qid" :value="question.qid">
-            {{ question.title }}
-          </option>
-        </select>
+    <div class="filter-container">
+      <div class="filter-header" @click="isShow = !isShow">
+        <span class="filter-title">筛选条件</span>
+      </div>
 
-        <!-- 填空题输入框 -->
-        <input
-          v-if="filter.type === 'fill_blank'"
-          v-model="filter.value"
-          type="text"
-          placeholder="请输入答案内容"
-        />
-
-        <!-- 选择题下拉框 -->
-        <select
-          v-else-if="filter.type === 'multiple_choice' || filter.type === 'single_choice'"
-          v-model="filter.value"
-        >
-          <option value="">请选择选项</option>
-          <option
-            v-for="option in questions.find((q) => q.qid === filter.questionId)?.options || []"
-            :key="option"
-            :value="option"
+      <div v-if="isShow" class="filter-body">
+        <!-- 动态筛选条件 -->
+        <div v-for="(filter, index) in filters" :key="index" class="filter-group">
+          <el-select
+            v-model="filter.questionId"
+            placeholder="请选择题目"
+            @change="handleQuestionChange(filter)"
+            class="filter-select"
           >
-            {{ option }}
-          </option>
-        </select>
+            <el-option
+              v-for="question in questions"
+              :key="question.qid"
+              :label="question.title"
+              :value="question.qid"
+            />
+          </el-select>
 
-        <button @click="filters.splice(index, 1)">删除</button>
+          <el-input
+            v-if="filter.type === 'fill_blank'"
+            v-model="filter.value"
+            placeholder="请输入答案内容"
+            class="filter-input"
+          />
+
+          <el-select
+            v-else-if="filter.type === 'multiple_choice' || filter.type === 'single_choice'"
+            v-model="filter.value"
+            placeholder="请选择选项"
+            class="filter-select"
+          >
+            <el-option
+              v-for="option in questions.find((q) => q.qid === filter.questionId)?.options || []"
+              :key="option"
+              :label="option"
+              :value="option"
+            />
+          </el-select>
+
+          <el-button type="danger" @click="filters.splice(index, 1)">删除</el-button>
+        </div>
+
+        <el-button type="primary" @click="filters.push({ questionId: '', type: '', value: '' })">添加筛选条件</el-button>
+
+        <!-- 分数筛选 -->
+        <div class="score-filter">
+          <el-input-number
+            v-model.number="queryParams.gradeLb"
+            label="分数下限"
+            placeholder="最低分"
+            class="score-input"
+          />
+          <el-input-number
+            v-model.number="queryParams.gradeUb"
+            label="分数上限"
+            placeholder="最高分"
+            class="score-input"
+          />
+        </div>
+
+        <!-- 查询按钮 -->
+        <el-button type="success" @click="handleSearch">查询</el-button>
       </div>
-
-      <button @click="filters.push({ questionId: '', type: '', value: '' })">添加筛选条件</button>
-
-      <!-- 分数筛选 -->
-      <div class="score-filter">
-        <label>
-          分数下限:
-          <input v-model.number="queryParams.gradeLb" type="number" placeholder="最低分" />
-        </label>
-        <label>
-          分数上限:
-          <input v-model.number="queryParams.gradeUb" type="number" placeholder="最高分" />
-        </label>
-      </div>
-      <!-- 查询按钮 -->
-      <button @click="handleSearch">查询</button>
     </div>
 
     <!-- 加载状态 -->
@@ -224,14 +239,14 @@ const setValidFilter = (valid) => {
     <!-- 数据展示 -->
     <div v-else-if="responseData && responseData.total > 0">
       <p>共 {{ responseData.total }} 条记录</p>
-      <table>
+      <div class="table-container">
+      <table class="table">
         <thead>
           <tr>
             <th style="display: flex; align-items: center; justify-content: center;">操作</th>
             <th>序号</th>
             <th>用户ID</th>
             <th>提交时间</th>
-
             <th v-if="type !== 'normal'">答卷总分</th>
 
             <th v-for="(question, index) in questions" :key="question.qid">{{ question.title }}</th>
@@ -253,6 +268,7 @@ const setValidFilter = (valid) => {
             <td>{{ (queryParams.pageNum - 1) * queryParams.pageSize + index + 1 }}</td>
             <td>{{ record.uid }}</td>
             <td>{{ record.createTime }}</td>
+
             <td v-if="type !== 'normal'">{{ record.grade ?? "N/A" }}</td>
 
             <td v-for="(item, idx) in record.items" :key="item.qid">
@@ -265,6 +281,7 @@ const setValidFilter = (valid) => {
           </tr>
         </tbody>
       </table>
+      </div>
 
       <!-- 分页组件 -->
       <el-pagination
@@ -299,6 +316,35 @@ const setValidFilter = (valid) => {
 
 
 <style scoped>
+
+.table-container {
+  max-width: 100vw; /* 最大宽度占满父容器 */
+  overflow-x: auto; /* 启用水平滚动 */
+  border: 1px solid #ddd; /* 边框样式 */
+  border-radius: 8px; /* 圆角 */
+  padding: 5px; /* 内边距 */
+  background-color: #fff; /* 背景色 */
+}
+
+.table {
+  width: 100%; /* 表格宽度 */
+  min-width: 1200px; /* 设置表格的最小宽度，触发水平滚动 */
+  border-collapse: collapse; /* 合并边框 */
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+  border: 1px solid #ddd; /* 单元格边框 */
+  white-space: nowrap; /* 防止内容换行 */
+}
+
+th {
+  background-color: #f4f4f4; /* 表头背景色 */
+  font-weight: bold;
+}
+
+
 /* 顶部导航栏 */
 .navbar {
   display: flex; /* 使用 Flexbox 布局 */
@@ -378,18 +424,62 @@ const setValidFilter = (valid) => {
   margin: 20px 0;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
+.filter-container {
+  margin: 20px 0;
+  padding: 15px;
+  border: 1px solid #ebebeb;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-table th,
-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
+.filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
 }
 
+.filter-title {
+  margin-left: 8px;
+}
+
+.filter-toggle {
+  margin-left: auto;
+  color: #666;
+}
+
+.filter-body {
+  margin-top: 15px;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.filter-select {
+  width: 200px;
+}
+
+.filter-input {
+  flex: 1;
+}
+
+.score-filter {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.score-input {
+  width: 150px;
+}
 
 </style>

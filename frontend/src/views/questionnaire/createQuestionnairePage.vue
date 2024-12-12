@@ -169,7 +169,7 @@ const questionnaireType = ref('')  // 下拉框的值
 const options = [
   {
     value: 'normal',
-    label: '普通问卷'
+    label: '调查问卷'
   },
   {
     value: 'exam',

@@ -298,9 +298,7 @@ const setAnswer = (question, option) => {
 
         <template v-if="question.type === 'code'">
             <h4>{{ question.required == true ? "*" : "" }}Q{{ index + 1 }} 代码题</h4>
-            <div>
-                <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
-            </div>
+            <el-input v-model="question.title" placeholder="请输入问题内容" :prefix-icon="Tickets" />
             <el-input v-model="question.description" placeholder="请填入问题描述" :prefix-icon="EditPen" />
             <el-input-number v-model="question.score" placeholder="分数" />
 
@@ -389,7 +387,7 @@ const setAnswer = (question, option) => {
         <button @click="addQuestion('single_choice')"><el-icon><HelpFilled /></el-icon>单选题</button>
         <button @click="addQuestion('multiple_choice')"><el-icon><CircleCheckFilled /></el-icon>多选题</button>
         <button @click="addQuestion('fill_blank')"><el-icon><Edit /></el-icon>填空题</button>
-        <button v-if="type === 'normol'" @click="addQuestion('file')"><el-icon><Edit /></el-icon>文件上传题</button>
+        <button v-if="type === 'normal'" @click="addQuestion('file')"><el-icon><Edit /></el-icon>文件上传题</button>
         <button v-if="type === 'exam'" @click="addQuestion('code')"><el-icon><Edit /></el-icon>代码题</button>
       </div>
       <div style="display: flex;flex-direction: column; align-items: center; ">

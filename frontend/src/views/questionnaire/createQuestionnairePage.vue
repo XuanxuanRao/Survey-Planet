@@ -201,64 +201,6 @@ const modify = (id) => {
   router.push({ path: '/questionnaire/modifyQuestionnaire', query: dataToSend })
 }
 
-// const deleteQuestionnaire = async (id) => {
-//   ElMessageBox.confirm(
-//         '确认删除?', 
-//         '提示', 
-//         {
-//           confirmButtonText: '删除',
-//           cancelButtonText: '取消',
-//           type: 'warning',
-//         }
-//       ).then(async() => {
-//         const info = await userDeleteQuestionnaire(id);
-//         console.log(info)
-//         if (info.msg === 'success') {
-//           ElMessage.success('删除成功')
-//           const res = await getCreatedQuestionnaireList()
-//           res.data.forEach(item => {
-//             item.createTime = item.createTime.replace('T', ' ');
-//           })
-//           createdQuestionnaireList.value = res.data
-//         } else {
-//           ElMessage.error('删除失败');
-//         }
-//       }).catch(() => {
-//         ElMessage.info('已取消删除');
-//       })
-// }
-
-// const shareOrCloseQuestionnaire = async (id, state) => {
-//   if(state === 'open') {
-//     const res = await userCloseQuestionnaire(id);
-//     if (res.msg === 'success') {
-//       ElMessage.success('关闭成功');
-//     } else {
-//       ElMessage.error('关闭失败');
-//     }
-//   } else if (state === 'close') {
-//     const res = await userShareQuestionnaire(id);
-//     if (res.msg === 'success') {
-//         showDialog(res.data)
-//     } else {
-//       ElMessage.error('分享失败');
-//     }
-//   }
-//   const res = await getCreatedQuestionnaireList();
-//   res.data.forEach(item => {
-//     item.createTime = item.createTime.replace('T', ' ');
-//   })
-//   createdQuestionnaireList.value = res.data;
-// }
-
-// const exportResult = async(id) => {
-//   userExportResult(id);
-// }
-// const analyseResult = (id) => {
-//   const dataToSend = {id: id};
-//   router.push({ path: '/questionnaire/lookQuestionnaire', query: dataToSend })
-// }
-
 const isReadComputed = ref(!isRead.value)
 
 const handleReadChange = async() => {

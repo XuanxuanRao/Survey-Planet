@@ -318,7 +318,7 @@ const setValidFilter = (valid) => {
 <style scoped>
 
 .table-container {
-  max-width: 100vw; /* 最大宽度占满父容器 */
+  max-width: 80vw; /* 最大宽度占满父容器 */
   overflow-x: auto; /* 启用水平滚动 */
   border: 1px solid #ddd; /* 边框样式 */
   border-radius: 8px; /* 圆角 */

@@ -270,3 +270,11 @@ export const userDeleteMessage = (mid) => {
         }
     })
 }
+
+export const userCopyQuestionnaire = (sid) => {
+    return request.post(`/api/survey/clone?sid=${sid}`, {}, {
+        headers: {
+            'token': useUserStore().token,
+        }
+    })
+}

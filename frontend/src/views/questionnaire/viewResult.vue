@@ -261,10 +261,11 @@ const toggleUrls = async(index,test1) => {
           <br>
 
           <div v-if="item.answer">
-            <span class="correct-answer-text">正确答案：</span>
+            <span class="correct-answer-text">正确答案：
             <br>
             <br>
-            {{ item.answer.join(", ") }}
+            {{ item.answer.join(", ") }}</span>
+            
           </div>
         </template>
 
@@ -349,10 +350,6 @@ const toggleUrls = async(index,test1) => {
             </div>
             <br>
             <!-- <div v-if="item.grade !== null">本题得分：{{ item.grade }} </div> -->
-            <div v-if="item.answer">
-              正确答案：{{ item.answer.join(", ") }}
-            </div>
-            <br>
             <div v-if="item.grade==item.question.score">
                 <span style="color: green;">回答正确</span>
                 <span style="margin-left: 50%; color: green;">+{{ item.grade }}分</span>
@@ -361,6 +358,14 @@ const toggleUrls = async(index,test1) => {
                 <span style="color: red;">回答错误</span>
                 <span style="margin-left: 50%; color: red;">+{{ item.grade }}分</span>
             </div>
+            <br>
+            <div class="correct-answer-text" v-if="item.answer">
+              正确答案：
+              <br>
+              <br>
+              {{ item.answer.join(", ") }}
+            </div>
+            
           </h4>
         </template>
 

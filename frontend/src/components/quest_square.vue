@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import axios from "axios";
 import { getCreatedQuestionnaireList1, userDeleteQuestionnaire, userShareQuestionnaire, userCloseQuestionnaire, userExportResult, userGetUnreadmessage, userGetMessageDetail, userSetMessageUnread, userFollowQuestionnaire, userCopyQuestionnaire } from '@/api/questionnaire'
 import { useRouter } from 'vue-router';
-import { ArrowDown,Search,Document,Position,Star,Delete, Edit,  Share, Upload, Download,VideoPause, VideoPlay, Bell,InfoFilled } from '@element-plus/icons-vue'
+import { ArrowDown,Search,Document,Position,Star,Delete, Edit,  Share, Upload, Download,VideoPause, VideoPlay, Bell,InfoFilled, CopyDocument } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus';
 
 
@@ -263,7 +263,7 @@ const copyQues = async (id) => {
                       @mouseleave="setActive(null)">
                         <el-dropdown-item class="drop1" ><el-button :icon="Download"  @click="exportResult(survey.sid)">下载</el-button></el-dropdown-item>
                         <el-dropdown-item class="drop1" ><el-button :icon="Star" @click="followOues(survey.sid, survey.notificationMode)">关注</el-button></el-dropdown-item>
-                        <el-dropdown-item class="drop1" ><el-button :icon="Star" @click="copyQues(survey.sid)">复制</el-button></el-dropdown-item>
+                        <el-dropdown-item class="drop1" ><el-button :icon="CopyDocument" @click="copyQues(survey.sid)">复制</el-button></el-dropdown-item>
                         <el-dropdown-item class="drop1"><el-button :icon="Delete" @click="deleteQuestionnaire(survey.sid)">删除</el-button></el-dropdown-item>
                       </el-dropdown-menu>
                     </template>

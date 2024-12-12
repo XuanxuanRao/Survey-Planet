@@ -435,30 +435,36 @@ const toggleUrls = async(index,test1) => {
                   <!-- <i class="fas fa-download"></i> -->
                   <a style="margin-left: 500px;" :href="test.inputDataUrl" target="_blank"><el-icon><Download /></el-icon></a>
                   <br><el-input
+                    readonly
                     type="textarea"
                     :rows="5"
                     v-model="test.inputContent"
                     placeholder="文件内容"
                     style="width: 600px;"
+                    :autosize="{ minRows: 1, maxRows: 4 }"
                   ></el-input></h4>
                 
                 <h4 style="color: black;" @click="fetchFileContent1(test.outputDataUrl)">标准输出：
                   <a style="margin-left: 500px;" :href="test.outputDataUrl" target="_blank"><el-icon><Download /></el-icon></a>
                   <br><el-input
                     type="textarea"
+                    readonly
                     :rows="5"
                     v-model="test.outputContent"
                     placeholder="文件内容"
                     style="width: 600px;"
+                    :autosize="{ minRows: 1, maxRows: 4 }"                  
                   ></el-input></h4>
                 <h4 style="color: black;" >你的输出：
                   <a style="margin-left: 500px; " :href="test.userOutput" target="_blank"></a>
                   <br><el-input
                     type="textarea"
+                    readonly
                     :rows="5"
                     v-model="test.userOutput"
                     placeholder="文件内容"
                     style="width: 600px;"
+                    :autosize="{ minRows: 1, maxRows: 4 }"     
                   ></el-input></h4>
                 <!-- <a :href="test.inputDataUrl" target="_blank">标准输入</a>
                 <a :href="test.outputDataUrl" target="_blank">标准输出</a>

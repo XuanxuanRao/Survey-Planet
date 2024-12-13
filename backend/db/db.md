@@ -1,6 +1,6 @@
 # E-R 图
 
-![](img\ER_diagram.png)
+![E-R图](https://github.com/XuanxuanRao/Survey-Planet/blob/main/backend/db/img/ER_diagram.png)
 
 
 

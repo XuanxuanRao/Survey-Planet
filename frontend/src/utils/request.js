@@ -2,7 +2,7 @@ import axios from "axios"
 import router from "@/router"
 //设置基本 URL：
 //const baseURL = "http://localhost:8088"
-const baseURL = "http://59.110.163.198:8088"
+const baseURL = "http://39.105.96.112:8088"
 // 创建 axios 实例
 const instance = axios.create({
     baseURL,

@@ -5,6 +5,8 @@ on:
       - main
     paths:
       - 'frontend/**'
+      - '.github/workflows/**'
+      
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -29,4 +31,4 @@ jobs:
         pass: ${{ secrets.USER_PASS }}
         connect_timeout: 10s
         local: './frontend/dist/*'
-        remote: /var/SurveyPlanetFrontend
+        remote: /home/SurveyPlanet/frontend

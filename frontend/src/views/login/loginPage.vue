@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onUnmounted, watch} from 'vue'
-import { User, Lock } from '@element-plus/icons-vue'
+import { ElMessageBox } from 'element-plus'
+import { User, Lock, Bell } from '@element-plus/icons-vue'
 import { getEmailCode, userRegisterService, userLoginService, userResetPasswordService} from '@/api/login.js'
 // import router from '@/router'
 import { useUserStore } from '@/stores/index'
@@ -183,9 +184,26 @@ watch(loginMode, () => {
     }
 })
 
+const showTestInfo = () => {
+  ElMessageBox.alert(
+    '测试用户名：admin<br/>测试密码：admin<br/>你可以使用这个账号登录',
+    '提示',
+    {
+      confirmButtonText: '确定',
+      dangerouslyUseHTMLString: true
+    }
+  )
+}
+
 </script>
 
 <template>
+    <el-button style="position: absolute; top: 10px; right: 10px;" @click="showTestInfo">
+  <el-icon :size="24">
+    <Bell />
+  </el-icon>
+  测试账号
+</el-button>
     <div class="login_page">
         <div class="vuetype-container">
             <vuetyped :strings="['Ask, Analyze, Act',

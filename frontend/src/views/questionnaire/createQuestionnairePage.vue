@@ -67,7 +67,7 @@ const dialogVisible1 = ref(false);  // 控制弹窗显示与隐藏
 const dialogContent = ref('');     // 用于存储弹窗的内容
 
 // 创建 WebSocket 连接
-const socket = new WebSocket('ws://59.110.163.198:8088/ws?token=' + useUserStore().token);
+const socket = new WebSocket('ws://39.105.96.112:8088/ws?token=' + useUserStore().token);
 const socketData = ref('');  // 用于存储 WebSocket 返回的数据
 
 // 监听 WebSocket 消息

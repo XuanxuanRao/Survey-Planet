@@ -8,6 +8,7 @@ import '@/assets/main.scss'
 import '@fortawesome/fontawesome-free/css/all.css';
 import ElementPlus from 'element-plus'
 
+// start app
 const app = createApp(App)
 app.use(vuetyped)
 app.use(pinia)
